@@ -1,0 +1,740 @@
+dis:CLG-O
+bacnetCur:AO86914
+bacnetDesc:PAO1 Output
+bacnetWrite:AO86914
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:HTG-O
+bacnetCur:AO86915
+bacnetDesc:PAO2 Output
+bacnetWrite:AO86915
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:VSF-O
+bacnetCur:AO86905
+bacnetDesc:AO1 Output
+bacnetWrite:AO86905
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:CGOVR-SP
+bacnetCur:AV29530
+bacnetDesc:Changeover Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:CLGOCC-SP
+bacnetCur:AV29502
+bacnetDesc:Occupied Cooling Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"CLGPID-%"
+bacnetCur:AV29714
+bacnetDesc:"Cool/Dehum PID Cmd"
+kind:Number
+point
+unit:"%"
+---
+dis:CLGSTBY-SP
+bacnetCur:AV29506
+bacnetDesc:Standby Cooling Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:CLGUNOCC-SP
+bacnetCur:AV29504
+bacnetDesc:Unoccupied Cooling Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:DEADBAND
+bacnetCur:AV29556
+bacnetDesc:Deadband
+kind:Number
+point
+unit:Δ°F
+---
+dis:EFF-OAH
+bacnetCur:AV29737
+bacnetDesc:Outdoor Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:EFF-OAT
+bacnetCur:AV29704
+bacnetDesc:Operational Outdoor Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:EFF-SAT
+bacnetCur:AV29703
+bacnetDesc:Supply Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:EFF-SETPOINT
+bacnetCur:AV29705
+bacnetDesc:Active Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:EFF-ZNH
+bacnetCur:AV29702
+bacnetDesc:Zone Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:EFF-ZNT
+bacnetCur:AV29701
+bacnetDesc:Operational Space Temperature
+kind:Number
+point
+unit:°F
+---
+dis:EFFCLG-SP
+bacnetCur:AV29706
+bacnetDesc:CV Operating Cooling Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:EFFHTG-SP
+bacnetCur:AV29707
+bacnetDesc:CV Operating Heating Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:HTGOCC-SP
+bacnetCur:AV29503
+bacnetDesc:Occupied Heating Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"HTGPID-%"
+bacnetCur:AV29717
+bacnetDesc:Heat PID Cmd
+kind:Number
+point
+unit:"%"
+---
+dis:HTGSTBY-SP
+bacnetCur:AV29507
+bacnetDesc:Standby Heating Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:HTGUNOCC-SP
+bacnetCur:AV29505
+bacnetDesc:Unoccupied Heating Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:LOADSHED-ADJ
+bacnetCur:AV29726
+bacnetDesc:Load Shed Adjust
+kind:Number
+point
+unit:Δ°F
+---
+dis:LOADSHED-RL
+bacnetCur:AV29725
+bacnetDesc:Load Shed Rate Limit
+kind:Number
+point
+unit:°F/min
+---
+dis:MAXSP-OFFSET
+bacnetCur:AV29529
+bacnetDesc:Max Setpoint Offset
+kind:Number
+point
+unit:Δ°F
+---
+dis:NET-CHWST
+bacnetCur:AV29736
+bacnetDesc:Chilled Water Supply Temperature
+kind:Number
+point
+unit:°F
+---
+dis:NET-DPR
+bacnetCur:AV29731
+bacnetDesc:Network Override Damper Feedback
+kind:Number
+point
+unit:"%"
+---
+dis:NET-OA-CO2
+bacnetCur:AV29919
+bacnetDesc:Network Override Outdoor Air Quality
+kind:Number
+point
+unit:ppm
+---
+dis:NET-OAH
+bacnetCur:AV29514
+bacnetDesc:Network Override Outdoor Air Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:NET-OAT
+bacnetCur:AV29513
+bacnetDesc:Network Override Outdoor Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:NET-SAT
+bacnetCur:AV29515
+bacnetDesc:Network Override Supply Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:NET-ZN-CO2
+bacnetCur:AV29730
+bacnetDesc:Network Override Indoor Air Quality
+kind:Number
+point
+unit:ppm
+---
+dis:NET-ZNH
+bacnetCur:AV29516
+bacnetDesc:Network Override Zone Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:NET-ZNT
+bacnetCur:AV29571
+bacnetDesc:Network Override Zone Temperature
+kind:Number
+point
+unit:°F
+---
+dis:TEMPOCC-LEN
+bacnetCur:AV29727
+bacnetDesc:Occupancy Override Duration
+kind:Number
+point
+unit:min
+---
+dis:UNOCC-OFF-DLY
+bacnetCur:AV29532
+bacnetDesc:Unoccupied Off Delay
+kind:Number
+point
+unit:min
+---
+dis:WC-ADJ
+bacnetCur:AV29508
+bacnetDesc:Setpoint Offset
+kind:Number
+point
+unit:Δ°F
+---
+dis:ZN-DPT-TEMP
+bacnetCur:AV29912
+bacnetDesc:Zone Dew Point Temperature
+kind:Number
+point
+unit:°F
+---
+dis:ZNH-SP
+bacnetCur:AV29510
+bacnetDesc:Humidity Setpoint
+kind:Number
+point
+unit:"%RH"
+---
+dis:BI1-S
+bacnetCur:BI30827
+bacnetDesc:BI1 Sensor
+enum:","
+kind:Bool
+point
+---
+dis:BI2-S
+bacnetCur:BI30828
+bacnetDesc:BI2 Sensor
+enum:","
+kind:Bool
+point
+---
+dis:AUX-C
+bacnetCur:BO86913
+bacnetDesc:AUX Command
+bacnetWrite:BO86913
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:CLGC-C
+bacnetCur:BO87101
+bacnetDesc:BO6 Command
+bacnetWrite:BO87101
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:CLGO-C
+bacnetCur:BO86908
+bacnetDesc:BO1 Command
+bacnetWrite:BO86908
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:FANH-C
+bacnetCur:BO86911
+bacnetDesc:BO4 Command
+bacnetWrite:BO86911
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:FANL-C
+bacnetCur:BO86909
+bacnetDesc:BO2 Command
+bacnetWrite:BO86909
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:FANM-C
+bacnetCur:BO86910
+bacnetDesc:BO3 Command
+bacnetWrite:BO86910
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:HTGC-C
+bacnetCur:BO87102
+bacnetDesc:BO7 Command
+bacnetWrite:BO87102
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:HTGO-C
+bacnetCur:BO86912
+bacnetDesc:BO5 Command
+bacnetWrite:BO86912
+bacnetWriteLevel:16
+cmd
+enum:","
+kind:Bool
+point
+writable
+---
+dis:AUX-MODE
+bacnetCur:MSV29527
+bacnetDesc:Aux Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not Used,Occupied NO,Occupied NC,Occupied Fan NO,Occupied Fan NC,On,Off"
+kind:Str
+point
+---
+dis:DEHUM-EN
+bacnetCur:MSV29736
+bacnetDesc:Dehumidification Enable
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No,Yes"
+kind:Str
+point
+---
+dis:EFF-OCC
+bacnetCur:MSV29708
+bacnetDesc:Occupancy Status
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,Temp Occupancy,Unoccupied,Standby,Occupied-Override,Unoccupied-Override"
+kind:Str
+point
+---
+dis:FAN-MODE
+bacnetCur:MSV29524
+bacnetDesc:Fan Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"On,Auto,Smart"
+kind:Str
+point
+---
+dis:FANOVRD-MODE
+bacnetCur:MSV29525
+bacnetDesc:Fan Override
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"On,Auto,Quiet"
+kind:Str
+point
+---
+dis:FANSPD-S
+bacnetCur:MSV29712
+bacnetDesc:Fan Speed
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Low,Medium,High"
+kind:Str
+point
+---
+dis:HOLDRUN-MODE
+bacnetCur:MSV29509
+bacnetDesc:"Hold/Run"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Hold,Run"
+kind:Str
+point
+---
+dis:HTGCLGSP-MODE
+bacnetCur:MSV29566
+bacnetDesc:Heat Cool Setpoint Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Common Setpoint,Individual Setpoints"
+kind:Str
+point
+---
+dis:LOADSHED-EN
+bacnetCur:MSV29728
+bacnetDesc:Load Shed Active
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No,Yes"
+kind:Str
+point
+---
+dis:LOCAL-OCC
+bacnetCur:MSV6
+bacnetDesc:Local Occupancy
+bacnetWrite:MSV6
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,UnOccupied,Standby,Not Set"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:LOCK-LVL
+bacnetCur:MSV29531
+bacnetDesc:Lockout Level
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"State 0,State 1,State 2"
+kind:Str
+point
+---
+dis:MAT-LLT-ACTIVE
+bacnetCur:MSV29743
+bacnetDesc:Mixed Air Low Limit Cycle
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No,Yes"
+kind:Str
+point
+---
+dis:MVCriticalActiveEvent
+bacnetCur:MSV30000
+bacnetDesc:MVCriticalActiveEvent
+bacnetWrite:MSV30000
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Calibration Corrupt,Firmware Mismatch,Board Mismatch,Controller Fault,Display Failure,Touchscreen Unavailable,USB Malfunction,1805:8,1805:9,1805:10,1805:11,1805:12,1805:13,1805:14,1805:15,1805:16,1805:17,1805:18,1805:19,1805:20,1805:21,1805:22,1805:23,1805:24,1805:25,1805:26,1805:27,1805:28,1805:29,1805:30,1805:31,1805:32,1805:33,1805:34,1805:35,1805:36,1805:37,1805:38,1805:39,1805:40,1805:41,1805:42,1805:43,1805:44,1805:45,1805:46,1805:47,1805:48,1805:49,1805:50,1805:51,1805:52,1805:53,1805:54,1805:55,1805:56,1805:57,1805:58,1805:59,1805:60,1805:61,1805:62,1805:63,1805:64,1805:65,1805:66,1805:67,1805:68,1805:69,1805:70,1805:71,1805:72,1805:73,1805:74,1805:75,1805:76,1805:77,1805:78,1805:79,1805:80,1805:81,1805:82,1805:83,1805:84,1805:85,1805:86,1805:87,1805:88,1805:89,1805:90,1805:91,1805:92,1805:93,1805:94,1805:95,1805:96,1805:97,1805:98,1805:99,Remote Zone Temp Fail,Supply Temp Fail,Outdoor Temp Fail,Internal Sensor Fail,OA Lockouts Disabled,Econ Unavailable,Dehum Unavailable,Service,Dirty Filter,Changeover Fail,Zone Temp Unreliable,Open Window,Fan Lock,Humidity Unreliable,Supply Fan Fault,Supply Fan Runtime Limit Exceeded,Heating Ineffective,Cooling Ineffective,Zone Temperature Too Cold,Zone Temperature Too Hot,Not Economizing When Should,Economizing When Should Not,Damper Not Modulating,Excess Outdoor Air,Air Temperature Sensor Failure,Zone Humidity Too High,Zone Humidity Too Low,Zone CO2 Sensor Failure,Pre-Occupancy Ventilation Disabled,Zone CO2 Too High"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:MVCriticalInactiveEvent
+bacnetCur:MSV29999
+bacnetDesc:MVCriticalInactiveEvent
+bacnetWrite:MSV29999
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Calibration Corrupt,Firmware Mismatch,Board Mismatch,Controller Fault,Display Failure,Touchscreen Unavailable,USB Malfunction,1805:8,1805:9,1805:10,1805:11,1805:12,1805:13,1805:14,1805:15,1805:16,1805:17,1805:18,1805:19,1805:20,1805:21,1805:22,1805:23,1805:24,1805:25,1805:26,1805:27,1805:28,1805:29,1805:30,1805:31,1805:32,1805:33,1805:34,1805:35,1805:36,1805:37,1805:38,1805:39,1805:40,1805:41,1805:42,1805:43,1805:44,1805:45,1805:46,1805:47,1805:48,1805:49,1805:50,1805:51,1805:52,1805:53,1805:54,1805:55,1805:56,1805:57,1805:58,1805:59,1805:60,1805:61,1805:62,1805:63,1805:64,1805:65,1805:66,1805:67,1805:68,1805:69,1805:70,1805:71,1805:72,1805:73,1805:74,1805:75,1805:76,1805:77,1805:78,1805:79,1805:80,1805:81,1805:82,1805:83,1805:84,1805:85,1805:86,1805:87,1805:88,1805:89,1805:90,1805:91,1805:92,1805:93,1805:94,1805:95,1805:96,1805:97,1805:98,1805:99,Remote Zone Temp Fail,Supply Temp Fail,Outdoor Temp Fail,Internal Sensor Fail,OA Lockouts Disabled,Econ Unavailable,Dehum Unavailable,Service,Dirty Filter,Changeover Fail,Zone Temp Unreliable,Open Window,Fan Lock,Humidity Unreliable,Supply Fan Fault,Supply Fan Runtime Limit Exceeded,Heating Ineffective,Cooling Ineffective,Zone Temperature Too Cold,Zone Temperature Too Hot,Not Economizing When Should,Economizing When Should Not,Damper Not Modulating,Excess Outdoor Air,Air Temperature Sensor Failure,Zone Humidity Too High,Zone Humidity Too Low,Zone CO2 Sensor Failure,Pre-Occupancy Ventilation Disabled,Zone CO2 Too High"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:MVServiceActiveEvent
+bacnetCur:MSV29996
+bacnetDesc:MVServiceActiveEvent
+bacnetWrite:MSV29996
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Calibration Corrupt,Firmware Mismatch,Board Mismatch,Controller Fault,Display Failure,Touchscreen Unavailable,USB Malfunction,1805:8,1805:9,1805:10,1805:11,1805:12,1805:13,1805:14,1805:15,1805:16,1805:17,1805:18,1805:19,1805:20,1805:21,1805:22,1805:23,1805:24,1805:25,1805:26,1805:27,1805:28,1805:29,1805:30,1805:31,1805:32,1805:33,1805:34,1805:35,1805:36,1805:37,1805:38,1805:39,1805:40,1805:41,1805:42,1805:43,1805:44,1805:45,1805:46,1805:47,1805:48,1805:49,1805:50,1805:51,1805:52,1805:53,1805:54,1805:55,1805:56,1805:57,1805:58,1805:59,1805:60,1805:61,1805:62,1805:63,1805:64,1805:65,1805:66,1805:67,1805:68,1805:69,1805:70,1805:71,1805:72,1805:73,1805:74,1805:75,1805:76,1805:77,1805:78,1805:79,1805:80,1805:81,1805:82,1805:83,1805:84,1805:85,1805:86,1805:87,1805:88,1805:89,1805:90,1805:91,1805:92,1805:93,1805:94,1805:95,1805:96,1805:97,1805:98,1805:99,Remote Zone Temp Fail,Supply Temp Fail,Outdoor Temp Fail,Internal Sensor Fail,OA Lockouts Disabled,Econ Unavailable,Dehum Unavailable,Service,Dirty Filter,Changeover Fail,Zone Temp Unreliable,Open Window,Fan Lock,Humidity Unreliable,Supply Fan Fault,Supply Fan Runtime Limit Exceeded,Heating Ineffective,Cooling Ineffective,Zone Temperature Too Cold,Zone Temperature Too Hot,Not Economizing When Should,Economizing When Should Not,Damper Not Modulating,Excess Outdoor Air,Air Temperature Sensor Failure,Zone Humidity Too High,Zone Humidity Too Low,Zone CO2 Sensor Failure,Pre-Occupancy Ventilation Disabled,Zone CO2 Too High"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:MVServiceInactiveEvent
+bacnetCur:MSV29995
+bacnetDesc:MVServiceInactiveEvent
+bacnetWrite:MSV29995
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Calibration Corrupt,Firmware Mismatch,Board Mismatch,Controller Fault,Display Failure,Touchscreen Unavailable,USB Malfunction,1805:8,1805:9,1805:10,1805:11,1805:12,1805:13,1805:14,1805:15,1805:16,1805:17,1805:18,1805:19,1805:20,1805:21,1805:22,1805:23,1805:24,1805:25,1805:26,1805:27,1805:28,1805:29,1805:30,1805:31,1805:32,1805:33,1805:34,1805:35,1805:36,1805:37,1805:38,1805:39,1805:40,1805:41,1805:42,1805:43,1805:44,1805:45,1805:46,1805:47,1805:48,1805:49,1805:50,1805:51,1805:52,1805:53,1805:54,1805:55,1805:56,1805:57,1805:58,1805:59,1805:60,1805:61,1805:62,1805:63,1805:64,1805:65,1805:66,1805:67,1805:68,1805:69,1805:70,1805:71,1805:72,1805:73,1805:74,1805:75,1805:76,1805:77,1805:78,1805:79,1805:80,1805:81,1805:82,1805:83,1805:84,1805:85,1805:86,1805:87,1805:88,1805:89,1805:90,1805:91,1805:92,1805:93,1805:94,1805:95,1805:96,1805:97,1805:98,1805:99,Remote Zone Temp Fail,Supply Temp Fail,Outdoor Temp Fail,Internal Sensor Fail,OA Lockouts Disabled,Econ Unavailable,Dehum Unavailable,Service,Dirty Filter,Changeover Fail,Zone Temp Unreliable,Open Window,Fan Lock,Humidity Unreliable,Supply Fan Fault,Supply Fan Runtime Limit Exceeded,Heating Ineffective,Cooling Ineffective,Zone Temperature Too Cold,Zone Temperature Too Hot,Not Economizing When Should,Economizing When Should Not,Damper Not Modulating,Excess Outdoor Air,Air Temperature Sensor Failure,Zone Humidity Too High,Zone Humidity Too Low,Zone CO2 Sensor Failure,Pre-Occupancy Ventilation Disabled,Zone CO2 Too High"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:MVServicePriorityActiveEvent
+bacnetCur:MSV29998
+bacnetDesc:MVServicePriorityActiveEvent
+bacnetWrite:MSV29998
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Calibration Corrupt,Firmware Mismatch,Board Mismatch,Controller Fault,Display Failure,Touchscreen Unavailable,USB Malfunction,1805:8,1805:9,1805:10,1805:11,1805:12,1805:13,1805:14,1805:15,1805:16,1805:17,1805:18,1805:19,1805:20,1805:21,1805:22,1805:23,1805:24,1805:25,1805:26,1805:27,1805:28,1805:29,1805:30,1805:31,1805:32,1805:33,1805:34,1805:35,1805:36,1805:37,1805:38,1805:39,1805:40,1805:41,1805:42,1805:43,1805:44,1805:45,1805:46,1805:47,1805:48,1805:49,1805:50,1805:51,1805:52,1805:53,1805:54,1805:55,1805:56,1805:57,1805:58,1805:59,1805:60,1805:61,1805:62,1805:63,1805:64,1805:65,1805:66,1805:67,1805:68,1805:69,1805:70,1805:71,1805:72,1805:73,1805:74,1805:75,1805:76,1805:77,1805:78,1805:79,1805:80,1805:81,1805:82,1805:83,1805:84,1805:85,1805:86,1805:87,1805:88,1805:89,1805:90,1805:91,1805:92,1805:93,1805:94,1805:95,1805:96,1805:97,1805:98,1805:99,Remote Zone Temp Fail,Supply Temp Fail,Outdoor Temp Fail,Internal Sensor Fail,OA Lockouts Disabled,Econ Unavailable,Dehum Unavailable,Service,Dirty Filter,Changeover Fail,Zone Temp Unreliable,Open Window,Fan Lock,Humidity Unreliable,Supply Fan Fault,Supply Fan Runtime Limit Exceeded,Heating Ineffective,Cooling Ineffective,Zone Temperature Too Cold,Zone Temperature Too Hot,Not Economizing When Should,Economizing When Should Not,Damper Not Modulating,Excess Outdoor Air,Air Temperature Sensor Failure,Zone Humidity Too High,Zone Humidity Too Low,Zone CO2 Sensor Failure,Pre-Occupancy Ventilation Disabled,Zone CO2 Too High"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:MVServicePriorityInactiveEvent
+bacnetCur:MSV29997
+bacnetDesc:MVServicePriorityInactiveEvent
+bacnetWrite:MSV29997
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Calibration Corrupt,Firmware Mismatch,Board Mismatch,Controller Fault,Display Failure,Touchscreen Unavailable,USB Malfunction,1805:8,1805:9,1805:10,1805:11,1805:12,1805:13,1805:14,1805:15,1805:16,1805:17,1805:18,1805:19,1805:20,1805:21,1805:22,1805:23,1805:24,1805:25,1805:26,1805:27,1805:28,1805:29,1805:30,1805:31,1805:32,1805:33,1805:34,1805:35,1805:36,1805:37,1805:38,1805:39,1805:40,1805:41,1805:42,1805:43,1805:44,1805:45,1805:46,1805:47,1805:48,1805:49,1805:50,1805:51,1805:52,1805:53,1805:54,1805:55,1805:56,1805:57,1805:58,1805:59,1805:60,1805:61,1805:62,1805:63,1805:64,1805:65,1805:66,1805:67,1805:68,1805:69,1805:70,1805:71,1805:72,1805:73,1805:74,1805:75,1805:76,1805:77,1805:78,1805:79,1805:80,1805:81,1805:82,1805:83,1805:84,1805:85,1805:86,1805:87,1805:88,1805:89,1805:90,1805:91,1805:92,1805:93,1805:94,1805:95,1805:96,1805:97,1805:98,1805:99,Remote Zone Temp Fail,Supply Temp Fail,Outdoor Temp Fail,Internal Sensor Fail,OA Lockouts Disabled,Econ Unavailable,Dehum Unavailable,Service,Dirty Filter,Changeover Fail,Zone Temp Unreliable,Open Window,Fan Lock,Humidity Unreliable,Supply Fan Fault,Supply Fan Runtime Limit Exceeded,Heating Ineffective,Cooling Ineffective,Zone Temperature Too Cold,Zone Temperature Too Hot,Not Economizing When Should,Economizing When Should Not,Damper Not Modulating,Excess Outdoor Air,Air Temperature Sensor Failure,Zone Humidity Too High,Zone Humidity Too Low,Zone CO2 Sensor Failure,Pre-Occupancy Ventilation Disabled,Zone CO2 Too High"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:NET-OCC
+bacnetCur:MSV29519
+bacnetDesc:Supervisor Occupancy
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,UnOccupied,Standby,Not Set"
+kind:Str
+point
+---
+dis:OCC-CONFIG
+bacnetCur:MSV29520
+bacnetDesc:Occupancy Schedule Source
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Schedule,External"
+kind:Str
+point
+---
+dis:OCCOVRD-MODE
+bacnetCur:MSV29518
+bacnetDesc:Manual Occupancy Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No Override,Occupied,Unoccupied"
+kind:Str
+point
+---
+dis:OCCSOURCE-S
+bacnetCur:MSV29709
+bacnetDesc:Occupancy Input Source
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupancy BI,Temp Occ BI,Temp Occ,Occ Override,Local Schedule,BAS Schedule,Occupancy Sensor"
+kind:Str
+point
+---
+dis:OCCSP-SEL
+bacnetCur:MSV29563
+bacnetDesc:Occ Setpoint Select
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Setpoint Offset,Min and Max Setpoint"
+kind:Str
+point
+---
+dis:SCH-CIR-EN
+bacnetCur:MSV29731
+bacnetDesc:Scheduled Circulation Enable
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disable,Enable"
+kind:Str
+point
+---
+dis:SYSTEM-MODE
+bacnetCur:MSV29500
+bacnetDesc:Control Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Cooling,Heating"
+kind:Str
+point
+---
+dis:TEMP-UNITS
+bacnetCur:MSV29528
+bacnetDesc:Units
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"IP,SI"
+kind:Str
+point
+---
+dis:TEMPCTRL-SETUP2
+bacnetCur:MSV29570
+bacnetDesc:Control State
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Automatic PID Tuning,Deadband Override,Manual PID Tuning"
+kind:Str
+point
+---
+dis:TUNING-RESET
+bacnetCur:MSV29517
+bacnetDesc:Reset PID Tuning
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No,Yes"
+kind:Str
+point
+---
+dis:UNIT-S
+bacnetCur:MSV29700
+bacnetDesc:Unit Status
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"System Fault,Airflow Fault,Open Window,Control Off,Unreliable Temperature,Dehumidifying,Idle,Cooling,Heating,Cooling Unavailable,Heating Unavailable,Cooling Unavailable due to Changeover,Cooling Unavailable due to OA Temp,Cooling Unavailable due to Control Mode,Heating Unavailable due to Changeover,Heating Unavailable due to OA Temp,Heating Unavailable due to Control Mode,Load Shed Active,Dehumidifying-Reheat,Dehumidifying-Fan Only,Dehum Unavail By Dew Point,External Interrupt Active"
+kind:Str
+point
+---
+dis:UNITEN-MODE
+bacnetCur:MSV29501
+bacnetDesc:Unit Enable
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Shutdown,Enable"
+kind:Str
+point
+---
+dis:Schedule
+bacnetCur:SCH10133
+kind:Str
+point
+---
+dis:BI1_Trend
+bacnetHis:TL101013
+point
+---
+dis:BI2_Trend
+bacnetHis:TL101014
+point
+---
+dis:CHWST _Trend
+bacnetHis:TL101027
+point
+---
+dis:CHWST_SP _Trend
+bacnetHis:TL101028
+point
+---
+dis:CLG1_C_Trend
+bacnetHis:TL101018
+point
+---
+dis:CLG2_C_Trend
+bacnetHis:TL101019
+point
+---
+dis:CLG_O_Trend
+bacnetHis:TL101024
+point
+---
+dis:CO2_AI_Trend
+bacnetHis:TL101025
+point
+---
+dis:DPR_FDB_AI_Trend
+bacnetHis:TL101026
+point
+---
+dis:ECON_O_Trend
+bacnetHis:TL101022
+point
+---
+dis:EFF_OAH_Trend
+bacnetHis:TL101029
+point
+---
+dis:EFF_SP_Trend
+bacnetHis:TL101011
+point
+---
+dis:FAN_C_Trend
+bacnetHis:TL101017
+kind:Number
+point
+---
+dis:HTG1_C_Trend
+bacnetHis:TL101020
+point
+---
+dis:HTG2_C_Trend
+bacnetHis:TL101021
+point
+---
+dis:HTG_O_Trend
+bacnetHis:TL101023
+point
+---
+dis:OPR_OAT_Trend
+bacnetHis:TL101015
+point
+---
+dis:SAT_Trend
+bacnetHis:TL101016
+point
+---
+dis:ZNH_Trend
+bacnetHis:TL101012
+point
+---
+dis:ZNT_Trend
+bacnetHis:TL101010
+point

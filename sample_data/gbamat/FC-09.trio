@@ -1,0 +1,20 @@
+dis:DA_T
+bacnetCur:AI10017
+bacnetDesc:Discharge Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:ZN_T
+bacnetCur:AI10011
+bacnetDesc:Zone Temperature
+kind:Number
+point
+unit:°F
+---
+dis:COND_A
+bacnetCur:BI10014
+bacnetDesc:Miscellaneous Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point

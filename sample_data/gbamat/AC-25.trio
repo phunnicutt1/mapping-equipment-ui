@@ -1,0 +1,1873 @@
+dis:BCI-R Major Version
+bacnetCur:AI95
+bacnetDesc:Major software version number of the BCI-R module
+kind:Number
+point
+---
+dis:BCI-R Minor Version
+bacnetCur:AI96
+bacnetDesc:Minor software version number of the BCI-R module
+kind:Number
+point
+---
+dis:Cabinet Style
+bacnetCur:AI80
+bacnetDesc:Describes the cabinet style of the unit
+kind:Number
+point
+---
+dis:Cool Type
+bacnetCur:AI81
+bacnetDesc:Describes the cooling type of the unit
+kind:Number
+point
+---
+dis:Cooling Capacity Status
+bacnetCur:AI1
+bacnetDesc:"Indicates the unit cooling capacity being utilized."
+kind:Number
+point
+unit:"%"
+---
+dis:Discharge Air Temperature Active
+bacnetCur:AI24
+bacnetDesc:The discharge air temperature value from a unit mounted sensor
+bacnetHis:TL24
+kind:Number
+point
+unit:°F
+---
+dis:Discharge Air Temperature Setpoint Active
+bacnetCur:AI52
+bacnetDesc:Discharge air temperature setpoint value used for unit control
+bacnetHis:TL34
+kind:Number
+point
+unit:°F
+---
+dis:Economizer Minimum Position Setpoint Local
+bacnetCur:AI86
+bacnetDesc:Indicates the default economizer minimum position setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:Exhaust Enable Position Setpoint Status
+bacnetCur:AI71
+bacnetDesc:Outdoor air damper position to enable exhaust sequence
+kind:Number
+point
+unit:"%"
+---
+dis:Exhaust Fan Speed Command
+bacnetCur:AI8
+bacnetDesc:Indicates the unit commanded exhaust fan speed
+bacnetHis:TL31
+kind:Number
+point
+unit:"%"
+---
+dis:Exhaust or Return Fan Type
+bacnetCur:AI90
+bacnetDesc:"Identifies the equipment exhaust or return fan type."
+kind:Number
+point
+---
+dis:Filter Runtime Hours
+bacnetCur:AI6
+bacnetDesc:Indicates the number of hours air has flowed through the filter
+kind:Number
+point
+---
+dis:Heat Primary Capacity Status
+bacnetCur:AI2
+bacnetDesc:"Indicates the unit primary heating capacity being utilized."
+kind:Number
+point
+unit:"%"
+---
+dis:Mixed Air Temperature
+bacnetCur:AI25
+bacnetDesc:The mixed air temperature value from a unit mounted sensor
+bacnetHis:TL25
+kind:Number
+point
+unit:°F
+---
+dis:Outdoor Air Damper Position Status
+bacnetCur:AI11
+bacnetDesc:"Indicates the unit outside air damper position."
+bacnetHis:TL33
+kind:Number
+point
+unit:"%"
+---
+dis:Outdoor Air Humidity Active
+bacnetCur:AI20
+bacnetDesc:The outdoor air humidity value used for unit control
+bacnetHis:TL23
+kind:Number
+point
+unit:"%"
+---
+dis:Outdoor Air Temperature Active
+bacnetCur:AI18
+bacnetDesc:The outdoor air temperature currently used for unit control
+bacnetHis:TL22
+kind:Number
+point
+unit:°F
+---
+dis:Preheat Type
+bacnetCur:AI82
+bacnetDesc:"Identifies the product preheat type. (read only)"
+kind:Number
+point
+---
+dis:RTEM Major Version
+bacnetCur:AI99
+bacnetDesc:Major software version number of the RTEM module
+kind:Number
+point
+---
+dis:RTEM Minor Version
+bacnetCur:AI100
+bacnetDesc:Minor software version number of the RTEM module
+kind:Number
+point
+---
+dis:RTOM Major Version
+bacnetCur:AI93
+bacnetDesc:Major software version number of the RTOM module
+kind:Number
+point
+---
+dis:RTOM Minor Version
+bacnetCur:AI94
+bacnetDesc:Minor software version number of the RTOM module
+kind:Number
+point
+---
+dis:RTRM Major Version
+bacnetCur:AI91
+bacnetDesc:Major software version number of the RTRM module
+kind:Number
+point
+---
+dis:RTRM Minor Version
+bacnetCur:AI92
+bacnetDesc:Minor software version number of the RTRM module
+kind:Number
+point
+---
+dis:Reheat Type
+bacnetCur:AI83
+bacnetDesc:"Identifies the product reheat type. (read only)"
+kind:Number
+point
+---
+dis:Return Air Temperature
+bacnetCur:AI26
+bacnetDesc:The return air temperature value from a unit mounted sensor
+bacnetHis:TL26
+kind:Number
+point
+unit:°F
+---
+dis:Space CO2 Concentration Active
+bacnetCur:AI32
+bacnetDesc:Space CO2 concentration value from a unit mounted sensor
+bacnetHis:TL27
+kind:Number
+point
+unit:ppm
+---
+dis:Space Humidity Active
+bacnetCur:AI16
+bacnetDesc:The space humidity currently used for unit control
+bacnetHis:TL21
+kind:Number
+point
+unit:"%"
+---
+dis:Space Temperature Active
+bacnetCur:AI15
+bacnetDesc:The space temperature currently used for unit control
+bacnetHis:TL20
+kind:Number
+point
+unit:°F
+---
+dis:Space Temperature Cooling Setpoint Input
+bacnetCur:AI74
+bacnetDesc:Cooling temperature setpoint from space sensor module
+kind:Number
+point
+unit:°F
+---
+dis:Space Temperature Heating Setpoint Input
+bacnetCur:AI75
+bacnetDesc:Heating temperature setpoint from space sensor module
+kind:Number
+point
+unit:°F
+---
+dis:Space Temperature Local
+bacnetCur:AI87
+bacnetDesc:"Indicates the local space temperature."
+kind:Number
+point
+unit:°F
+---
+dis:Space Temperature Setpoint Active
+bacnetCur:AI50
+bacnetDesc:Space temperature setpoint value being used for unit control
+bacnetHis:TL28
+kind:Number
+point
+unit:°F
+---
+dis:Space Temperature Setpoint Local
+bacnetCur:AI78
+bacnetDesc:The local space temperature setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Supply Fan Speed Command
+bacnetCur:AI7
+bacnetDesc:Indicates the unit commanded supply fan speed
+bacnetHis:TL18
+kind:Number
+point
+unit:"%"
+---
+dis:Supply Fan Type
+bacnetCur:AI89
+bacnetDesc:"Identifies the product supply fan type. (read only)"
+kind:Number
+point
+---
+dis:Unit Energy Demand
+bacnetCur:AI88
+bacnetDesc:"Indicates the current heat/cool energy demand of the unit."
+kind:Number
+point
+unit:"%"
+---
+dis:Cool Capacity Enable Setpoint BAS
+bacnetCur:AO19
+bacnetDesc:BAS supplied cooling demand limit capacity setpoint value
+bacnetWrite:AO19
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Discharge Air Cooling Setpoint BAS
+bacnetCur:AO6
+bacnetDesc:BAS supplied discharge air temperature cooling setpoint value
+bacnetWrite:AO6
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Economizer Minimum Position Setpoint BAS
+bacnetCur:AO1
+bacnetDesc:BAS supplied economizer position minimum setpoint value
+bacnetWrite:AO1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Economizing Enthalpy Enable Setpoint
+bacnetCur:AO42
+bacnetDesc:Enthalpy setpoint below which economizing can be used
+bacnetWrite:AO42
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"btu/lb_dry"
+writable
+---
+dis:Economizing Temperature Enable Setpoint
+bacnetCur:AO41
+bacnetDesc:Temperature setpoint below which economizing can be used
+bacnetWrite:AO41
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Exhaust or Return Fan Configuration
+bacnetCur:AO33
+bacnetDesc:"Sets the equipment exhaust or return fan type."
+bacnetWrite:AO33
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Heat Capacity Enable Setpoint BAS
+bacnetCur:AO20
+bacnetDesc:BAS supplied heating demand limit capacity setpoint value
+bacnetWrite:AO20
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Occupied Offset
+bacnetCur:AO29
+bacnetDesc:Offset value used to calculate setpoints in occupied mode
+bacnetWrite:AO29
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:Δ°F
+writable
+---
+dis:Outdoor Air Humidity BAS
+bacnetCur:AO15
+bacnetDesc:BAS supplied outdoor air humidity sensor value
+bacnetWrite:AO15
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Outdoor Air Temperature BAS
+bacnetCur:AO14
+bacnetDesc:BAS supplied outdoor air temperature sensor value
+bacnetWrite:AO14
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Power Exhaust Enable Setpoint BAS
+bacnetCur:AO34
+bacnetDesc:BAS supplied power exhaust enabled setpoint value
+bacnetWrite:AO34
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Space CO2 Concentration BAS
+bacnetCur:AO18
+bacnetDesc:BAS supplied space CO2 sensor value
+bacnetWrite:AO18
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ppm
+writable
+---
+dis:Space Cooling Setpoint High Limit BAS
+bacnetCur:AO35
+bacnetDesc:"High limit value to clamp the space cooling setpoint."
+bacnetWrite:AO35
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Space Cooling Setpoint Low Limit BAS
+bacnetCur:AO36
+bacnetDesc:"Low limit value to clamp the space cooling setpoint."
+bacnetWrite:AO36
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Space Heating Setpoint High Limit BAS
+bacnetCur:AO37
+bacnetDesc:"High limit value to clamp the space Heating setpoint."
+bacnetWrite:AO37
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Space Heating Setpoint Low Limit BAS
+bacnetCur:AO38
+bacnetDesc:"Low limit value to clamp the space Heating setpoint."
+bacnetWrite:AO38
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Space Humidity BAS
+bacnetCur:AO25
+bacnetDesc:BAS supplied space humidity sensor value
+bacnetWrite:AO25
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Space Temperature BAS
+bacnetCur:AO11
+bacnetDesc:BAS supplied space temperature sensor value
+bacnetWrite:AO11
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Space Temperature Setpoint BAS
+bacnetCur:AO2
+bacnetDesc:Base value to calculate setpoints in occupied and standby modes
+bacnetWrite:AO2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Standby Offset
+bacnetCur:AO30
+bacnetDesc:Offset value used to calculate setpoints in standby mode
+bacnetWrite:AO30
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:Δ°F
+writable
+---
+dis:Supply Fan Maximum Speed BAS
+bacnetCur:AO45
+bacnetDesc:BAS supplied maximum fan speed
+bacnetWrite:AO45
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Supply Fan Minimum Speed BAS
+bacnetCur:AO44
+bacnetDesc:BAS supplied minimum fan speed
+bacnetWrite:AO44
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Unoccupied Cooling Setpoint
+bacnetCur:AO31
+bacnetDesc:Cooling setpoint used for control in unoccupied mode
+bacnetWrite:AO31
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Unoccupied Heating Setpoint
+bacnetCur:AO32
+bacnetDesc:Heating setpoint used for control in unoccupied mode
+bacnetWrite:AO32
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Filter Runtime Hours Setpoint
+bacnetCur:AV1
+bacnetDesc:"The setpoint value used by the filter run hours calculation."
+bacnetWrite:AV1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Occupied Bypass Time
+bacnetCur:AV2
+bacnetDesc:"The setpoint value used by the Occupancy Request."
+bacnetWrite:AV2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Alarm Relay Output Status
+bacnetCur:BI165
+bacnetDesc:Indicates if the alarm relay is energized
+enum:"De-energized,Energized"
+kind:Bool
+point
+---
+dis:Compressor Lockout Status
+bacnetCur:BI2
+bacnetDesc:" no diagnostic active."
+bacnetHis:TL6
+enum:"Normal,Locked out"
+kind:Bool
+point
+---
+dis:"Diagnostic: CO2 Low Limit Setpoint Fault"
+bacnetCur:BI271
+bacnetDesc:"Diagnostic: CO2 Low Limit Setpoint Fault"
+enum:"Normal,CO2 Low Limit Setpoint Fault"
+kind:Bool
+point
+---
+dis:"Diagnostic: CO2 Sensor Failure"
+bacnetCur:BI83
+bacnetDesc:"Diagnostic: CO2 Sensor Failure"
+enum:"Normal,CO2 Sensor Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: CO2 Setpoint Failure"
+bacnetCur:BI257
+bacnetDesc:"Diagnostic: CO2 Setpoint Failure"
+enum:"Normal,CO2 Setpoint Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Coil Temperature Sensor #1 Fail"
+bacnetCur:BI45
+bacnetDesc:"Diagnostic: Coil Temperature Sensor #1 Fail"
+enum:"Normal,Coil Temperature Sensor #1 Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Coil Temperature Sensor #2 Fail"
+bacnetCur:BI46
+bacnetDesc:"Diagnostic: Coil Temperature Sensor #2 Fail"
+enum:"Normal,Coil Temperature Sensor #2 Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Comp 1 Disable Input HPC"
+bacnetCur:BI269
+bacnetDesc:"Diagnostic: Comp 1 Disable Input HPC"
+enum:"Normal,Comp 1 Disable Input HPC"
+kind:Bool
+point
+---
+dis:"Diagnostic: Comp 1 Disable Input LPC"
+bacnetCur:BI244
+bacnetDesc:"Diagnostic: Comp 1 Disable Input LPC"
+enum:"Normal,Comp 1 Disable Input LPC"
+kind:Bool
+point
+---
+dis:"Diagnostic: Comp 2 Disable Input HPC"
+bacnetCur:BI270
+bacnetDesc:"Diagnostic: Comp 2 Disable Input HPC"
+enum:"Normal,Comp 2 Disable Input HPC"
+kind:Bool
+point
+---
+dis:"Diagnostic: Comp 2 Disable Input LPC"
+bacnetCur:BI245
+bacnetDesc:"Diagnostic: Comp 2 Disable Input LPC"
+enum:"Normal,Comp 2 Disable Input LPC"
+kind:Bool
+point
+---
+dis:"Diagnostic: Compressor 1 HPC Lockout"
+bacnetCur:BI47
+bacnetDesc:"Diagnostic: Compressor 1 HPC Lockout"
+enum:"Normal,Compressor 1 HPC Lockout"
+kind:Bool
+point
+---
+dis:"Diagnostic: Compressor 1 LPC Lockout"
+bacnetCur:BI43
+bacnetDesc:"Diagnostic: Compressor 1 LPC Lockout"
+enum:"Normal,Compressor 1 LPC Lockout"
+kind:Bool
+point
+---
+dis:"Diagnostic: Compressor 2 HPC Lockout"
+bacnetCur:BI48
+bacnetDesc:"Diagnostic: Compressor 2 HPC Lockout"
+enum:"Normal,Compressor 2 HPC Lockout"
+kind:Bool
+point
+---
+dis:"Diagnostic: Compressor 2 LPC Lockout"
+bacnetCur:BI44
+bacnetDesc:"Diagnostic: Compressor 2 LPC Lockout"
+enum:"Normal,Compressor 2 LPC Lockout"
+kind:Bool
+point
+---
+dis:"Diagnostic: Compressor 3 LPC Disable"
+bacnetCur:BI302
+bacnetDesc:"Diagnostic: Compressor 3 LPC Disable"
+enum:"Normal,Compressor 3 LPC Disable"
+kind:Bool
+point
+---
+dis:"Diagnostic: Compressor 3 Lock Out"
+bacnetCur:BI300
+bacnetDesc:"Diagnostic: Compressor 3 Lock Out"
+enum:"Normal,Compressor 3 Lock Out"
+kind:Bool
+point
+---
+dis:"Diagnostic: Compressor Drive Fault"
+bacnetCur:BI303
+bacnetDesc:"Diagnostic: Compressor Drive Fault"
+enum:"Normal,Variable Speed Compressor Drive Fault"
+kind:Bool
+point
+---
+dis:"Diagnostic: DCV Min Position Setpoint Fail (@ Full Fan Speed)"
+bacnetCur:BI293
+bacnetDesc:"Diagnostic: DCV Min Position Setpoint Fail (@ Full Fan Speed)"
+enum:"Normal,DCV Min Position Setpoint Fail (@ Full Fan Speed)"
+kind:Bool
+point
+---
+dis:"Diagnostic: DCV Min Position at Minimum Fan Speed Fail"
+bacnetCur:BI297
+bacnetDesc:"Diagnostic: DCV Min Position at Minimum Fan Speed Fail"
+enum:"Normal,DCV Min Position at Minimum Fan Speed Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Default Defrost Flag (either circuit)"
+bacnetCur:BI252
+bacnetDesc:"Diagnostic: Default Defrost Flag (either circuit)"
+enum:"Normal,Defrost Default Mode (either circuit)"
+kind:Bool
+point
+---
+dis:"Diagnostic: Defrost Default Mode Ckt 1"
+bacnetCur:BI287
+bacnetDesc:"Diagnostic: Defrost Default Mode Ckt 1"
+enum:"Normal,Defrost Default Mode Ckt 1"
+kind:Bool
+point
+---
+dis:"Diagnostic: Defrost Default Mode Ckt 2"
+bacnetCur:BI283
+bacnetDesc:"Diagnostic: Defrost Default Mode Ckt 2"
+enum:"Normal,Defrost Default Mode Ckt 2"
+kind:Bool
+point
+---
+dis:"Diagnostic: Dehumid  Setpoint Failure"
+bacnetCur:BI125
+bacnetDesc:"Diagnostic: Dehumid  Setpoint Failure"
+enum:"Normal,Dehumid Setpoint Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault A (either circuit)"
+bacnetCur:BI248
+bacnetDesc:"Diagnostic: Demand Defrost Fault A (either circuit)"
+enum:"Normal,Demand Defrost Fault A (either circuit)"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault A Ckt 1"
+bacnetCur:BI284
+bacnetDesc:"Diagnostic: Demand Defrost Fault A Ckt 1"
+enum:"Normal,Demand Defrost Fault A Ckt 1"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault A Ckt 2"
+bacnetCur:BI280
+bacnetDesc:"Diagnostic: Demand Defrost Fault A Ckt 2"
+enum:"Normal,Demand Defrost Fault A Ckt 2"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault B (either circuit)"
+bacnetCur:BI249
+bacnetDesc:"Diagnostic: Demand Defrost Fault B (either circuit)"
+enum:"Normal,Demand Defrost Fault B (either circuit)"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault B Ckt 1"
+bacnetCur:BI285
+bacnetDesc:"Diagnostic: Demand Defrost Fault B Ckt 1"
+enum:"Normal,Demand Defrost Fault B Ckt 1"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault B Ckt 2"
+bacnetCur:BI281
+bacnetDesc:"Diagnostic: Demand Defrost Fault B Ckt 2"
+enum:"Normal,Demand Defrost Fault B Ckt 2"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault C (either circuit)"
+bacnetCur:BI250
+bacnetDesc:"Diagnostic: Demand Defrost Fault C (either circuit)"
+enum:"Normal,Demand Defrost Fault C (either circuit)"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault C Ckt 1"
+bacnetCur:BI286
+bacnetDesc:"Diagnostic: Demand Defrost Fault C Ckt 1"
+enum:"Normal,Demand Defrost Fault C Ckt 1"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault C Ckt 2"
+bacnetCur:BI282
+bacnetDesc:"Diagnostic: Demand Defrost Fault C Ckt 2"
+enum:"Normal,Demand Defrost Fault C Ckt 2"
+kind:Bool
+point
+---
+dis:"Diagnostic: Demand Defrost Fault D (either circuit)"
+bacnetCur:BI251
+bacnetDesc:"Diagnostic: Demand Defrost Fault D (either circuit)"
+enum:"Normal,Demand Defrost Fault D (either circuit)"
+kind:Bool
+point
+---
+dis:"Diagnostic: Design Min Position Setpoint Fail (@ Full Fan Speed)"
+bacnetCur:BI294
+bacnetDesc:"Diagnostic: Design Min Position Setpoint Fail (@ Full Fan Speed)"
+enum:"Normal,Design Min Position Setpoint Fail (@ Full Fan Speed)"
+kind:Bool
+point
+---
+dis:"Diagnostic: Design Min Position at Midpoint Fan Speed Fail"
+bacnetCur:BI298
+bacnetDesc:"Diagnostic: Design Min Position at Midpoint Fan Speed Fail"
+enum:"Normal,Design Min Position at Midpoint Fan Speed Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Design Min Position at Minimum Fan Speed Fail"
+bacnetCur:BI296
+bacnetDesc:"Diagnostic: Design Min Position at Minimum Fan Speed Fail"
+enum:"Normal,Design Min Position at Minimum Fan Speed Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Dirty Filter"
+bacnetCur:BI76
+bacnetDesc:"Diagnostic: Dirty Filter"
+enum:"Normal,Dirty Filter"
+kind:Bool
+point
+---
+dis:"Diagnostic: Discharge Air Heat Setpoint Failure"
+bacnetCur:BI289
+bacnetDesc:"Diagnostic: Discharge Air Heat Setpoint Failure"
+enum:"Normal,Discharge Air Heat Setpoint Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Drain Pan Overflow"
+bacnetCur:BI151
+bacnetDesc:"Diagnostic: Drain Pan Overflow"
+enum:"Normal,Drain Pan Overflow"
+kind:Bool
+point
+---
+dis:"Diagnostic: Economizer Actuator Fault"
+bacnetCur:BI264
+bacnetDesc:"Diagnostic: Economizer Actuator Fault"
+enum:"Normal,Economizer Actuator Fault"
+kind:Bool
+point
+---
+dis:"Diagnostic: Entering Evap Temp Sensor Fail"
+bacnetCur:BI107
+bacnetDesc:"Diagnostic: Entering Evap Temp Sensor Fail"
+enum:"Normal,Ent Evap Temp Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Enthalpy Setpoint Fail"
+bacnetCur:BI295
+bacnetDesc:"Diagnostic: Enthalpy Setpoint Fail"
+enum:"Normal,Enthalpy Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Excessive Outdoor Air"
+bacnetCur:BI307
+bacnetDesc:"Diagnostic: Excessive Outdoor Air"
+enum:"Normal,Excessive Outdoor Air"
+kind:Bool
+point
+---
+dis:"Diagnostic: Exhaust Fan Proving Fail"
+bacnetCur:BI40
+bacnetDesc:"Diagnostic: Exhaust Fan Proving Fail"
+enum:"Normal,Exhaust/Return Fan Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Exhaust Fan Setpoint Failure"
+bacnetCur:BI288
+bacnetDesc:"Diagnostic: Exhaust Fan Setpoint Failure"
+enum:"Normal,Exhaust Fan Setpoint Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Fan Failure"
+bacnetCur:BI39
+bacnetDesc:"Diagnostic: Fan Failure"
+enum:"Normal,Supply Fan Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Flame Rollout Switch Open"
+bacnetCur:BI259
+bacnetDesc:"Diagnostic: Flame Rollout Switch Open"
+enum:"Normal,Flame Rollout Switch Open"
+kind:Bool
+point
+---
+dis:"Diagnostic: Flame Sensed w/Gas Valve Off"
+bacnetCur:BI262
+bacnetDesc:"Diagnostic: Flame Sensed w/Gas Valve Off"
+enum:"Normal,Flame Sensed w/Gas Valve Off"
+kind:Bool
+point
+---
+dis:"Diagnostic: Freezestat Tripped"
+bacnetCur:BI256
+bacnetDesc:"Diagnostic: Freezestat Tripped"
+enum:"Normal,Freezestat Tripped"
+kind:Bool
+point
+---
+dis:"Diagnostic: FroStat Trip"
+bacnetCur:BI247
+bacnetDesc:"Diagnostic: FroStat Trip"
+enum:"Normal,FroStat Trip"
+kind:Bool
+point
+---
+dis:"Diagnostic: Gas Heat Module Failure"
+bacnetCur:BI263
+bacnetDesc:"Diagnostic: Gas Heat Module Failure"
+enum:"Normal,Gas Heat Module Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Gas Heat Supply Airflow Limit Trip"
+bacnetCur:BI312
+bacnetDesc:"Diagnostic: Gas Heat Supply Airflow Limit Trip"
+enum:"Normal,Gas Heat Supply Airflow Limit Trip"
+kind:Bool
+point
+---
+dis:"Diagnostic: HPC for Compressor 3"
+bacnetCur:BI301
+bacnetDesc:"Diagnostic: HPC for Compressor 3"
+enum:"Normal,HPC for Compressor 3"
+kind:Bool
+point
+---
+dis:"Diagnostic: Heat Failure"
+bacnetCur:BI51
+bacnetDesc:"Diagnostic: Heat Failure"
+enum:"Normal,Heat Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Heating High Temp Limit Open"
+bacnetCur:BI258
+bacnetDesc:"Diagnostic: Heating High Temp Limit Open"
+enum:"Normal,Heating High Temp Limit Open"
+kind:Bool
+point
+---
+dis:"Diagnostic: IGN1 Communications Timed out"
+bacnetCur:BI290
+bacnetDesc:"Diagnostic: IGN1 Communications Timed out"
+enum:"Normal,IGN1 Communications Timed out"
+kind:Bool
+point
+---
+dis:"Diagnostic: IGN2 Communications Timed out"
+bacnetCur:BI291
+bacnetDesc:"Diagnostic: IGN2 Communications Timed out"
+enum:"Normal,IGN2 Communications Timed out"
+kind:Bool
+point
+---
+dis:"Diagnostic: Inducer Proving Switch Fail"
+bacnetCur:BI260
+bacnetDesc:"Diagnostic: Inducer Proving Switch Fail"
+enum:"Normal,Inducer Proving Switch Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Local Cool Setpoint Fail"
+bacnetCur:BI34
+bacnetDesc:"Diagnostic: Local Cool Setpoint Fail"
+enum:"Normal,Local Cool Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Local Emergency Stop Initiated"
+bacnetCur:BI38
+bacnetDesc:"Diagnostic: Local Emergency Stop Initiated"
+enum:"Normal,Emergency Stop"
+kind:Bool
+point
+---
+dis:"Diagnostic: Local Zone Heating Setpoint Failed"
+bacnetCur:BI35
+bacnetDesc:"Diagnostic: Local Zone Heating Setpoint Failed"
+enum:"Normal,Local Heat Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Maintenance Required"
+bacnetCur:BI147
+bacnetDesc:"Diagnostic: Maintenance Required"
+enum:"Normal,Maintenance Required"
+kind:Bool
+point
+---
+dis:"Diagnostic: Min OA Flow  Setpoint Fail"
+bacnetCur:BI242
+bacnetDesc:"Diagnostic: Min OA Flow  Setpoint Fail"
+enum:"Normal,Min OA Flow Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Mixed Air Temp Low Limit Cycle Active"
+bacnetCur:BI310
+bacnetDesc:"Diagnostic: Mixed Air Temp Low Limit Cycle Active"
+enum:"Normal,Mixed Air Temp Low Limit Cycle Active"
+kind:Bool
+point
+---
+dis:"Diagnostic: Mixed Air Temp Sensor Failure"
+bacnetCur:BI95
+bacnetDesc:"Diagnostic: Mixed Air Temp Sensor Failure"
+enum:"Normal,Mixed Air Temp Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Mod Dehumid Config Error"
+bacnetCur:BI279
+bacnetDesc:"Diagnostic: Mod Dehumid Config Error"
+enum:"Normal,Mod Dehumid Config Error"
+kind:Bool
+point
+---
+dis:"Diagnostic: Morning Warmup Setpoint Fail"
+bacnetCur:BI239
+bacnetDesc:"Diagnostic: Morning Warmup Setpoint Fail"
+enum:"Normal,Morning Warmup Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: No Flame Sensed on heat call"
+bacnetCur:BI261
+bacnetDesc:"Diagnostic: No Flame Sensed on heat call"
+enum:"Normal,No Flame Sensed on heat call"
+kind:Bool
+point
+---
+dis:"Diagnostic: Outdoor Air Damper Not Modulating"
+bacnetCur:BI308
+bacnetDesc:"Diagnostic: Outdoor Air Damper Not Modulating"
+enum:"Normal,Outdoor Air Damper Not Modulating"
+kind:Bool
+point
+---
+dis:"Diagnostic: Outdoor Air Flow Sensor Fail"
+bacnetCur:BI86
+bacnetDesc:"Diagnostic: Outdoor Air Flow Sensor Fail"
+enum:"Normal,Outdoor Air Flow Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Outdoor Air Temperature Sensor Failed"
+bacnetCur:BI32
+bacnetDesc:"Diagnostic: Outdoor Air Temperature Sensor Failed"
+enum:"Normal,Outdoor Temp Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Outdoor Humidity Sensor Failed"
+bacnetCur:BI37
+bacnetDesc:"Diagnostic: Outdoor Humidity Sensor Failed"
+enum:"Normal,OA Humidity Sensor Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: RTAM Comm Fail"
+bacnetCur:BI274
+bacnetDesc:"Diagnostic: RTAM Comm Fail"
+enum:"Normal,RTAM Comm Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: RTDM Comm Fail"
+bacnetCur:BI277
+bacnetDesc:"Diagnostic: RTDM Comm Fail"
+enum:"Normal,RTDM Comm Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: RTEM Comm Fail"
+bacnetCur:BI273
+bacnetDesc:"Diagnostic: RTEM Comm Fail"
+enum:"Normal,RTEM Comm Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: RTOM Comm Fail"
+bacnetCur:BI272
+bacnetDesc:"Diagnostic: RTOM Comm Fail"
+enum:"Normal,RTOM Comm Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: RTVM Comm Fail"
+bacnetCur:BI275
+bacnetDesc:"Diagnostic: RTVM Comm Fail"
+enum:"Normal,RTVM Comm Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Return Air Humidity Sensor Failed"
+bacnetCur:BI58
+bacnetDesc:"Diagnostic: Return Air Humidity Sensor Failed"
+enum:"Normal,Return Air RH Sensor Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Return Air Temp Sensor Fail"
+bacnetCur:BI57
+bacnetDesc:"Diagnostic: Return Air Temp Sensor Fail"
+enum:"Normal,Return Air Temp Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA High Press Limit"
+bacnetCur:BI59
+bacnetDesc:"Diagnostic: SA High Press Limit"
+enum:"Normal,SA High Press Limit"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Pressure Dead Band Failure"
+bacnetCur:BI267
+bacnetDesc:"Diagnostic: SA Pressure Dead Band Failure"
+enum:"Normal,SA Pressure Dead Band Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Pressure PWM Fault"
+bacnetCur:BI268
+bacnetDesc:"Diagnostic: SA Pressure PWM Fault"
+enum:"Normal,SA Pressure PWM Fault"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Pressure Sensor Failure"
+bacnetCur:BI36
+bacnetDesc:"Diagnostic: SA Pressure Sensor Failure"
+enum:"Normal,Supply Air Press Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Pressure Setpoint Failure"
+bacnetCur:BI54
+bacnetDesc:"Diagnostic: SA Pressure Setpoint Failure"
+enum:"Normal,SA Press Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Reheat Setpoint Failure"
+bacnetCur:BI123
+bacnetDesc:"Diagnostic: SA Reheat Setpoint Failure"
+enum:"Normal,SA Reheat Setpoint Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Reset Amount Failure"
+bacnetCur:BI265
+bacnetDesc:"Diagnostic: SA Reset Amount Failure"
+enum:"Normal,SA Reset Amount Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Reset Setpoint Failure"
+bacnetCur:BI266
+bacnetDesc:"Diagnostic: SA Reset Setpoint Failure"
+enum:"Normal,SA Reset Setpoint Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Temp Cool Setpoint Fail"
+bacnetCur:BI74
+bacnetDesc:"Diagnostic: SA Temp Cool Setpoint Fail"
+enum:"Normal,SA Temp Cool Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: SA Temp Heat Setpoint Fail"
+bacnetCur:BI75
+bacnetDesc:"Diagnostic: SA Temp Heat Setpoint Fail"
+enum:"Normal,SA Temp Heat Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Smoke Detector"
+bacnetCur:BI246
+bacnetDesc:"Diagnostic: Smoke Detector"
+enum:"Normal,Smoke Detector"
+kind:Bool
+point
+---
+dis:"Diagnostic: Space Humidity Sensor Fail"
+bacnetCur:BI106
+bacnetDesc:"Diagnostic: Space Humidity Sensor Fail"
+enum:"Normal,Space Humidity Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Space Press Deadband Fail"
+bacnetCur:BI278
+bacnetDesc:"Diagnostic: Space Press Deadband Fail"
+enum:"Normal,Space Press Deadband Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Space Pressure Sensor Failure"
+bacnetCur:BI56
+bacnetDesc:"Diagnostic: Space Pressure Sensor Failure"
+enum:"Normal,Space Pressure Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Space Pressure Setpoint Fail"
+bacnetCur:BI55
+bacnetDesc:"Diagnostic: Space Pressure Setpoint Fail"
+enum:"Normal,Space Pressure Setpoint Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Supply Air Temp Sensor Fail"
+bacnetCur:BI30
+bacnetDesc:"Diagnostic: Supply Air Temp Sensor Fail"
+enum:"Normal,Supply Air Temp Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Supply Airflow Sensor Fail"
+bacnetCur:BI311
+bacnetDesc:"Diagnostic: Supply Airflow Sensor Fail"
+enum:"Normal,Supply Airflow Sensor Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: TD5 Comm Fail"
+bacnetCur:BI309
+bacnetDesc:"Diagnostic: TD5 Comm Fail"
+enum:"Normal,TD5 Comm Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Unit Communications Failure"
+bacnetCur:BI148
+bacnetDesc:"Diagnostic: Unit Communications Failure"
+enum:"Normal,Unit Communications Failure"
+kind:Bool
+point
+---
+dis:"Diagnostic: Unit Economizing When It Should Not"
+bacnetCur:BI305
+bacnetDesc:"Diagnostic: Unit Economizing When It Should Not"
+enum:"Normal,Unit Economizing When It Should Not"
+kind:Bool
+point
+---
+dis:"Diagnostic: Unit Not Economizing When It Should be"
+bacnetCur:BI306
+bacnetDesc:"Diagnostic: Unit Not Economizing When It Should be"
+enum:"Normal,Unit Not Economizing When It Should be Economizing"
+kind:Bool
+point
+---
+dis:"Diagnostic: VSM Comm Fail"
+bacnetCur:BI276
+bacnetDesc:"Diagnostic: VSM Comm Fail"
+enum:"Normal,VSM Comm Fail"
+kind:Bool
+point
+---
+dis:"Diagnostic: Vent Override - Exhaust"
+bacnetCur:BI253
+bacnetDesc:"Diagnostic: Vent Override - Exhaust"
+enum:"Normal,Vent Override - Exhaust"
+kind:Bool
+point
+---
+dis:"Diagnostic: Vent Override - Pressurize"
+bacnetCur:BI255
+bacnetDesc:"Diagnostic: Vent Override - Pressurize"
+enum:"Normal,Vent Override - Pressurize"
+kind:Bool
+point
+---
+dis:"Diagnostic: Vent Override - Purge"
+bacnetCur:BI254
+bacnetDesc:"Diagnostic: Vent Override - Purge"
+enum:"Normal,Vent Override - Purge"
+kind:Bool
+point
+---
+dis:"Diagnostic: Zone Temperature Sensor Failed"
+bacnetCur:BI29
+bacnetDesc:"Diagnostic: Zone Temperature Sensor Failed"
+enum:"Normal,Space Temp Sensor Failure"
+kind:Bool
+point
+---
+dis:Economizer Airside Enable Status
+bacnetCur:BI22
+bacnetDesc:"Indicates if the unit airside economizer is enabled."
+enum:"Disabled,Enabled"
+kind:Bool
+point
+---
+dis:Service Test Mode Status
+bacnetCur:BI11
+bacnetDesc:"Indicates if the unit is in service test mode."
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:Supply Air Tempering Status
+bacnetCur:BI292
+bacnetDesc:"Indicates the status of the.Supply Air Tempering function"
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:Supply Fan Configuration Status
+bacnetCur:BI15
+bacnetDesc:"Indicates the supply fan configuration."
+enum:"Cycling,Continuous"
+kind:Bool
+point
+---
+dis:System Control Status
+bacnetCur:BI1
+bacnetDesc:"Indicates the control system currently in command of the unit."
+bacnetHis:TL5
+enum:"Stand Alone Control,BAS Control"
+kind:Bool
+point
+---
+dis:Cool Lockout Command
+bacnetCur:BO6
+bacnetDesc:"Command the unit to prevent cooling operation."
+bacnetWrite:BO6
+bacnetWriteLevel:16
+cmd
+enum:"Allow Cooling,Cooling Locked out"
+kind:Bool
+point
+writable
+---
+dis:Economizer Minimum Position Enable Command
+bacnetCur:BO7
+bacnetDesc:"Command unit to use Economizer Minimum Position Setpoint BAS."
+bacnetWrite:BO7
+bacnetWriteLevel:16
+cmd
+enum:"Enabled,Disabled"
+kind:Bool
+point
+writable
+---
+dis:Filter Timer Reset
+bacnetCur:BO13
+bacnetDesc:"Command the unit to reset the accumulated filter run hours."
+bacnetWrite:BO13
+bacnetWriteLevel:16
+cmd
+enum:"Accumulating,Reset"
+kind:Bool
+point
+writable
+---
+dis:Heat Lockout Command
+bacnetCur:BO5
+bacnetDesc:"Command the unit to prevent heating operation."
+bacnetWrite:BO5
+bacnetWriteLevel:16
+cmd
+enum:"Allow Heating,Heating Locked Out"
+kind:Bool
+point
+writable
+---
+dis:Lead-Lag Enable Command
+bacnetCur:BO19
+bacnetDesc:Command the unit compressor startup order
+bacnetWrite:BO19
+bacnetWriteLevel:16
+cmd
+enum:"Disabled,Enabled"
+kind:Bool
+point
+writable
+---
+dis:Morning Warmup Enable Command
+bacnetCur:BO20
+bacnetDesc:Command the unit morning warmup operation
+bacnetWrite:BO20
+bacnetWriteLevel:16
+cmd
+enum:"Disabled,Enabled"
+kind:Bool
+point
+writable
+---
+dis:Reset Diagnostic
+bacnetCur:BO14
+bacnetDesc:"Command the unit to reset and clear diagnostics."
+bacnetWrite:BO14
+bacnetWriteLevel:16
+cmd
+enum:"Normal,Reset"
+kind:Bool
+point
+writable
+---
+dis:Service Test Command
+bacnetCur:BO17
+bacnetDesc:Command the unit to step through service test
+bacnetWrite:BO17
+bacnetWriteLevel:16
+cmd
+enum:"Normal,Service Test"
+kind:Bool
+point
+writable
+---
+dis:Supply Air Tempering Enable Command
+bacnetCur:BO18
+bacnetDesc:"Command the unit supply air tempering operation."
+bacnetHis:TL4
+bacnetWrite:BO18
+bacnetWriteLevel:16
+cmd
+enum:"Disabled,Enabled"
+kind:Bool
+point
+writable
+---
+dis:Supply Fan Configuration Command
+bacnetCur:BO8
+bacnetDesc:Command the unit supply fan to cycling or continuous operation
+bacnetWrite:BO8
+bacnetWriteLevel:16
+cmd
+enum:"Auto,On"
+kind:Bool
+point
+writable
+---
+dis:System Control Command
+bacnetCur:BO1
+bacnetDesc:"Command the unit stand alone or BAS controlled operation."
+bacnetHis:TL1
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"Stand Alone Control,BAS Control"
+kind:Bool
+point
+writable
+---
+dis:Application Mode Status
+bacnetCur:MSI19
+bacnetDesc:"Indicates the current application mode of the equipment."
+bacnetHis:TL7
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Heat,Morning Warm up,Cooling,Night Purge,Pre-cool,Off,Test,Emergency Heat,Fan Only,Free Cool,Ice Making,Max Heat,Economizer,Dehumidify,Calibrate"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Cool Output 1
+bacnetCur:MSI25
+bacnetDesc:Indicates the commanded state of cooling output 1
+bacnetHis:TL10
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Cool Output 2
+bacnetCur:MSI26
+bacnetDesc:Indicates the commanded state of cooling output 2
+bacnetHis:TL11
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Cool Output 3
+bacnetCur:MSI27
+bacnetDesc:Indicates the commanded state of cooling output 3
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+kind:Str
+point
+---
+dis:Cooling Setpoint Source
+bacnetCur:MSI22
+bacnetDesc:Indicates the source of the space cooling setpoint
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"RTM Zone Sensor,Night Setback Panel,Human Interface,GBAS 0-5V,BAS/Network,GBAS 0-10V"
+kind:Str
+point
+---
+dis:Economizer System Status
+bacnetCur:MSI44
+bacnetDesc:Indicates if economizing is disabled or enabled
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"disabled,enabled,Not Present"
+kind:Str
+point
+---
+dis:Economizer Type
+bacnetCur:MSI9
+bacnetDesc:General description of the equipment economizer system
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"none or not supported,2 position ventilation,airside (modulating) economizer,2 position ventilation and waterside economizer,waterside economizer,airside and waterside economizer,TRAQ damper/sensor,airside economizer and TRAQ damper/sensor,TRAQ damper/sensor and waterside economizer,airside economizer and TRAQ damper/sensor and waterside econ"
+kind:Str
+point
+---
+dis:Exhaust Fan Proving Status
+bacnetCur:MSI39
+bacnetDesc:"Indicates the current state of the exhaust fan."
+bacnetHis:TL32
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Exhaust Fan Status
+bacnetCur:MSI38
+bacnetDesc:"Indicates the state of the exhaust fan."
+bacnetHis:TL30
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Heat Output 1
+bacnetCur:MSI29
+bacnetDesc:"Indicates the commanded state of heating output 1."
+bacnetHis:TL12
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Heat Output 2
+bacnetCur:MSI30
+bacnetDesc:"Indicates the commanded state of heating output 2."
+bacnetHis:TL13
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Heat Output 3
+bacnetCur:MSI31
+bacnetDesc:"Indicates the commanded state of heating output 3."
+bacnetHis:TL14
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Heat Output 4
+bacnetCur:MSI32
+bacnetDesc:"Indicates the commanded state of heating output 4."
+bacnetHis:TL15
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Heating Setpoint Source
+bacnetCur:MSI23
+bacnetDesc:Indicates the source of the space heating setpoint
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"RTM Zone Sensor,Night Setback Panel,Human Interface,GBAS 0-5V,BAS/Network,GBAS 0-10V"
+kind:Str
+point
+---
+dis:Occupancy Status
+bacnetCur:MSI20
+bacnetDesc:"Indicates if the unit is in occupied or unoccupied mode."
+bacnetHis:TL8
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,Unoccupied,Occupied Bypass,Occupied Standby"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Outdoor Damper Status
+bacnetCur:MSI43
+bacnetDesc:Indicates if the OA damper is above or below minimum position
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"at or below minimum pos,above minimum position,Not Present"
+kind:Str
+point
+---
+dis:Primary Filter Status
+bacnetCur:MSI35
+bacnetDesc:"Indicates the primary filter media state."
+bacnetHis:TL16
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Clean,Dirty,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Supply Fan Proving Status
+bacnetCur:MSI37
+bacnetDesc:"Indicates the current state of the supply fan."
+bacnetHis:TL19
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Supply Fan Status
+bacnetCur:MSI41
+bacnetDesc:"Indicates the state of the supply fan."
+bacnetHis:TL17
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On,Not Present"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Timed Override Status
+bacnetCur:MSI24
+bacnetDesc:Timed override request or cancel from zone sensor
+bacnetHis:TL9
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Idle,On,Cancel"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Trane Unit Type
+bacnetCur:MSI2
+bacnetDesc:General description of the equipment type classification
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"1 Heat / 1 Cool,Heat Pump,Blower Coil,Unit Ventilator,Fan Coil,Rooftop,Air Handling Unit,Vertical Self Contained,Unitary,VAV Box"
+kind:Str
+point
+---
+dis:Unit Stop Source
+bacnetCur:MSI21
+bacnetDesc:"Source of the command that stopped the equipment."
+bacnetHis:TL29
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Emergency Stop,Drain Pan Overflow,Local HI,Remote HI,External Auto Stop"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:Economizer Airside Enable BAS
+bacnetCur:MSO1
+bacnetDesc:"Enable or disable the airside economizer operation."
+bacnetWrite:MSO1
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled,Auto"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Emergency Override Command
+bacnetCur:MSO2
+bacnetDesc:"Command the unit into an emergency mode of operation."
+bacnetHis:TL3
+bacnetWrite:MSO2
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"EMERG_NORMAL,EMERG_PRESSURIZE,EMERG_DEPRESSURIZE,EMERG_PURGE,EMERG_SHUTDOWN,EMERG_FIRE"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Heat Cool Mode Request BAS
+bacnetCur:MSO8
+bacnetDesc:"Command the unit into a heat/cool mode."
+bacnetWrite:MSO8
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Heat,Morning Warm up,Cooling,Night Purge,Pre-cool,Off,Test,Emergency Heat,Fan Only,Free Cool,Ice Making,Max Heat,Economizing,Dehumidify,Calibrate"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Occupancy Request
+bacnetCur:MSO7
+bacnetDesc:"Command the unit into an occupancy mode."
+bacnetHis:TL2
+bacnetWrite:MSO7
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,Unoccupied,Occupied Bypass,Occupied Standby"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Trend - Compressor Lockout Status
+bacnetHis:TL6
+kind:Bool
+point
+---
+dis:Trend - Cool Output 1
+bacnetHis:TL10
+kind:Number
+point
+---
+dis:Trend - Cool Output 2
+bacnetHis:TL11
+kind:Number
+point
+---
+dis:Trend - Discharge Air Temperature Active
+bacnetHis:TL24
+kind:Number
+point
+---
+dis:Trend - Discharge Air Temperature Setpoint Active
+bacnetHis:TL34
+kind:Number
+point
+---
+dis:Trend - Emergency Override Command
+bacnetHis:TL3
+kind:Number
+point
+---
+dis:Trend - Exhaust Fan Proving Status
+bacnetHis:TL32
+kind:Number
+point
+---
+dis:Trend - Exhaust Fan Speed Command
+bacnetHis:TL31
+kind:Number
+point
+---
+dis:Trend - Exhaust Fan Status
+bacnetHis:TL30
+kind:Number
+point
+---
+dis:"Trend - Heat Cool Mode Status/Application Mode Status"
+bacnetHis:TL7
+kind:Number
+point
+---
+dis:Trend - Heat Output 1
+bacnetHis:TL12
+kind:Number
+point
+---
+dis:Trend - Heat Output 2
+bacnetHis:TL13
+kind:Number
+point
+---
+dis:Trend - Heat Output 3
+bacnetHis:TL14
+kind:Number
+point
+---
+dis:Trend - Heat Output 4
+bacnetHis:TL15
+kind:Number
+point
+---
+dis:Trend - Mixed Air Temperature
+bacnetHis:TL25
+kind:Number
+point
+---
+dis:Trend - Occupancy Request
+bacnetHis:TL2
+kind:Number
+point
+---
+dis:Trend - Occupancy Status
+bacnetHis:TL8
+kind:Number
+point
+---
+dis:Trend - Outdoor Air Damper Position Status
+bacnetHis:TL33
+kind:Number
+point
+---
+dis:Trend - Outdoor Air Humidity Active
+bacnetHis:TL23
+kind:Number
+point
+---
+dis:Trend - Outdoor Air Temperature Active
+bacnetHis:TL22
+kind:Number
+point
+---
+dis:Trend - Primary Filter Status
+bacnetHis:TL16
+kind:Number
+point
+---
+dis:Trend - Return Air Temperature
+bacnetHis:TL26
+kind:Number
+point
+---
+dis:Trend - Space CO2 Concentration Active
+bacnetHis:TL27
+kind:Number
+point
+---
+dis:Trend - Space Humidity Active
+bacnetHis:TL21
+kind:Number
+point
+---
+dis:Trend - Space Temperature Active
+bacnetHis:TL20
+kind:Number
+point
+---
+dis:Trend - Space Temperature Setpoint Active
+bacnetHis:TL28
+kind:Number
+point
+---
+dis:Trend - Supply Air Tempering Enable Command
+bacnetHis:TL4
+kind:Bool
+point
+---
+dis:Trend - Supply Fan Proving Status
+bacnetHis:TL19
+kind:Number
+point
+---
+dis:Trend - Supply Fan Speed Command
+bacnetHis:TL18
+kind:Number
+point
+---
+dis:Trend - Supply Fan Status
+bacnetHis:TL17
+kind:Number
+point
+---
+dis:Trend - System Control Command
+bacnetHis:TL1
+kind:Bool
+point
+---
+dis:Trend - System Control Status
+bacnetHis:TL5
+kind:Bool
+point
+---
+dis:Trend - Timed Override Status
+bacnetHis:TL9
+kind:Number
+point
+---
+dis:Trend - Unit Stop Source
+bacnetHis:TL29
+kind:Number
+point

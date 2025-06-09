@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BACnet Point Grouping UI Concept</title>
+    <!-- 
+    =============================================================================
+    BACnet Point Grouping UI Concept - Complete Interactive Prototype
+    =============================================================================
+    
+    📋 OVERVIEW:
+    This prototype demonstrates equipment grouping interface patterns for building 
+    automation systems. It showcases the complete workflow from reviewing AI-suggested 
+    equipment groups to manual point assignment with real-time progress tracking.
+    
+    🎯 KEY FEATURES:
+    ✅ AI-Suggested Equipment Groups with confidence scores (95%, 92%, 88%)
+    ✅ Interactive Equipment Group Management (expand/collapse, confirm/flag)
+    ✅ Advanced Search & Filter System (debounced search, multi-criteria filters)
+    ✅ Bulk Point Selection & Assignment (checkbox selection, bulk actions)
+    ✅ Modal Dialog Workflows (equipment assignment, new equipment creation)
+    ✅ Real-time Statistics Updates (progress tracking, completion metrics)
+    ✅ Professional Building Automation Aesthetics (color-coded equipment types)
+    ✅ Responsive Design (desktop/tablet/mobile optimized)
+    ✅ Accessibility Compliance (ARIA labels, keyboard navigation)
+    
+    🏗️ TECHNICAL ARCHITECTURE:
+    - Single-file prototype (HTML/CSS/JavaScript)
+    - Professional color system with CSS custom properties
+    - Mock BACnet data with realistic building automation naming patterns
+    - State management with efficient Set-based point selection
+    - Debounced search (300ms) for optimal performance
+    - Event delegation for dynamic content handling
+    
+    📊 DEMO DATA:
+    - 25 realistic BACnet points with authentic naming patterns
+    - 3 suggested equipment groups (AHU-1, VAV-201, TU-101)
+    - 15 unassigned points from various building systems
+    - Equipment types: ahu (blue), vav (purple), terminal-unit (green)
+    - Vendors: Johnson Controls, Siemens, Trane
+    
+    🔄 WORKFLOW DEMONSTRATION:
+    1. Review AI-suggested equipment groups with confidence indicators
+    2. Expand groups to examine individual points and confidence scores
+    3. Confirm accurate groupings or flag questionable ones for review
+    4. Search and filter unassigned points using multiple criteria
+    5. Select individual points or use bulk selection with checkboxes
+    6. Assign points to existing equipment or create new equipment groups
+    7. Track real-time progress as assignment completion percentage increases
+    
+    🎨 DESIGN SYSTEM:
+    - Primary Colors: Blue (#3b82f6) for actions and equipment highlights
+    - Success Colors: Green (#22c55e) for confirmations and completed items
+    - Warning Colors: Orange (#f59e0b) for suggestions and pending reviews
+    - Equipment Color Coding:
+      * AHU (Air Handling Units): Blue (#3b82f6)
+      * VAV (Variable Air Volume): Purple (#8b5cf6)
+      * Terminal Units: Green (#10b981)
+      * Chillers: Cyan (#06b6d4)
+      * Pumps: Orange (#f59e0b)
+    
+    🚀 MODAL DIALOG INTEGRATION:
+    This prototype is designed for embedding within larger building automation 
+    applications as a modal dialog. Key integration points:
+    
+    - Container max-width: 1000px (optimal for modal embedding)
+    - Self-contained styling with CSS custom properties
+    - No external dependencies or framework requirements
+    - Event-driven architecture ready for parent application communication
+    - Clean API surface for data exchange and workflow callbacks
+    
+    💻 BROWSER COMPATIBILITY:
+    - Modern browsers supporting ES6+ features
+    - CSS Grid and Flexbox layouts
+    - CSS Custom Properties (CSS Variables)
+    - Modern JavaScript features (Set, Array methods, template literals)
+    
+    🔧 INTEGRATION NOTES FOR DEVELOPERS:
+    
+    1. DATA INTEGRATION:
+    Replace mockBACnetPoints and suggestedEquipmentGroups arrays with real API data:
+    
+    // Example API integration
+    async function loadRealData() {
+        const response = await fetch('/api/points/grouping-candidates');
+        const data = await response.json();
+        mockBACnetPoints = data.points;
+        suggestedEquipmentGroups = data.suggestedGroups;
+        initializeApp();
+    }
+    
+    2. CALLBACK INTEGRATION:
+    Add callback functions for parent application communication:
+    
+    window.groupingUICallbacks = {
+        onAssignmentComplete: (pointIds, equipmentId) => { /* notify parent */ },
+        onGroupConfirmed: (groupId) => { /* update main application */ },
+        onWorkflowComplete: (summary) => { /* close modal, show results */ }
+    };
+    
+    3. STYLING INTEGRATION:
+    The CSS custom properties can be overridden to match your application theme:
+    
+    .grouping-container {
+        --primary-500: #your-brand-color;
+        --success-500: #your-success-color;
+        /* etc. */
+    }
+    
+    4. ACCESSIBILITY FEATURES:
+    - All interactive elements include proper ARIA labels
+    - Keyboard navigation support throughout the interface
+    - Screen reader compatible with semantic HTML structure
+    - High contrast ratios meeting WCAG 2.1 AA standards
+    - Focus indicators on all interactive elements
+    
+    📝 USAGE INSTRUCTIONS:
+    
+    SEARCH & FILTER:
+    - Use the search box to find points by name, BACnet ID, or source file
+    - Click "Filters" to show/hide data type and unit filters
+    - Search is debounced (300ms) for smooth performance
+    - "Clear all filters" button resets all search and filter criteria
+    
+    EQUIPMENT GROUPS:
+    - Click equipment group headers to expand/collapse point details
+    - Green "✓ Confirm Group" button accepts the suggested grouping
+    - Orange "⚠ Flag for Review" button marks groups needing manual review
+    - Individual points within groups can be confirmed or flagged separately
+    
+    POINT ASSIGNMENT:
+    - Check boxes next to unassigned points for bulk selection
+    - Blue selection bar appears showing count and bulk actions
+    - "Assign to Equipment" opens modal for equipment selection
+    - Modal supports assigning to existing equipment or creating new equipment
+    - "Clear Selection" removes all checkboxes and hides selection bar
+    
+    PROGRESS TRACKING:
+    - Statistics header shows real-time completion progress
+    - Total points, assigned points, completion percentage auto-update
+    - Suggested groups count reflects current system state
+    
+    🔍 TESTING SCENARIOS:
+    
+    1. Basic Workflow Test:
+       - Confirm an equipment group
+       - Search for "PUMP" to filter unassigned points
+       - Select multiple pump points and assign to new equipment
+       - Verify statistics update correctly
+    
+    2. Filter Combination Test:
+       - Apply text search + data type filter + unit filter
+       - Verify results update correctly with all criteria
+       - Clear filters and confirm all points return
+    
+    3. Modal Interaction Test:
+       - Select points and open assignment modal
+       - Test both existing equipment assignment and new equipment creation
+       - Verify modal closes properly and success messages appear
+    
+    4. Responsive Design Test:
+       - Resize browser to tablet/mobile widths
+       - Verify layout adapts correctly (two-column to single-column)
+       - Test touch interactions and mobile-optimized controls
+    
+    ⚡ PERFORMANCE CONSIDERATIONS:
+    - Debounced search prevents excessive DOM updates
+    - Efficient Set-based point selection tracking
+    - Minimal DOM manipulation with targeted updates
+    - Event delegation for dynamic content
+    - CSS transitions provide smooth visual feedback
+    
+    🎯 FUTURE DEVELOPMENT NOTES:
+    - Ready for React/Vue/Angular component conversion
+    - Data structures align with typical REST API patterns
+    - Color system and spacing scales ready for design token migration
+    - Interaction patterns follow industry standard building automation UX
+    - Modular JavaScript functions ready for framework integration
+    
+    📋 COMPONENT BREAKDOWN:
+    - StatsHeader: Real-time progress metrics and completion tracking
+    - SuggestedGroupsPanel: AI-detected equipment with confidence scores
+    - UnassignedPointsPanel: Search, filter, and bulk assignment interface
+    - AssignmentModal: Equipment selection and new equipment creation
+    - BulkSelectionBar: Multi-point assignment interface
+    - SuccessNotifications: User feedback and confirmation messages
+    
+    =============================================================================
+    End of Documentation
+    =============================================================================
+    -->
+    <style>
+        /* Color System - Professional Building Automation Palette */
+        :root {
+            /* Primary Colors */
+            --primary-50: #eff6ff;
+            --primary-200: #bfdbfe;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            
+            /* Success Colors */
+            --success-50: #f0fdf4;
+            --success-200: #bbf7d0;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            
+            /* Warning Colors */
+            --warning-50: #fffbeb;
+            --warning-200: #fed7aa;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            
+            /* Danger Colors */
+            --danger-50: #fef2f2;
+            --danger-200: #fecaca;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            
+            /* Equipment Type Colors */
+            --equipment-ahu: #3b82f6;
+            --equipment-vav: #8b5cf6;
+            --equipment-terminal-unit: #10b981;
+            --equipment-chiller: #06b6d4;
+            --equipment-pump: #f59e0b;
+            
+            /* Neutral Colors */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* Semantic Colors */
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --border: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 0.75rem;
+            --spacing-lg: 1rem;
+            --spacing-xl: 1.5rem;
+            --spacing-2xl: 2rem;
+            --spacing-3xl: 3rem;
+        }
+        
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: var(--surface);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        /* Container Styles */
+        .grouping-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            background-color: var(--background);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        /* Statistics Header */
+        .stats-header {
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+            border: 1px solid var(--primary-200);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-lg);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-600);
+            line-height: 1;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+            align-items: start;
+        }
+        
+        /* Panel Styles */
+        .suggested-groups-panel,
+        .unassigned-points-panel {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background-color: var(--gray-50);
+            border-bottom: 1px solid var(--border);
+            padding: var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .panel-count {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            background-color: var(--gray-100);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-200);
+        }
+        
+        /* Equipment Groups */
+        .groups-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .equipment-group {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .equipment-group:last-child {
+            border-bottom: none;
+        }
+        
+        .group-header {
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: background-color 0.2s ease;
+        }
+        
+        .group-header:hover {
+            background-color: var(--gray-50);
+        }
+        
+        .group-header.expanded {
+            background-color: var(--primary-50);
+            border-bottom: 1px solid var(--primary-200);
+        }
+        
+        .group-title h3 {
+            margin: 0 0 var(--spacing-xs) 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .group-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+        
+        .vendor {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background-color: var(--gray-100);
+            padding: 2px var(--spacing-xs);
+            border-radius: var(--radius-sm);
+        }
+        
+        .confidence {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--success-600);
+        }
+        
+        .group-stats {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .point-count {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .toggle-icon {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: var(--spacing-sm);
+            transition: transform 0.2s ease;
+        }
+        
+        /* Equipment Type Colors */
+        .equipment-group[data-equipment-type="ahu"] .group-header {
+            border-left: 4px solid var(--equipment-ahu);
+        }
+        
+        .equipment-group[data-equipment-type="vav"] .group-header {
+            border-left: 4px solid var(--equipment-vav);
+        }
+        
+        .equipment-group[data-equipment-type="terminal-unit"] .group-header {
+            border-left: 4px solid var(--equipment-terminal-unit);
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            padding: 2px var(--spacing-xs);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .status-badge.suggested {
+            background-color: var(--warning-50);
+            color: var(--warning-600);
+            border: 1px solid var(--warning-200);
+        }
+        
+        .status-badge.confirmed {
+            background-color: var(--success-50);
+            color: var(--success-600);
+            border: 1px solid var(--success-200);
+        }
+        
+        .status-badge.flagged {
+            background-color: var(--danger-50);
+            color: var(--danger-600);
+            border: 1px solid var(--danger-200);
+        }
+        
+        /* Group Content */
+        .group-content {
+            padding: var(--spacing-lg);
+            background-color: var(--gray-50);
+            border-top: 1px solid var(--border);
+        }
+        
+        .group-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        /* Button Styles */
+        .btn, button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Primary Button */
+        .btn-primary,
+        .btn-confirm-group,
+        .btn-confirm-point {
+            background-color: var(--primary-500);
+            color: white;
+            border-color: var(--primary-500);
+        }
+        
+        .btn-primary:hover:not(:disabled),
+        .btn-confirm-group:hover,
+        .btn-confirm-point:hover {
+            background-color: var(--primary-600);
+            border-color: var(--primary-600);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Secondary Button */
+        .btn-secondary,
+        .btn-flag-group,
+        .btn-flag-point {
+            background-color: var(--background);
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+        
+        .btn-secondary:hover,
+        .btn-flag-group:hover,
+        .btn-flag-point:hover {
+            background-color: var(--gray-50);
+            border-color: var(--gray-300);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Warning Button */
+        .btn-flag-group,
+        .btn-flag-point {
+            color: var(--warning-600);
+            border-color: var(--warning-200);
+        }
+        
+        .btn-flag-group:hover,
+        .btn-flag-point:hover {
+            background-color: var(--warning-50);
+            border-color: var(--warning-300);
+        }
+        
+        /* Success Button */
+        .btn-assign,
+        .btn-assign-point {
+            background-color: var(--success-500);
+            color: white;
+            border-color: var(--success-500);
+        }
+        
+        .btn-assign:hover,
+        .btn-assign-point:hover {
+            background-color: var(--success-600);
+            border-color: var(--success-600);
+        }
+        
+        /* Search and Filter Section */
+        .search-filter-section {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+            background-color: var(--gray-50);
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-xl) var(--spacing-md) var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            background-color: var(--background);
+            transition: all 0.2s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px var(--primary-50);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: var(--spacing-xs);
+        }
+        
+        .filter-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .filter-toggle {
+            background-color: var(--background);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        
+        .bulk-assign-btn {
+            background-color: var(--primary-500);
+            color: white;
+            border-color: var(--primary-500);
+        }
+        
+        /* Filter Options */
+        .filter-options {
+            padding: var(--spacing-lg);
+            background-color: var(--background);
+            border-top: 1px solid var(--border);
+        }
+        
+        .filter-group {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .filter-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: 400;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: var(--spacing-xs);
+        }
+        
+        /* Bulk Selection Bar */
+        .bulk-selection-bar {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background-color: var(--primary-50);
+            border-bottom: 1px solid var(--primary-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .selection-count {
+            font-size: 0.875rem;
+            color: var(--primary-600);
+            font-weight: 600;
+        }
+        
+        .bulk-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+        
+        .btn-assign {
+            background-color: var(--success-500);
+            color: white;
+            border-color: var(--success-500);
+            padding: var(--spacing-xs) var(--spacing-md);
+            font-size: 0.875rem;
+        }
+        
+        .btn-clear {
+            background-color: var(--background);
+            color: var(--text-secondary);
+            border-color: var(--border);
+            padding: var(--spacing-xs) var(--spacing-md);
+            font-size: 0.875rem;
+        }
+        
+        /* Points Container */
+        .points-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .no-points {
+            padding: var(--spacing-2xl);
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        /* Point Items */
+        .point-item {
+            display: flex;
+            align-items: flex-start;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s ease;
+        }
+        
+        .point-item:last-child {
+            border-bottom: none;
+        }
+        
+        .point-item:hover {
+            background-color: var(--gray-50);
+        }
+        
+        .point-item.in-group {
+            background-color: var(--success-50);
+            border-left: 3px solid var(--success-500);
+        }
+        
+        .point-selector {
+            margin-right: var(--spacing-md);
+            margin-top: 2px;
+        }
+        
+        .point-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .point-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .point-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            word-break: break-all;
+        }
+        
+        .point-kind {
+            padding: 2px var(--spacing-xs);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .point-kind.number {
+            background-color: var(--primary-50);
+            color: var(--primary-600);
+            border: 1px solid var(--primary-200);
+        }
+        
+        .point-kind.bool {
+            background-color: var(--success-50);
+            color: var(--success-600);
+            border: 1px solid var(--success-200);
+        }
+        
+        .point-kind.str {
+            background-color: var(--warning-50);
+            color: var(--warning-600);
+            border: 1px solid var(--warning-200);
+        }
+        
+        .point-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .bacnet-id {
+            font-family: 'Courier New', monospace;
+            background-color: var(--gray-100);
+            padding: 2px var(--spacing-xs);
+            border-radius: var(--radius-sm);
+        }
+        
+        .unit {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .source {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .point-actions {
+            margin-left: var(--spacing-md);
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+        
+        .point-actions button {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: var(--background);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: var(--spacing-xl);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: var(--spacing-xs);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+        }
+        
+        .modal-close:hover {
+            background-color: var(--gray-100);
+            color: var(--text-primary);
+        }
+        
+        .modal-body {
+            padding: var(--spacing-xl);
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .equipment-selector {
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .equipment-selector label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .equipment-selector select {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            background-color: var(--background);
+        }
+        
+        .selected-points-preview h4 {
+            margin: 0 0 var(--spacing-md) 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .modal-footer {
+            padding: var(--spacing-xl);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+        
+        .btn-cancel {
+            background-color: var(--background);
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        
+        .btn-confirm {
+            background-color: var(--primary-500);
+            color: white;
+            border-color: var(--primary-500);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .grouping-container {
+                margin: 0;
+                padding: var(--spacing-md);
+                border-radius: 0;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-lg);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-sm);
+            }
+            
+            .group-header {
+                padding: var(--spacing-md);
+            }
+            
+            .group-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-xs);
+            }
+            
+            .point-item {
+                padding: var(--spacing-md);
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-sm);
+            }
+            
+            .point-details {
+                flex-direction: column;
+                gap: var(--spacing-xs);
+            }
+            
+            .point-actions {
+                margin-left: 0;
+                justify-content: flex-end;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: var(--spacing-md);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+            
+            .bulk-selection-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-sm);
+                text-align: center;
+            }
+            
+            .bulk-actions {
+                justify-content: center;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        .groups-container::-webkit-scrollbar,
+        .points-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .groups-container::-webkit-scrollbar-track,
+        .points-container::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+        
+        .groups-container::-webkit-scrollbar-thumb,
+        .points-container::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+        
+        .groups-container::-webkit-scrollbar-thumb:hover,
+        .points-container::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+        
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        /* Focus States for Accessibility */
+        button:focus,
+        input:focus,
+        select:focus {
+            outline: 2px solid var(--primary-500);
+            outline-offset: 2px;
+        }
+        
+        /* Animation for smooth transitions */
+        .equipment-group,
+        .point-item,
+        .modal-overlay {
+            transition: all 0.2s ease;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .grouping-container {
+                box-shadow: none;
+                border: 1px solid var(--border);
+            }
+            
+            .search-filter-section,
+            .bulk-selection-bar,
+            .point-actions,
+            .group-actions {
+                display: none;
+            }
+        }
+        
+        /* Accessibility Utilities */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            :root {
+                --border: #000000;
+                --text-primary: #000000;
+                --text-secondary: #000000;
+                --background: #ffffff;
+            }
+        }
+        
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* Focus Management */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        /* Keyboard Navigation Improvements */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid var(--primary-500);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px var(--primary-50);
+        }
+        
+        /* Skip to Content Link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--primary-500);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            z-index: 1001;
+            transition: top 0.3s;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <div class="grouping-container">
+        <!-- Statistics Header -->
+        <header class="stats-header" role="banner" aria-labelledby="stats-heading">
+            <h1 id="stats-heading" class="sr-only">BACnet Point Grouping Statistics</h1>
+            <div class="stats-grid" role="group" aria-label="Project Statistics">
+                <div class="stat-item" role="status" aria-live="polite">
+                    <div class="stat-value" id="totalPoints" aria-label="Total Points">156</div>
+                    <div class="stat-label">Total Points</div>
+                </div>
+                <div class="stat-item" role="status" aria-live="polite">
+                    <div class="stat-value" id="assignedPoints" aria-label="Assigned Points">89</div>
+                    <div class="stat-label">Assigned</div>
+                </div>
+                <div class="stat-item" role="status" aria-live="polite">
+                    <div class="stat-value" id="completionPercent" aria-label="Completion Percentage">57%</div>
+                    <div class="stat-label">Complete</div>
+                </div>
+                <div class="stat-item" role="status" aria-live="polite">
+                    <div class="stat-value" id="suggestedGroups" aria-label="Suggested Groups Count">4</div>
+                    <div class="stat-label">Suggested Groups</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content: Two-Panel Layout -->
+        <main class="main-content" role="main" id="main-content" tabindex="-1">
+            <!-- Left Panel: Suggested Equipment Groups -->
+            <aside class="suggested-groups-panel" role="complementary" aria-labelledby="suggested-groups-heading">
+                <div class="panel-header">
+                    <h2 id="suggested-groups-heading">Suggested Groups</h2>
+                    <span class="panel-count" id="suggestedCount" aria-live="polite">4 groups detected</span>
+                </div>
+                
+                <div class="groups-container" id="suggestedGroupsContainer" role="list" aria-label="Suggested Equipment Groups">
+                    <!-- Suggested groups will be populated by JavaScript -->
+                </div>
+            </aside>
+
+            <!-- Right Panel: Unassigned Points -->
+            <section class="unassigned-points-panel" role="region" aria-labelledby="unassigned-points-heading">
+                <div class="panel-header">
+                    <h2 id="unassigned-points-heading">Unassigned Points</h2>
+                    <span class="panel-count" id="unassignedCount" aria-live="polite">67 points remaining</span>
+                </div>
+
+                <!-- Search and Filter Controls -->
+                <div class="search-filter-section" role="search" aria-labelledby="search-heading">
+                    <h3 id="search-heading" class="sr-only">Search and Filter Controls</h3>
+                    <div class="search-box">
+                        <label for="searchInput" class="sr-only">Search points by name, description, or BACnet ID</label>
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="Search points by name, description, or BACnet ID..."
+                               aria-describedby="search-help">
+                        <button class="search-icon" aria-label="Search" type="button">🔍</button>
+                        <div id="search-help" class="sr-only">Search is debounced with 300ms delay for optimal performance</div>
+                    </div>
+                    
+                    <div class="filter-controls">
+                        <button class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filterOptions" aria-label="Toggle filter options">Filters ⚙️</button>
+                        <button class="bulk-assign-btn" id="bulkAssignBtn" disabled aria-label="Assign selected points to equipment">Assign Selected</button>
+                    </div>
+                </div>
+
+                <!-- Filter Options (Collapsible) -->
+                <div class="filter-options" id="filterOptions" style="display: none;" role="group" aria-labelledby="filter-heading">
+                    <h3 id="filter-heading" class="sr-only">Filter Options</h3>
+                    <div class="filter-group">
+                        <fieldset>
+                            <legend>Data Type:</legend>
+                            <div class="checkbox-group" role="group">
+                                <label><input type="checkbox" value="Number" checked aria-describedby="filter-help"> Number</label>
+                                <label><input type="checkbox" value="Bool" checked> Boolean</label>
+                                <label><input type="checkbox" value="Str"> String</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="filter-group">
+                        <fieldset>
+                            <legend>Unit:</legend>
+                            <div class="checkbox-group" role="group">
+                                <label><input type="checkbox" value="°F" checked> °F</label>
+                                <label><input type="checkbox" value="%RH" checked> %RH</label>
+                                <label><input type="checkbox" value="CFM" checked> CFM</label>
+                                <label><input type="checkbox" value="inH2O" checked> inH₂O</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div id="filter-help" class="sr-only">Use these checkboxes to filter points by data type and unit. Changes apply automatically.</div>
+                </div>
+
+                <!-- Bulk Selection Bar -->
+                <div class="bulk-selection-bar" id="bulkSelectionBar" style="display: none;" role="status" aria-live="polite" aria-label="Bulk selection controls">
+                    <span class="selection-count" id="selectionCount">0 points selected</span>
+                    <div class="bulk-actions" role="group" aria-label="Bulk actions">
+                        <button class="btn-assign" aria-label="Assign selected points to equipment">Assign to Equipment</button>
+                        <button class="btn-clear" aria-label="Clear all selected points">Clear Selection</button>
+                    </div>
+                </div>
+
+                <!-- Points List -->
+                <div class="points-container" id="unassignedPointsContainer" role="list" aria-label="Unassigned Points" aria-live="polite">
+                    <!-- Unassigned points will be populated by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Assignment Modal (Hidden by default) -->
+        <div class="modal-overlay" id="assignmentModal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-description">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Assign Points to Equipment</h3>
+                    <button class="modal-close" aria-label="Close assignment modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-description" class="sr-only">Use this dialog to assign selected points to existing equipment or create new equipment groups.</div>
+                    <div class="equipment-selector">
+                        <label for="equipmentSelect">Select Equipment:</label>
+                        <select id="equipmentSelect" aria-describedby="equipment-help">
+                            <option value="">Create New Equipment...</option>
+                        </select>
+                        <div id="equipment-help" class="sr-only">Choose an existing equipment group or select "Create New Equipment" to make a new group.</div>
+                    </div>
+                    <div class="selected-points-preview">
+                        <h4>Selected Points:</h4>
+                        <div id="selectedPointsList" role="list" aria-label="Points to be assigned"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" aria-label="Cancel assignment and close modal">Cancel</button>
+                    <button class="btn-confirm" aria-label="Confirm point assignment">Assign Points</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock BACnet Point Data - Realistic building automation point names
+        const mockBACnetPoints = [
+            // AHU-1 Points (Auto-suggested group)
+            {
+                id: 'p001',
+                dis: 'CCA_00_3W_AHU_013WAM_05H-SAT',
+                bacnetCur: '@p:site1:r:ahu1_sat',
+                kind: 'Number',
+                unit: '°F',
+                vendor: 'Johnson Controls',
+                model: 'VMA1400',
+                fileName: 'AHU-1_ERV-1.trio.txt',
+                equipRef: 'ahu1',
+                status: 'suggested',
+                confidence: 0.95
+            },
+            {
+                id: 'p002',
+                dis: 'CCA_00_3W_AHU_013WAM_05H-RAT',
+                bacnetCur: '@p:site1:r:ahu1_rat',
+                kind: 'Number',
+                unit: '°F',
+                vendor: 'Johnson Controls',
+                model: 'VMA1400',
+                fileName: 'AHU-1_ERV-1.trio.txt',
+                equipRef: 'ahu1',
+                status: 'suggested',
+                confidence: 0.95
+            },
+            {
+                id: 'p003',
+                dis: 'CCA_00_3W_AHU_013WAM_05H-MAT',
+                bacnetCur: '@p:site1:r:ahu1_mat',
+                kind: 'Number',
+                unit: '°F',
+                vendor: 'Johnson Controls',
+                model: 'VMA1400',
+                fileName: 'AHU-1_ERV-1.trio.txt',
+                equipRef: 'ahu1',
+                status: 'suggested',
+                confidence: 0.95
+            },
+            {
+                id: 'p004',
+                dis: 'CCA_00_3W_AHU_013WAM_05H-OAT',
+                bacnetCur: '@p:site1:r:ahu1_oat',
+                kind: 'Number',
+                unit: '°F',
+                vendor: 'Johnson Controls',
+                model: 'VMA1400',
+                fileName: 'AHU-1_ERV-1.trio.txt',
+                equipRef: 'ahu1',
+                status: 'suggested',
+                confidence: 0.95
+            },
+            {
+                id: 'p005',
+                dis: 'CCA_00_3W_AHU_013WAM_05H-SF_STATUS',
+                bacnetCur: '@p:site1:r:ahu1_sf_status',
+                kind: 'Bool',
+                unit: null,
+                vendor: 'Johnson Controls',
+                model: 'VMA1400',
+                fileName: 'AHU-1_ERV-1.trio.txt',
+                equipRef: 'ahu1',
+                status: 'suggested',
+                confidence: 0.95
+            },
+
+            // VAV-201 Points (Auto-suggested group)
+            {
+                id: 'p006',
+                dis: 'CCA_00_3W_VAV_201-ZN_TEMP',
+                bacnetCur: '@p:site1:r:vav201_zn_temp',
+                kind: 'Number',
+                unit: '°F',
+                vendor: 'Siemens',
+                model: 'VAV2000',
+                fileName: 'VAV-201.trio.txt',
+                equipRef: 'vav201',
+                status: 'suggested',
+                confidence: 0.92
+            },
+            {
+                id: 'p007',
+                dis: 'CCA_00_3W_VAV_201-DAT',
+                bacnetCur: '@p:site1:r:vav201_dat',
+                kind: 'Number',
+                unit: '°F',
+                vendor: 'Siemens',
+                model: 'VAV2000',
+                fileName: 'VAV-201.trio.txt',
+                equipRef: 'vav201',
+                status: 'suggested',
+                confidence: 0.92
+            },
+            {
+                id: 'p008',
+                dis: 'CCA_00_3W_VAV_201-AIRFLOW',
+                bacnetCur: '@p:site1:r:vav201_airflow',
+                kind: 'Number',
+                unit: 'CFM',
+                vendor: 'Siemens',
+                model: 'VAV2000',
+                fileName: 'VAV-201.trio.txt',
+                equipRef: 'vav201',
+                status: 'suggested',
+                confidence: 0.92
+            },
+
+            // Terminal Unit Points (Auto-suggested group)
+            {
+                id: 'p009',
+                dis: 'CCA_00_3W_TU_101_DISCH_TEMP',
+                bacnetCur: '@p:site1:r:tu101_disch_temp',
+                kind: 'Number',
+                unit: '°F',
+                vendor: 'Trane',
+                model: 'TU100',
+                fileName: 'TU-101.trio.txt',
+                equipRef: 'tu101',
+                status: 'suggested',
+                confidence: 0.88
+            },
+            {
+                id: 'p010',
+                dis: 'CCA_00_3W_TU_101_VALVE_POS',
+                bacnetCur: '@p:site1:r:tu101_valve_pos',
+                kind: 'Number',
+                unit: '%',
+                vendor: 'Trane',
+                model: 'TU100',
+                fileName: 'TU-101.trio.txt',
+                equipRef: 'tu101',
+                status: 'suggested',
+                confidence: 0.88
+            },
+
+            // Unassigned Points (Various sources)
+            {
+                id: 'p011',
+                dis: 'CCA_00_2W_MISC_ROOM_301_TEMP',
+                bacnetCur: '@p:site1:r:room301_temp',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'MISC_POINTS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p012',
+                dis: 'CCA_00_2W_MISC_ROOM_302_TEMP',
+                bacnetCur: '@p:site1:r:room302_temp',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'MISC_POINTS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p013',
+                dis: 'CCA_00_2W_MISC_ROOM_303_TEMP',
+                bacnetCur: '@p:site1:r:room303_temp',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'MISC_POINTS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p014',
+                dis: 'CCA_00_1W_PUMP_001_STATUS',
+                bacnetCur: '@p:site1:r:pump001_status',
+                kind: 'Bool',
+                unit: null,
+                fileName: 'PUMPS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p015',
+                dis: 'CCA_00_1W_PUMP_001_SPEED',
+                bacnetCur: '@p:site1:r:pump001_speed',
+                kind: 'Number',
+                unit: '%',
+                fileName: 'PUMPS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p016',
+                dis: 'CCA_00_1W_PUMP_002_STATUS',
+                bacnetCur: '@p:site1:r:pump002_status',
+                kind: 'Bool',
+                unit: null,
+                fileName: 'PUMPS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p017',
+                dis: 'CCA_00_1W_PUMP_002_SPEED',
+                bacnetCur: '@p:site1:r:pump002_speed',
+                kind: 'Number',
+                unit: '%',
+                fileName: 'PUMPS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p018',
+                dis: 'CCA_00_3W_CHILLER_001_SAT',
+                bacnetCur: '@p:site1:r:chiller001_sat',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'CHILLERS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p019',
+                dis: 'CCA_00_3W_CHILLER_001_RAT',
+                bacnetCur: '@p:site1:r:chiller001_rat',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'CHILLERS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p020',
+                dis: 'CCA_00_3W_CHILLER_001_STATUS',
+                bacnetCur: '@p:site1:r:chiller001_status',
+                kind: 'Bool',
+                unit: null,
+                fileName: 'CHILLERS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p021',
+                dis: 'CCA_00_4W_FAN_COIL_401_TEMP',
+                bacnetCur: '@p:site1:r:fc401_temp',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'FAN_COILS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p022',
+                dis: 'CCA_00_4W_FAN_COIL_401_SPEED',
+                bacnetCur: '@p:site1:r:fc401_speed',
+                kind: 'Number',
+                unit: '%',
+                fileName: 'FAN_COILS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p023',
+                dis: 'CCA_00_4W_FAN_COIL_402_TEMP',
+                bacnetCur: '@p:site1:r:fc402_temp',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'FAN_COILS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p024',
+                dis: 'CCA_00_4W_FAN_COIL_402_SPEED',
+                bacnetCur: '@p:site1:r:fc402_speed',
+                kind: 'Number',
+                unit: '%',
+                fileName: 'FAN_COILS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            },
+            {
+                id: 'p025',
+                dis: 'CCA_00_ROOF_OA_TEMP_SENSOR',
+                bacnetCur: '@p:site1:r:roof_oa_temp',
+                kind: 'Number',
+                unit: '°F',
+                fileName: 'SENSORS.trio.txt',
+                equipRef: null,
+                status: 'unassigned',
+                confidence: null
+            }
+        ];
+
+        // Mock Equipment Groups (Auto-suggested based on patterns)
+        const suggestedEquipmentGroups = [
+            {
+                id: 'ahu1',
+                name: 'AHU-1 (Air Handling Unit)',
+                type: 'ahu',
+                confidence: 0.95,
+                pointCount: 5,
+                status: 'suggested',
+                vendor: 'Johnson Controls',
+                model: 'VMA1400',
+                points: mockBACnetPoints.filter(p => p.equipRef === 'ahu1')
+            },
+            {
+                id: 'vav201',
+                name: 'VAV-201 (Variable Air Volume)',
+                type: 'vav',
+                confidence: 0.92,
+                pointCount: 3,
+                status: 'suggested',
+                vendor: 'Siemens',
+                model: 'VAV2000',
+                points: mockBACnetPoints.filter(p => p.equipRef === 'vav201')
+            },
+            {
+                id: 'tu101',
+                name: 'TU-101 (Terminal Unit)',
+                type: 'terminal-unit',
+                confidence: 0.88,
+                pointCount: 2,
+                status: 'suggested',
+                vendor: 'Trane',
+                model: 'TU100',
+                points: mockBACnetPoints.filter(p => p.equipRef === 'tu101')
+            }
+        ];
+
+        // Application State
+        const appState = {
+            selectedPoints: new Set(),
+            filteredPoints: [],
+            searchQuery: '',
+            filters: {
+                kind: ['Number', 'Bool'],
+                unit: ['°F', '%RH', 'CFM', 'inH2O']
+            },
+            searchTimeout: null // For debounced search
+        };
+
+        // Initialize the application
+        function initializeApp() {
+            // Get unassigned points
+            const unassignedPoints = mockBACnetPoints.filter(p => !p.equipRef);
+            appState.filteredPoints = unassignedPoints;
+            
+            // Update statistics
+            updateStatistics();
+            
+            // Render suggested groups
+            renderSuggestedGroups();
+            
+            // Render unassigned points
+            renderUnassignedPoints();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Setup filter checkboxes
+            setupFilterCheckboxes();
+            
+            console.log('BACnet Point Grouping UI initialized');
+            console.log(`Total Points: ${mockBACnetPoints.length}`);
+            console.log(`Suggested Groups: ${suggestedEquipmentGroups.length}`);
+            console.log(`Unassigned Points: ${unassignedPoints.length}`);
+        }
+
+        function updateStatistics() {
+            const totalPoints = mockBACnetPoints.length;
+            const assignedPoints = mockBACnetPoints.filter(p => p.equipRef).length;
+            const completionPercent = Math.round((assignedPoints / totalPoints) * 100);
+            
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('assignedPoints').textContent = assignedPoints;
+            document.getElementById('completionPercent').textContent = `${completionPercent}%`;
+            document.getElementById('suggestedGroups').textContent = suggestedEquipmentGroups.length;
+            
+            const unassignedCount = totalPoints - assignedPoints;
+            document.getElementById('unassignedCount').textContent = `${unassignedCount} points remaining`;
+            document.getElementById('suggestedCount').textContent = `${suggestedEquipmentGroups.length} groups detected`;
+        }
+
+        // Debounced search function (300ms delay)
+        function debouncedSearch(query) {
+            // Clear existing timeout
+            if (appState.searchTimeout) {
+                clearTimeout(appState.searchTimeout);
+            }
+            
+            // Set new timeout
+            appState.searchTimeout = setTimeout(() => {
+                appState.searchQuery = query.toLowerCase();
+                filterPoints();
+            }, 300);
+        }
+
+        function setupFilterCheckboxes() {
+            // Setup data type filter checkboxes
+            const kindCheckboxes = document.querySelectorAll('#filterOptions input[type="checkbox"]');
+            kindCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', handleFilterChange);
+            });
+        }
+
+        function handleFilterChange() {
+            // Collect selected kinds
+            const selectedKinds = [];
+            document.querySelectorAll('#filterOptions .checkbox-group:first-child input[type="checkbox"]:checked').forEach(cb => {
+                selectedKinds.push(cb.value);
+            });
+            
+            // Collect selected units
+            const selectedUnits = [];
+            document.querySelectorAll('#filterOptions .checkbox-group:last-child input[type="checkbox"]:checked').forEach(cb => {
+                selectedUnits.push(cb.value);
+            });
+            
+            // Update app state
+            appState.filters.kind = selectedKinds;
+            appState.filters.unit = selectedUnits;
+            
+            // Apply filters
+            filterPoints();
+        }
+
+        function renderSuggestedGroups() {
+            const container = document.getElementById('suggestedGroupsContainer');
+            container.innerHTML = '';
+            
+            suggestedEquipmentGroups.forEach(group => {
+                const groupElement = createSuggestedGroupElement(group);
+                container.appendChild(groupElement);
+            });
+        }
+
+        function createSuggestedGroupElement(group) {
+            const div = document.createElement('div');
+            div.className = 'equipment-group suggested';
+            div.setAttribute('data-equipment-type', group.type);
+            div.setAttribute('role', 'listitem');
+            div.setAttribute('aria-label', `${group.name} equipment group with ${group.pointCount} points and ${Math.round(group.confidence * 100)}% confidence`);
+            
+            div.innerHTML = `
+                <div class="group-header" onclick="toggleGroup('${group.id}')" 
+                     role="button" tabindex="0" 
+                     aria-expanded="false" 
+                     aria-controls="group-${group.id}"
+                     onkeydown="handleGroupKeydown(event, '${group.id}')"
+                     aria-label="Expand ${group.name} equipment group">
+                    <div class="group-title">
+                        <h3>${group.name}</h3>
+                        <div class="group-meta">
+                            <span class="vendor">${group.vendor} ${group.model}</span>
+                            <span class="confidence">Confidence: ${Math.round(group.confidence * 100)}%</span>
+                        </div>
+                    </div>
+                    <div class="group-stats">
+                        <span class="point-count">${group.pointCount} points</span>
+                        <span class="status-badge ${group.status}">${group.status}</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                </div>
+                <div class="group-content" id="group-${group.id}" style="display: none;" aria-hidden="true">
+                    <div class="group-actions">
+                        <button class="btn-confirm-group" onclick="confirmGroup('${group.id}')" 
+                                aria-label="Confirm ${group.name} equipment group">
+                            ✓ Confirm Group
+                        </button>
+                        <button class="btn-flag-group" onclick="flagGroup('${group.id}')"
+                                aria-label="Flag ${group.name} equipment group for review">
+                            ⚠ Flag for Review
+                        </button>
+                    </div>
+                    <div class="points-list" role="list" aria-label="Points in ${group.name}">
+                        ${group.points.map(point => createPointElement(point, true)).join('')}
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function renderUnassignedPoints() {
+            const container = document.getElementById('unassignedPointsContainer');
+            container.innerHTML = '';
+            
+            if (appState.filteredPoints.length === 0) {
+                const hasActiveFilters = appState.searchQuery || 
+                    appState.filters.kind.length < 2 || 
+                    appState.filters.unit.length < 4;
+                
+                if (hasActiveFilters) {
+                    container.innerHTML = `
+                        <div class="no-points">
+                            No unassigned points match current filters.
+                            <br>
+                            <button onclick="clearAllFilters()" 
+                                    style="color: var(--primary-500); cursor: pointer; border: none; background: none; text-decoration: underline; margin-top: 8px;">
+                                Clear all filters
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="no-points">No unassigned points match current filters.</div>';
+                }
+                return;
+            }
+            
+            appState.filteredPoints.forEach(point => {
+                const pointElement = createPointElement(point, false);
+                container.appendChild(pointElement);
+            });
+        }
+
+        function createPointElement(point, isInGroup) {
+            const div = document.createElement('div');
+            div.className = `point-item ${isInGroup ? 'in-group' : 'unassigned'}`;
+            div.setAttribute('data-point-id', point.id);
+            div.setAttribute('role', isInGroup ? 'listitem' : 'listitem');
+            
+            const ariaLabel = isInGroup ? 
+                `${point.dis}, ${point.kind} type, ${point.unit || 'no unit'}, in equipment group` :
+                `${point.dis}, ${point.kind} type, ${point.unit || 'no unit'}, unassigned point`;
+            div.setAttribute('aria-label', ariaLabel);
+            
+            const selectionCheckbox = !isInGroup ? 
+                `<input type="checkbox" class="point-selector" value="${point.id}" 
+                        onchange="handlePointSelection(this)" 
+                        aria-label="Select ${point.dis} for bulk assignment"
+                        ${appState.selectedPoints.has(point.id) ? 'checked' : ''}>` : '';
+            
+            const actions = isInGroup ? 
+                `<div class="point-actions">
+                    <button class="btn-confirm-point" onclick="confirmPoint('${point.id}')"
+                            aria-label="Confirm ${point.dis}">✓</button>
+                    <button class="btn-flag-point" onclick="flagPoint('${point.id}')"
+                            aria-label="Flag ${point.dis} for review">⚠</button>
+                </div>` :
+                `<div class="point-actions">
+                    <button class="btn-assign-point" onclick="showAssignmentModal(['${point.id}'])"
+                            aria-label="Assign ${point.dis} to equipment">Assign</button>
+                </div>`;
+            
+            div.innerHTML = `
+                ${selectionCheckbox}
+                <div class="point-content">
+                    <div class="point-header">
+                        <span class="point-name">${point.dis}</span>
+                        <span class="point-kind ${(point.kind || 'number').toString().toLowerCase()}">${point.kind}</span>
+                    </div>
+                    <div class="point-details">
+                        <span class="bacnet-id">BACnet: ${point.bacnetCur}</span>
+                        <span class="unit">${point.unit || 'No unit'}</span>
+                        <span class="source">Source: ${point.fileName}</span>
+                    </div>
+                </div>
+                ${actions}
+            `;
+            
+            return div;
+        }
+
+        function setupEventListeners() {
+            // Search input with debounced search
+            document.getElementById('searchInput').addEventListener('input', (event) => {
+                debouncedSearch(event.target.value);
+            });
+            
+            // Filter toggle with accessibility support
+            document.getElementById('filterToggle').addEventListener('click', toggleFilters);
+            
+            // Bulk assign button
+            document.getElementById('bulkAssignBtn').addEventListener('click', handleBulkAssign);
+            
+            // Modal close handlers
+            const modal = document.getElementById('assignmentModal');
+            const closeBtn = modal.querySelector('.modal-close');
+            const cancelBtn = modal.querySelector('.btn-cancel');
+            
+            closeBtn.addEventListener('click', closeAssignmentModal);
+            cancelBtn.addEventListener('click', closeAssignmentModal);
+            
+            // Close modal on overlay click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeAssignmentModal();
+                }
+            });
+            
+            // ESC key to close modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    closeAssignmentModal();
+                }
+            });
+            
+            // Confirm assignment button
+            modal.querySelector('.btn-confirm').addEventListener('click', confirmAssignment);
+            
+            // Bulk actions
+            document.querySelector('.bulk-actions .btn-clear').addEventListener('click', clearSelection);
+            document.querySelector('.bulk-actions .btn-assign').addEventListener('click', handleBulkAssign);
+            
+            // Skip link functionality
+            document.querySelector('.skip-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                const mainContent = document.getElementById('main-content');
+                mainContent.focus();
+                announceToScreenReader('Skipped to main content');
+            });
+            
+            console.log('Event listeners setup complete with accessibility enhancements');
+        }
+
+        function handleSearch(event) {
+            debouncedSearch(event.target.value);
+        }
+
+        function filterPoints() {
+            const unassignedPoints = mockBACnetPoints.filter(p => !p.equipRef);
+            
+            appState.filteredPoints = unassignedPoints.filter(point => {
+                // Search filter
+                if (appState.searchQuery) {
+                    const searchableText = `${point.dis} ${point.bacnetCur} ${point.fileName}`.toLowerCase();
+                    if (!searchableText.includes(appState.searchQuery)) {
+                        return false;
+                    }
+                }
+                
+                // Kind filter
+                if (appState.filters.kind.length > 0 && !appState.filters.kind.includes(point.kind)) {
+                    return false;
+                }
+                
+                // Unit filter
+                const pointUnit = point.unit || 'No unit';
+                if (appState.filters.unit.length > 0 && !appState.filters.unit.includes(pointUnit)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            renderUnassignedPoints();
+        }
+
+        function clearAllFilters() {
+            // Clear search input
+            document.getElementById('searchInput').value = '';
+            appState.searchQuery = '';
+            
+            // Reset all checkboxes
+            document.querySelectorAll('#filterOptions input[type="checkbox"]').forEach(cb => {
+                cb.checked = true;
+            });
+            
+            // Reset filter state
+            appState.filters = {
+                kind: ['Number', 'Bool', 'Str'],
+                unit: ['°F', '%RH', 'CFM', 'inH2O']
+            };
+            
+            // Reapply filters
+            filterPoints();
+        }
+
+        function toggleFilters() {
+            const filterOptions = document.getElementById('filterOptions');
+            const filterToggle = document.getElementById('filterToggle');
+            const isVisible = filterOptions.style.display !== 'none';
+            
+            filterOptions.style.display = isVisible ? 'none' : 'block';
+            filterToggle.setAttribute('aria-expanded', !isVisible);
+            
+            // Announce filter state to screen readers
+            const announcement = isVisible ? 'Filters hidden' : 'Filters shown';
+            announceToScreenReader(announcement);
+        }
+
+        function handlePointSelection(checkbox) {
+            if (checkbox.checked) {
+                appState.selectedPoints.add(checkbox.value);
+            } else {
+                appState.selectedPoints.delete(checkbox.value);
+            }
+            
+            updateBulkSelectionBar();
+        }
+
+        function updateBulkSelectionBar() {
+            const bulkBar = document.getElementById('bulkSelectionBar');
+            const bulkBtn = document.getElementById('bulkAssignBtn');
+            const selectionCount = document.getElementById('selectionCount');
+            
+            const count = appState.selectedPoints.size;
+            
+            if (count > 0) {
+                bulkBar.style.display = 'flex';
+                bulkBtn.disabled = false;
+                selectionCount.textContent = `${count} points selected`;
+            } else {
+                bulkBar.style.display = 'none';
+                bulkBtn.disabled = true;
+            }
+        }
+
+        function clearSelection() {
+            // Clear all checkboxes
+            document.querySelectorAll('.point-selector:checked').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // Clear state
+            appState.selectedPoints.clear();
+            
+            // Update UI
+            updateBulkSelectionBar();
+        }
+
+        function handleBulkAssign() {
+            const selectedIds = Array.from(appState.selectedPoints);
+            if (selectedIds.length > 0) {
+                showAssignmentModal(selectedIds);
+            }
+        }
+
+        function showAssignmentModal(pointIds) {
+            const modal = document.getElementById('assignmentModal');
+            const equipmentSelect = document.getElementById('equipmentSelect');
+            const selectedPointsList = document.getElementById('selectedPointsList');
+            
+            // Store selected point IDs for assignment
+            modal.dataset.selectedPoints = JSON.stringify(pointIds);
+            
+            // Populate equipment selector
+            equipmentSelect.innerHTML = '<option value="">Create New Equipment...</option>';
+            suggestedEquipmentGroups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group.id;
+                option.textContent = `${group.name} (${group.pointCount} points)`;
+                equipmentSelect.appendChild(option);
+            });
+            
+            // Show selected points
+            const points = pointIds.map(id => mockBACnetPoints.find(p => p.id === id));
+            selectedPointsList.innerHTML = points.map(point => `
+                <div role="listitem" style="padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 4px; background-color: var(--gray-50);">
+                    <div style="font-weight: 600; font-size: 0.875rem;">${point.dis}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">${point.kind} • ${point.unit || 'No unit'}</div>
+                </div>
+            `).join('');
+            
+            // Store previous focus for restoration
+            modal.dataset.previousFocus = document.activeElement;
+            
+            // Show modal
+            modal.style.display = 'flex';
+            
+            // Focus management
+            setTimeout(() => {
+                equipmentSelect.focus();
+                announceToScreenReader(`Assignment modal opened for ${pointIds.length} selected points`);
+            }, 100);
+        }
+
+        function closeAssignmentModal() {
+            const modal = document.getElementById('assignmentModal');
+            
+            // Restore focus to previous element
+            const previousFocus = modal.dataset.previousFocus;
+            if (previousFocus) {
+                const element = document.querySelector(`[data-focus-id="${previousFocus}"]`) || 
+                               document.activeElement;
+                if (element && element.focus) {
+                    element.focus();
+                }
+            }
+            
+            modal.style.display = 'none';
+            delete modal.dataset.selectedPoints;
+            delete modal.dataset.previousFocus;
+            
+            announceToScreenReader('Assignment modal closed');
+        }
+
+        function confirmAssignment() {
+            const modal = document.getElementById('assignmentModal');
+            const equipmentSelect = document.getElementById('equipmentSelect');
+            const selectedPointIds = JSON.parse(modal.dataset.selectedPoints || '[]');
+            
+            if (selectedPointIds.length === 0) {
+                alert('No points selected for assignment.');
+                return;
+            }
+            
+            if (equipmentSelect.value === '') {
+                // Create new equipment workflow
+                const equipmentName = prompt('Enter equipment name:');
+                if (!equipmentName) return;
+                
+                const equipmentType = prompt('Enter equipment type (ahu, vav, terminal-unit, chiller, pump):');
+                if (!equipmentType) return;
+                
+                // Create new equipment group
+                const newEquipmentId = 'eq_' + Date.now();
+                const newEquipment = {
+                    id: newEquipmentId,
+                    name: equipmentName,
+                    type: equipmentType,
+                    confidence: 1.0, // User created = 100% confidence
+                    pointCount: selectedPointIds.length,
+                    status: 'confirmed',
+                    vendor: 'User Created',
+                    model: 'Manual Assignment',
+                    points: []
+                };
+                
+                // Assign points to new equipment
+                selectedPointIds.forEach(pointId => {
+                    const point = mockBACnetPoints.find(p => p.id === pointId);
+                    if (point) {
+                        point.equipRef = newEquipmentId;
+                        point.status = 'assigned';
+                        newEquipment.points.push(point);
+                    }
+                });
+                
+                // Add to suggested groups
+                suggestedEquipmentGroups.push(newEquipment);
+                
+                console.log(`Created new equipment: ${equipmentName} with ${selectedPointIds.length} points`);
+            } else {
+                // Assign to existing equipment
+                const targetEquipment = suggestedEquipmentGroups.find(eq => eq.id === equipmentSelect.value);
+                if (!targetEquipment) {
+                    alert('Selected equipment not found.');
+                    return;
+                }
+                
+                // Assign points to existing equipment
+                selectedPointIds.forEach(pointId => {
+                    const point = mockBACnetPoints.find(p => p.id === pointId);
+                    if (point) {
+                        point.equipRef = equipmentSelect.value;
+                        point.status = 'assigned';
+                        targetEquipment.points.push(point);
+                    }
+                });
+                
+                // Update equipment point count
+                targetEquipment.pointCount += selectedPointIds.length;
+                
+                console.log(`Assigned ${selectedPointIds.length} points to ${targetEquipment.name}`);
+            }
+            
+            // Clear selection
+            clearSelection();
+            
+            // Update UI
+            updateStatistics();
+            renderSuggestedGroups();
+            renderUnassignedPoints();
+            
+            // Close modal
+            closeAssignmentModal();
+            
+            // Show success message
+            showSuccessMessage(`Successfully assigned ${selectedPointIds.length} point(s) to equipment.`);
+        }
+
+        function showSuccessMessage(message) {
+            // Create temporary success message
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: var(--success-500);
+                color: white;
+                padding: 12px 20px;
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-lg);
+                z-index: 1001;
+                font-size: 0.875rem;
+                font-weight: 500;
+                animation: slideIn 0.3s ease-out;
+            `;
+            successDiv.textContent = message;
+            
+            // Add slide-in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(successDiv);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                successDiv.remove();
+                style.remove();
+            }, 3000);
+        }
+
+        function toggleGroup(groupId) {
+            const content = document.getElementById(`group-${groupId}`);
+            const header = content.parentElement.querySelector('.group-header');
+            const toggleIcon = header.querySelector('.toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                content.setAttribute('aria-hidden', 'false');
+                toggleIcon.textContent = '▲';
+                header.classList.add('expanded');
+                header.setAttribute('aria-expanded', 'true');
+                announceToScreenReader(`Equipment group expanded`);
+            } else {
+                content.style.display = 'none';
+                content.setAttribute('aria-hidden', 'true');
+                toggleIcon.textContent = '▼';
+                header.classList.remove('expanded');
+                header.setAttribute('aria-expanded', 'false');
+                announceToScreenReader(`Equipment group collapsed`);
+            }
+        }
+
+        function confirmGroup(groupId) {
+            const group = suggestedEquipmentGroups.find(g => g.id === groupId);
+            if (!group) return;
+            
+            // Update group status
+            group.status = 'confirmed';
+            
+            // Update all points in the group
+            group.points.forEach(point => {
+                point.status = 'confirmed';
+            });
+            
+            // Update UI
+            renderSuggestedGroups();
+            updateStatistics();
+            
+            showSuccessMessage(`Equipment group "${group.name}" confirmed successfully.`);
+            
+            console.log(`Confirmed equipment group: ${group.name}`);
+        }
+
+        function flagGroup(groupId) {
+            const group = suggestedEquipmentGroups.find(g => g.id === groupId);
+            if (!group) return;
+            
+            const reason = prompt('Enter reason for flagging this group:');
+            if (!reason) return;
+            
+            // Update group status
+            group.status = 'flagged';
+            group.flagReason = reason;
+            
+            // Update all points in the group
+            group.points.forEach(point => {
+                point.status = 'flagged';
+                point.flagReason = reason;
+            });
+            
+            // Update UI
+            renderSuggestedGroups();
+            
+            showSuccessMessage(`Equipment group "${group.name}" flagged for review.`);
+            
+            console.log(`Flagged equipment group: ${group.name}, Reason: ${reason}`);
+        }
+
+        function confirmPoint(pointId) {
+            const point = mockBACnetPoints.find(p => p.id === pointId);
+            if (!point) return;
+            
+            // Update point status
+            point.status = 'confirmed';
+            
+            // Find and update the equipment group
+            const group = suggestedEquipmentGroups.find(g => g.id === point.equipRef);
+            if (group) {
+                // Check if all points in group are confirmed
+                const allConfirmed = group.points.every(p => p.status === 'confirmed');
+                if (allConfirmed) {
+                    group.status = 'confirmed';
+                }
+            }
+            
+            // Update UI
+            renderSuggestedGroups();
+            
+            showSuccessMessage(`Point "${point.dis}" confirmed successfully.`);
+            
+            console.log(`Confirmed point: ${point.dis}`);
+        }
+
+        function flagPoint(pointId) {
+            const point = mockBACnetPoints.find(p => p.id === pointId);
+            if (!point) return;
+            
+            const reason = prompt('Enter reason for flagging this point:');
+            if (!reason) return;
+            
+            // Update point status
+            point.status = 'flagged';
+            point.flagReason = reason;
+            
+            // Update equipment group status if necessary
+            const group = suggestedEquipmentGroups.find(g => g.id === point.equipRef);
+            if (group && group.status !== 'flagged') {
+                group.status = 'flagged';
+                group.flagReason = `Point "${point.dis}" flagged: ${reason}`;
+            }
+            
+            // Update UI
+            renderSuggestedGroups();
+            
+            showSuccessMessage(`Point "${point.dis}" flagged for review.`);
+            
+            console.log(`Flagged point: ${point.dis}, Reason: ${reason}`);
+        }
+
+        function handleGroupKeydown(event, groupId) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleGroup(groupId);
+            }
+        }
+
+        function announceToScreenReader(message) {
+            // Create a live region for screen reader announcements
+            let liveRegion = document.getElementById('aria-live-region');
+            if (!liveRegion) {
+                liveRegion = document.createElement('div');
+                liveRegion.id = 'aria-live-region';
+                liveRegion.setAttribute('aria-live', 'polite');
+                liveRegion.setAttribute('aria-atomic', 'true');
+                liveRegion.className = 'sr-only';
+                document.body.appendChild(liveRegion);
+            }
+            
+            // Clear and set the message
+            liveRegion.textContent = '';
+            setTimeout(() => {
+                liveRegion.textContent = message;
+            }, 100);
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>

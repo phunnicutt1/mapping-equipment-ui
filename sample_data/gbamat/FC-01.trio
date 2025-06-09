@@ -1,0 +1,13 @@
+dis:DA_T
+bacnetCur:AI10008
+bacnetDesc:Miscellaneous Temperature
+kind:Number
+point
+unit:°F
+---
+dis:ZN_T
+bacnetCur:AI10011
+bacnetDesc:Zone Temperature
+kind:Number
+point
+unit:°F

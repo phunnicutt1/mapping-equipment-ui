@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "setup": "chmod +x setup.sh && ./setup.sh",
+    "dev": "next dev",
+    "build": "next build", 
+    "start": "next start",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest --watch",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf .next out node_modules/.cache",
+    "reset": "pnpm clean && pnpm install"
+  }
+}

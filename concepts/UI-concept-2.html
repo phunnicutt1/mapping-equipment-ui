@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Automation Data Grouping</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            border-bottom: none;
+        }
+        
+        .stats-card {
+            background: white;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .stats-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .stats-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .equipment-group {
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .group-header {
+            background-color: #f1f5f9;
+            padding: 12px 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .group-header:hover {
+            background-color: #e2e8f0;
+        }
+        
+        .badge {
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 20px;
+        }
+        
+        .point-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .point-table th {
+            background-color: #f8f9fa;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .point-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .point-table tr:hover td {
+            background-color: #f8f9fa;
+        }
+        
+        .action-btn {
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            margin-right: 5px;
+            transition: all 0.2s;
+        }
+        
+        .btn-confirm {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-confirm:hover {
+            background-color: #219653;
+        }
+        
+        .btn-flag {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-flag:hover {
+            background-color: #e67e22;
+        }
+        
+        .console-panel {
+            background-color: #1e1f29;
+            color: #d6d8e1;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .console-entry {
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 3px solid;
+        }
+        
+        .console-info {
+            border-color: var(--secondary-color);
+        }
+        
+        .console-warning {
+            border-color: var(--warning-color);
+        }
+        
+        .console-success {
+            border-color: var(--success-color);
+        }
+        
+        .console-error {
+            border-color: var(--accent-color);
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #ced4da;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .file-upload-area:hover {
+            border-color: var(--secondary-color);
+            background-color: #e9f7fe;
+        }
+        
+        .file-upload-area i {
+            font-size: 3rem;
+            color: #adb5bd;
+            margin-bottom: 15px;
+        }
+        
+        .file-upload-area:hover i {
+            color: var(--secondary-color);
+        }
+        
+        .progress-bar {
+            background-color: var(--secondary-color);
+        }
+        
+        .search-bar {
+            position: relative;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            color: #6c757d;
+        }
+        
+        .search-bar input {
+            padding-left: 40px;
+        }
+        
+        .collapsed .fa-chevron-down {
+            transform: rotate(-90deg);
+        }
+        
+        .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        
+        .point-detail {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .btn-toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn-clear {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background-color: #c0392b;
+        }
+        
+        .equipment-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .badge-ahu {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .badge-tu {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .badge-vav {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .badge-other {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .file-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .file-list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .file-list-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header text-center">
+            <h1><i class="fas fa-building me-2"></i>Building Automation Data Grouping</h1>
+            <p class="lead mb-0">Transform unstructured BMS data into structured equipment insights</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-upload me-2"></i>Upload Building Automation Files
+                    </div>
+                    <div class="card-body">
+                        <div class="file-upload-area mb-3" id="dropArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h5>Drag & Drop files here</h5>
+                            <p class="text-muted">Supports .txt and .trio files from building management systems</p>
+                            <button class="btn btn-primary mt-2" id="chooseFilesBtn">
+                                <i class="fas fa-folder-open me-2"></i>Choose Files
+                            </button>
+                            <input type="file" id="fileInput" multiple accept=".txt,.trio" style="display: none;">
+                        </div>
+                        
+                        <div class="file-list" id="fileList">
+                            <!-- File list will be populated here -->
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge bg-primary" id="fileCount">0 files selected</span>
+                            </div>
+                            <div>
+                                <button class="btn btn-success" id="processBtn">
+                                    <i class="fas fa-cogs me-2"></i>Process Files
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                            <label class="me-2 fw-bold">Grouping Method:</label>
+                            <select class="form-select w-auto" id="groupingMethod">
+                                <option value="none">None</option>
+                                <option value="kind">Group by Kind</option>
+                                <option value="unit">Group by Unit</option>
+                                <option value="smart" selected>Smart Grouping</option>
+                            </select>
+                        </div>
+                        
+                        <div class="btn-toolbar">
+                            <button class="btn btn-clear" id="clearDataBtn">
+                                <i class="fas fa-trash-alt me-2"></i>Clear All Data
+                            </button>
+                            <button class="btn btn-outline-primary" id="exportBtn">
+                                <i class="fas fa-download me-2"></i>Export Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-list me-2"></i>Equipment Groups
+                    </div>
+                    <div class="card-body">
+                        <div class="search-bar mb-3">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search points by name, description, or BACnet ID...">
+                        </div>
+                        
+                        <div id="equipmentGroups">
+                            <!-- Equipment groups will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card stats-card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-2"></i>Data Statistics
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-4">
+                            <div class="col-6 mb-3">
+                                <div class="stats-value" id="totalPoints">0</div>
+                                <div class="stats-label">Total Points</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="stats-value" id="filesLoaded">0</div>
+                                <div class="stats-label">Files Loaded</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="stats-value" id="equipmentGroupsCount">0</div>
+                                <div class="stats-label">Equipment Groups</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="stats-value" id="uniqueUnits">0</div>
+                                <div class="stats-label">Unique Units</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Equipment Distribution</h6>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="me-2" style="width: 20px; height: 20px; background-color: #3498db; border-radius: 4px;"></div>
+                                <div style="flex: 1; max-width: 70%;">
+                                    <div>AHU Units (32%)</div>
+                                </div>
+                                <div id="ahuPoints">0 points</div>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="me-2" style="width: 20px; height: 20px; background-color: #2ecc71; border-radius: 4px;"></div>
+                                <div style="flex: 1; max-width: 60%;">
+                                    <div>Terminal Units (24%)</div>
+                                </div>
+                                <div id="tuPoints">0 points</div>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="me-2" style="width: 20px; height: 20px; background-color: #9b59b6; border-radius: 4px;"></div>
+                                <div style="flex: 1; max-width: 30%;">
+                                    <div>VAV Boxes (12%)</div>
+                                </div>
+                                <div id="vavPoints">0 points</div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2" style="width: 20px; height: 20px; background-color: #f39c12; border-radius: 4px;"></div>
+                                <div style="flex: 1; max-width: 32%;">
+                                    <div>Other (32%)</div>
+                                </div>
+                                <div id="otherPoints">0 points</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h6 class="fw-bold mb-3">Equipment Tags</h6>
+                            <div>
+                                <span class="equipment-badge badge-ahu">AHU</span>
+                                <span class="equipment-badge badge-tu">Terminal Unit</span>
+                                <span class="equipment-badge badge-vav">VAV</span>
+                                <span class="equipment-badge badge-other">Other</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-terminal me-2"></i>Console Messages
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="console-panel" id="consolePanel">
+                            <div class="console-entry console-info">
+                                [✓] System ready. Upload files to begin processing.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-lightbulb me-2"></i>Equipment Insights
+                    </div>
+                    <div class="card-body" id="insightsPanel">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Upload building automation files to begin analysis
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample equipment data
+        const sampleEquipment = [
+            {
+                name: "AHU - AHU-1",
+                points: 63,
+                status: "confirmed",
+                pointsList: [
+                    {name: "CoilLvgTemp", kind: "Number", bacnetId: "AI14", desc: "Coil Lvg Air Temp", unit: "°F", source: "AHU-1.trio"},
+                    {name: "EaEntHumidity", kind: "Number", bacnetId: "AI16", desc: "Exhaust Air Entering Humidity", unit: "%RH", source: "AHU-1.trio"},
+                    {name: "EaEntTemp", kind: "Number", bacnetId: "AI15", desc: "Exhaust Air Entering Temp", unit: "°F", source: "AHU-1.trio"},
+                    {name: "RATemp", kind: "Number", bacnetId: "AI11", desc: "Return Air Temp", unit: "°F", source: "AHU-1.trio"},
+                ]
+            },
+            {
+                name: "AHU - AHU-2",
+                points: 63,
+                status: "pending",
+                pointsList: [
+                    {name: "SATemp", kind: "Number", bacnetId: "AI10", desc: "Supply Air Temp", unit: "°F", source: "AHU-2.trio"},
+                    {name: "StaticPress", kind: "Number", bacnetId: "AI9", desc: "Static Pressure", unit: "inH₂O", source: "AHU-2.trio"},
+                ]
+            },
+            {
+                name: "TU - TU-1-8",
+                points: 41,
+                status: "confirmed",
+                pointsList: [
+                    {name: "DISCHARGE_AIR", kind: "Number", bacnetId: "AI3", desc: "Discharge Air Temperature", unit: "°F", source: "CV-01-03.trio"},
+                ]
+            },
+            {
+                name: "AHU - Multiple Units",
+                points: 63,
+                status: "needs-review",
+                pointsList: [
+                    {name: "Vfd1FB", kind: "Number", bacnetId: "AI4", desc: "Fan 1 VFD Feedback", unit: "%", source: "AHU-1.trio"},
+                ]
+            }
+        ];
+
+        // State management
+        const state = {
+            files: [],
+            processing: false,
+            processed: false,
+            equipmentGroups: []
+        };
+
+        // DOM Elements
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const chooseFilesBtn = document.getElementById('chooseFilesBtn');
+        const processBtn = document.getElementById('processBtn');
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        const fileList = document.getElementById('fileList');
+        const fileCount = document.getElementById('fileCount');
+        const progressBar = document.getElementById('progressBar');
+        const consolePanel = document.getElementById('consolePanel');
+        const equipmentGroups = document.getElementById('equipmentGroups');
+        const searchInput = document.getElementById('searchInput');
+        const insightsPanel = document.getElementById('insightsPanel');
+        
+        // Stats elements
+        const totalPoints = document.getElementById('totalPoints');
+        const filesLoaded = document.getElementById('filesLoaded');
+        const equipmentGroupsCount = document.getElementById('equipmentGroupsCount');
+        const uniqueUnits = document.getElementById('uniqueUnits');
+        const ahuPoints = document.getElementById('ahuPoints');
+        const tuPoints = document.getElementById('tuPoints');
+        const vavPoints = document.getElementById('vavPoints');
+        const otherPoints = document.getElementById('otherPoints');
+
+        // Initialize the application
+        function init() {
+            updateStats();
+            addConsoleMessage("System initialized. Ready to process building automation data.", "info");
+        }
+
+        // File upload functionality
+        chooseFilesBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                state.files = Array.from(e.target.files);
+                updateFileList();
+                addConsoleMessage(`${state.files.length} files selected for processing`, "info");
+            }
+        });
+
+        // Update file list display
+        function updateFileList() {
+            fileList.innerHTML = '';
+            fileCount.textContent = `${state.files.length} files selected`;
+            
+            state.files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-list-item';
+                fileItem.innerHTML = `
+                    <div><i class="fas fa-file-alt me-2"></i>${file.name}</div>
+                    <div>${formatFileSize(file.size)}</div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Process button functionality
+        processBtn.addEventListener('click', () => {
+            if (state.files.length === 0) {
+                addConsoleMessage("No files selected. Please upload files first.", "warning");
+                return;
+            }
+            
+            if (state.processing) return;
+            
+            state.processing = true;
+            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            processBtn.disabled = true;
+            progressBar.style.width = '0%';
+            
+            // Simulate processing
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    processingComplete();
+                }
+            }, 150);
+        });
+
+        // Processing complete
+        function processingComplete() {
+            state.processing = false;
+            state.processed = true;
+            state.equipmentGroups = [...sampleEquipment];
+            
+            processBtn.innerHTML = '<i class="fas fa-check me-2"></i>Processing Complete';
+            processBtn.classList.remove('btn-success');
+            processBtn.classList.add('btn-secondary');
+            
+            // Add console message
+            addConsoleMessage("All files processed successfully. 12 equipment groups identified.", "success");
+            
+            // Update equipment groups
+            renderEquipmentGroups();
+            
+            // Update stats
+            updateStats();
+            
+            // Show insights
+            showInsights();
+        }
+
+        // Clear data functionality
+        clearDataBtn.addEventListener('click', () => {
+            if (!state.processed && state.files.length === 0) {
+                addConsoleMessage("No data to clear.", "info");
+                return;
+            }
+            
+            // Reset state
+            state.files = [];
+            state.processing = false;
+            state.processed = false;
+            state.equipmentGroups = [];
+            
+            // Reset UI
+            fileList.innerHTML = '';
+            fileCount.textContent = '0 files selected';
+            progressBar.style.width = '0%';
+            processBtn.innerHTML = '<i class="fas fa-cogs me-2"></i>Process Files';
+            processBtn.classList.remove('btn-secondary');
+            processBtn.classList.add('btn-success');
+            processBtn.disabled = false;
+            equipmentGroups.innerHTML = '';
+            
+            // Reset stats
+            updateStats();
+            
+            // Clear insights
+            insightsPanel.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Upload building automation files to begin analysis
+                </div>
+            `;
+            
+            // Add console message
+            addConsoleMessage("All data cleared. Ready for new upload.", "success");
+        });
+
+        // Add console message
+        function addConsoleMessage(message, type = "info") {
+            const entry = document.createElement('div');
+            let prefix = '';
+            
+            switch(type) {
+                case "info":
+                    prefix = '[i]';
+                    entry.className = 'console-entry console-info';
+                    break;
+                case "success":
+                    prefix = '[✓]';
+                    entry.className = 'console-entry console-success';
+                    break;
+                case "warning":
+                    prefix = '[!]';
+                    entry.className = 'console-entry console-warning';
+                    break;
+                case "error":
+                    prefix = '[x]';
+                    entry.className = 'console-entry console-error';
+                    break;
+                default:
+                    prefix = '[i]';
+                    entry.className = 'console-entry console-info';
+            }
+            
+            entry.textContent = `${prefix} ${message}`;
+            consolePanel.appendChild(entry);
+            consolePanel.scrollTop = consolePanel.scrollHeight;
+        }
+
+        // Render equipment groups
+        function renderEquipmentGroups() {
+            equipmentGroups.innerHTML = '';
+            
+            state.equipmentGroups.forEach((group, index) => {
+                const groupId = `group${index + 1}`;
+                let statusBadge = '';
+                let badgeClass = '';
+                
+                switch(group.status) {
+                    case "confirmed":
+                        badgeClass = "bg-success";
+                        statusBadge = "Confirmed";
+                        break;
+                    case "pending":
+                        badgeClass = "bg-warning";
+                        statusBadge = "Pending";
+                        break;
+                    case "needs-review":
+                        badgeClass = "bg-danger";
+                        statusBadge = "Needs Review";
+                        break;
+                    default:
+                        badgeClass = "bg-secondary";
+                        statusBadge = "Unknown";
+                }
+                
+                const groupElement = document.createElement('div');
+                groupElement.className = 'equipment-group';
+                groupElement.innerHTML = `
+                    <div class="group-header" data-bs-toggle="collapse" data-bs-target="#${groupId}">
+                        <div>
+                            <i class="fas fa-chevron-down me-2"></i>
+                            <span>${group.name}</span>
+                            <span class="badge bg-secondary ms-2">${group.points} points</span>
+                        </div>
+                        <div class="badge ${badgeClass}">${statusBadge}</div>
+                    </div>
+                    <div class="collapse" id="${groupId}">
+                        <div class="p-3">
+                            <table class="point-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Kind</th>
+                                        <th>BACnet ID</th>
+                                        <th>Description</th>
+                                        <th>Unit</th>
+                                        <th>Source</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${group.pointsList.map(point => `
+                                        <tr>
+                                            <td>${point.name}</td>
+                                            <td>${point.kind}</td>
+                                            <td>${point.bacnetId}</td>
+                                            <td>${point.desc}</td>
+                                            <td>${point.unit}</td>
+                                            <td>${point.source}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-confirm action-btn">Confirm</button>
+                                                <button class="btn btn-sm btn-flag action-btn">Flag</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                equipmentGroups.appendChild(groupElement);
+                
+                // Add event listeners to action buttons
+                const actionButtons = groupElement.querySelectorAll('.action-btn');
+                actionButtons.forEach(button => {
+                    if (button.classList.contains('btn-confirm')) {
+                        button.addEventListener('click', handleConfirm);
+                    } else if (button.classList.contains('btn-flag')) {
+                        button.addEventListener('click', handleFlag);
+                    }
+                });
+            });
+        }
+
+        // Handle confirm action
+        function handleConfirm(e) {
+            const button = e.target;
+            const row = button.closest('tr');
+            const pointName = row.querySelector('td:first-child').textContent;
+            
+            row.style.backgroundColor = '#e8f5e9';
+            button.disabled = true;
+            button.textContent = 'Confirmed';
+            
+            addConsoleMessage(`Confirmed equipment mapping for point '${pointName}'`, "success");
+        }
+
+        // Handle flag action
+        function handleFlag(e) {
+            const button = e.target;
+            const row = button.closest('tr');
+            const pointName = row.querySelector('td:first-child').textContent;
+            
+            row.style.backgroundColor = '#fff8e1';
+            button.disabled = true;
+            button.textContent = 'Flagged';
+            
+            addConsoleMessage(`Flagged point '${pointName}' for review`, "warning");
+        }
+
+        // Update stats
+        function updateStats() {
+            if (state.processed) {
+                totalPoints.textContent = "502";
+                filesLoaded.textContent = state.files.length;
+                equipmentGroupsCount.textContent = "12";
+                uniqueUnits.textContent = "11";
+                ahuPoints.textContent = "160 points";
+                tuPoints.textContent = "120 points";
+                vavPoints.textContent = "60 points";
+                otherPoints.textContent = "162 points";
+            } else {
+                totalPoints.textContent = "0";
+                filesLoaded.textContent = "0";
+                equipmentGroupsCount.textContent = "0";
+                uniqueUnits.textContent = "0";
+                ahuPoints.textContent = "0 points";
+                tuPoints.textContent = "0 points";
+                vavPoints.textContent = "0 points";
+                otherPoints.textContent = "0 points";
+            }
+        }
+
+        // Show insights
+        function showInsights() {
+            insightsPanel.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>High Confidence:</strong> AHU groups have 95% point consistency
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Review Needed:</strong> Terminal Units have inconsistent point sets
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    78% of points have been mapped to equipment
+                </div>
+                <div class="alert alert-primary">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    Smart grouping reduced manual mapping by 62%
+                </div>
+            `;
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

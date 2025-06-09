@@ -1,0 +1,422 @@
+dis:DA-T
+bacnetCur:AI1019
+bacnetDesc:Discharge Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:DA-VP
+bacnetCur:AI1094
+bacnetDesc:Discharge Air Velocity Pressure
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:DPR-O
+bacnetCur:AO2131
+bacnetDesc:Supply Air Damper Output
+bacnetWrite:AO2131
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:"8-1/Device Object Identifier"
+bacnetCur:AV1002
+bacnetWrite:AV1002
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:CLG-MAXFLOW
+bacnetCur:AV3108
+bacnetDesc:Cooling Max Flow
+kind:Number
+point
+unit:cfm
+---
+dis:CLG-MINFLOW
+bacnetCur:AV3267
+bacnetDesc:Cooling Min Flow
+kind:Number
+point
+unit:cfm
+---
+dis:CLG-REQ SRC
+bacnetCur:AV25270
+bacnetDesc:Cooling Request
+kind:Number
+point
+---
+dis:Damper Startup Position
+bacnetCur:AV10040
+bacnetDesc:Damper Startup Position
+bacnetWrite:AV10040
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:EFFCLG-SP
+bacnetCur:AV25297
+bacnetDesc:Effective Cooling Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:EFFHTG-SP
+bacnetCur:AV25306
+bacnetDesc:Effective Heating Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:HTG-MINFLOW
+bacnetCur:AV3268
+bacnetDesc:Heating Min Flow
+kind:Number
+point
+unit:cfm
+---
+dis:OCC CLG BIAS
+bacnetCur:AV25318
+bacnetDesc:Occupied Cooling Bias
+bacnetWrite:AV25318
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:OCC HTG BIAS
+bacnetCur:AV25321
+bacnetDesc:Occupied Heating Bias
+bacnetWrite:AV25321
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:PRESS-REQ SRC
+bacnetCur:AV25269
+bacnetDesc:Flow Request
+kind:Number
+point
+---
+dis:SA-AREA
+bacnetCur:AV3111
+kind:Number
+point
+unit:"ft²"
+---
+dis:SA-F
+bacnetCur:AV3515
+bacnetDesc:Supply Air Flow
+kind:Number
+point
+unit:cfm
+---
+dis:SA-KFACTOR
+bacnetCur:AV3112
+kind:Number
+point
+---
+dis:SAFLOW-SP
+bacnetCur:AV3384
+bacnetDesc:Supply Air Flow Setpoint
+bacnetWrite:AV3384
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:STBY CLG BIAS
+bacnetCur:AV25320
+bacnetDesc:Standby Cooling Bias
+bacnetWrite:AV25320
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:STBY HTG BIAS
+bacnetCur:AV25323
+bacnetDesc:Standby Heating Bias
+bacnetWrite:AV25323
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:UNOCC CLG BIAS
+bacnetCur:AV25319
+bacnetDesc:Unoccupied Cooling Bias
+bacnetWrite:AV25319
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:UNOCC HTG BIAS
+bacnetCur:AV25322
+bacnetDesc:Unoccupied Heating Bias
+bacnetWrite:AV25322
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:WC-ADJ
+bacnetCur:AV10018
+bacnetDesc:"Warmer/Cooler Adjust"
+bacnetWrite:AV10018
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:ZN-CO2
+bacnetCur:AV10023
+bacnetDesc:Zone Carbon Dioxide
+bacnetWrite:AV10023
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ppm
+writable
+---
+dis:ZN-CO2-SP
+bacnetCur:AV10081
+bacnetDesc:ZN-CO2 Setpoint
+bacnetWrite:AV10081
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ppm
+writable
+---
+dis:ZN-H
+bacnetCur:AV10022
+bacnetDesc:Zone Humidity
+bacnetWrite:AV10022
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%RH"
+writable
+---
+dis:ZN-T
+bacnetCur:AV10017
+bacnetDesc:Zone Temperature
+bacnetWrite:AV10017
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:ZN-T-LL-CO2RST
+bacnetCur:AV10052
+bacnetDesc:ZN-T Low Limit For CO2 Reset
+bacnetWrite:AV10052
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:ZNT-SP
+bacnetCur:AV12
+bacnetDesc:Zone Temperature Setpoint
+bacnetWrite:AV12
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:AHU OA CALL
+bacnetCur:BV10079
+enum:"False,True"
+kind:Bool
+point
+---
+dis:AHU Startup
+bacnetCur:BV10036
+bacnetDesc:AHU Startup Status
+bacnetWrite:BV10036
+bacnetWriteLevel:16
+cmd
+enum:"False,True"
+kind:Bool
+point
+writable
+---
+dis:AUTOCAL-C
+bacnetCur:BV4
+bacnetDesc:Autocalibration Command
+bacnetWrite:BV4
+bacnetWriteLevel:16
+cmd
+enum:"False,True"
+kind:Bool
+point
+writable
+---
+dis:TUNING-RESET
+bacnetCur:BV769
+bacnetDesc:Tuning Reset
+bacnetWrite:BV769
+bacnetWriteLevel:16
+cmd
+enum:"False,True"
+kind:Bool
+point
+writable
+---
+dis:ZN-TOCC
+bacnetCur:BV10020
+bacnetDesc:Zone Temporary Occupancy
+bacnetWrite:BV10020
+bacnetWriteLevel:16
+cmd
+enum:"Inactive,Active"
+kind:Bool
+point
+writable
+---
+dis:"8-1/BACnet Encoding Type"
+bacnetCur:MSV1003
+bacnetWrite:MSV1003
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"ISO 10646 (UCS-2),ANSI X3.4 (US-ASCII),MS DBCS code page 932 (Japan Shift JIS),ISO 10646 (UTF-8)"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"8-1/FC Bus Baud Rate Selection"
+bacnetCur:MSV1004
+bacnetWrite:MSV1004
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,1200,9600,19200,38400,76800"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"8-1/Preloaded App Loader.App Selector"
+bacnetCur:MSV1000
+bacnetWrite:MSV1000
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Custom Application,Imp_Cooling Only W/C Adj,Imp_Cooling Only SP Adj,Imp_Incr HW Reheat W/C Adj,Imp_Incr HW Reheat SP Adj,Imp_Elec Stg Reheat W/C Adj,Imp_Elec Stg Reheat Series Fan W/C Adj,Imp_Elec Stg Reheat Series Fan SP Adj,Imp_Elec Stg Reheat Parallel Fan W/C Adj,Imp_Elec Stg Reheat Parallel Fan SP Adj,Imp_Incr HW Reheat Series Fan W/C Adj,Imp_Incr HW Reheat Parallel Fan W/C Adj,Imp_SCR Elec/Prop HW Reheat W/C Adj,Imp_SCR Elec/Prop HW RH Series Fan W/C,Imp_SCR Elec/Prop HW RH Parallel Fan W/C,SI_Cooling Only W/C Adj,SI_Cooling Only SP Adj,SI_Incr HW Reheat W/C Adj,SI_Elec Stg Reheat W/C Adj,SI_SCR Elec/Prop HW Reheat W/C Adj,SI_SCR Elec/Prop HW Reheat SeriesFan W/C"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:EFF-OCC
+bacnetCur:MSV3290
+bacnetDesc:Effective Occupancy
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,UnOccupied,Bypass,Standby"
+kind:Str
+point
+---
+dis:OCC-MODE
+bacnetCur:MSV10021
+bacnetDesc:Occupancy Status Display
+bacnetWrite:MSV10021
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,UnOccupied,Bypass,Standby"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:OCC-OVERRIDE
+bacnetCur:MSV58
+bacnetDesc:Occupancy Override
+bacnetWrite:MSV58
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,UnOccupied,Bypass,Standby,Not Set"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:OCC-SCHEDULE
+bacnetCur:MSV59
+bacnetDesc:Occupancy Schedule
+bacnetWrite:MSV59
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,UnOccupied,Standby,Not Set"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:SYSTEM-MODE
+bacnetCur:MSV76
+bacnetDesc:System Mode
+bacnetWrite:MSV76
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Cool Only,Heat Only,Fan Only,Water Flush,Purge,Auto"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UNITEN-MODE
+bacnetCur:MSV77
+bacnetDesc:Unit Enable Mode
+bacnetWrite:MSV77
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Shutdown,Enable"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"

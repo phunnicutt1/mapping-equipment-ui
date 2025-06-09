@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Automation Data Processing System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.2em;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .main-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            width: 350px;
+            height: fit-content;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-upload {
+            margin-bottom: 25px;
+        }
+
+        .file-upload label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            background: #f8f9fa;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover {
+            border-color: #2980b9;
+            background: #e3f2fd;
+        }
+
+        .grouping-controls {
+            margin-bottom: 25px;
+        }
+
+        .grouping-controls label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .grouping-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .grouping-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .stats-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stats-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .data-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .equipment-group {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .equipment-group:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .equipment-instance {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .equipment-instance:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .instance-header {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .instance-header:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+        }
+
+        .instance-title {
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .instance-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .instance-content {
+            display: none;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .instance-content.expanded {
+            display: block;
+        }
+
+        .group-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .group-header:hover {
+            background: linear-gradient(135deg, #2980b9, #2471a3);
+        }
+
+        .group-title {
+            font-weight: 600;
+            font-size: 1.0em;
+            flex: 1;
+            margin-right: 15px;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+
+        .group-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .group-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .group-content.expanded {
+            display: block;
+        }
+
+        .point-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .point-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.1);
+        }
+
+        .point-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .point-dis {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .point-kind {
+            background: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .point-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .equipment-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .btn-confirm {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-confirm:hover {
+            background: #229954;
+        }
+
+        .btn-flag {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-flag:hover {
+            background: #e67e22;
+        }
+
+        .btn-reset {
+            background: #e74c3c;
+            color: white;
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1em;
+        }
+
+        .btn-reset:hover {
+            background: #c0392b;
+        }
+
+        .reset-controls {
+            margin-top: 20px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .no-data {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #3498db;
+            font-size: 1.1em;
+        }
+
+        .smart-group-badge {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .kind-group-badge {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .unit-group-badge {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .controls-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Building Automation Data Processing System</h1>
+        <p>Transform unstructured BMS data into structured equipment insights</p>
+    </div>
+
+    <div class="main-container">
+        <div class="controls-panel">
+            <div class="file-upload">
+                <label for="fileInput">Upload Building Automation Files</label>
+                <input type="file" id="fileInput" multiple accept=".txt,.trio" class="file-input" />
+                <div style="margin-top: 10px; font-size: 0.9em; color: #7f8c8d;">
+                    Supports .txt and .trio files from building management systems
+                </div>
+            </div>
+
+            <div class="grouping-controls">
+                <label for="groupingMethod">Grouping Method</label>
+                <select id="groupingMethod" class="grouping-select">
+                    <option value="none">No Grouping</option>
+                    <option value="kind">Group by Kind</option>
+                    <option value="unit">Group by Unit</option>
+                    <option value="smart">Smart Grouping</option>
+                </select>
+            </div>
+
+            <div class="stats-section">
+                <h3>Data Statistics</h3>
+                <div class="stat-item">
+                    <span class="stat-label">Total Points:</span>
+                    <span class="stat-value" id="totalPoints">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Files Loaded:</span>
+                    <span class="stat-value" id="filesLoaded">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Equipment Groups:</span>
+                    <span class="stat-value" id="equipmentGroups">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Unique Units:</span>
+                    <span class="stat-value" id="uniqueUnits">0</span>
+                </div>
+            </div>
+
+            <div class="reset-controls">
+                <button id="resetButton" class="btn btn-reset">
+                    Reset All Data
+                </button>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search points by name, description, or BACnet ID..." />
+            <div class="data-content" id="dataContent">
+                <div class="no-data">
+                    Upload building automation files to begin data processing and equipment identification.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class BuildingAutomationProcessor {
+            constructor() {
+                this.points = [];
+                this.originalPoints = [];
+                this.currentGrouping = 'none';
+                this.searchQuery = '';
+                this.equipmentMappings = new Map();
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('fileInput').addEventListener('change', (e) => {
+                    this.handleFileUpload(e.target.files);
+                });
+
+                document.getElementById('groupingMethod').addEventListener('change', (e) => {
+                    this.currentGrouping = e.target.value;
+                    this.applyGrouping();
+                });
+
+                document.getElementById('searchBox').addEventListener('input', (e) => {
+                    this.searchQuery = e.target.value.toLowerCase();
+                    this.applyGrouping();
+                });
+
+                document.getElementById('resetButton').addEventListener('click', () => {
+                    this.resetAllData();
+                });
+            }
+
+            async handleFileUpload(files) {
+                if (files.length === 0) return;
+
+                const dataContent = document.getElementById('dataContent');
+                dataContent.innerHTML = '<div class="loading">Processing building automation files...</div>';
+
+                this.points = [];
+                this.originalPoints = [];
+
+                for (const file of files) {
+                    await this.processFile(file);
+                }
+
+                this.originalPoints = [...this.points];
+                this.updateStatistics();
+                this.applyGrouping();
+            }
+
+            async processFile(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        const filePoints = this.parseTrioFormat(content, file.name);
+                        this.points.push(...filePoints);
+                        resolve();
+                    };
+                    reader.readAsText(file);
+                });
+            }
+
+            parseTrioFormat(content, fileName) {
+                const points = [];
+                const sections = content.split('---').filter(section => section.trim());
+
+                sections.forEach(section => {
+                    const point = this.parsePointSection(section.trim(), fileName);
+                    if (point && point.dis) {
+                        points.push(point);
+                    }
+                });
+
+                return points;
+            }
+
+            parsePointSection(section, fileName) {
+                const point = {
+                    pointId: this.generatePointId(),
+                    fileName: fileName,
+                    dis: '',
+                    bacnetCur: '',
+                    bacnetDesc: '',
+                    bacnetDis: '',
+                    kind: '',
+                    unit: '',
+                    point: false,
+                    writable: false,
+                    cmd: false,
+                    raw: section
+                };
+
+                const lines = section.split('\n').filter(line => line.trim());
+                
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.includes(':')) {
+                        const [key, ...valueParts] = trimmedLine.split(':');
+                        const value = valueParts.join(':').trim();
+                        
+                        switch (key.trim()) {
+                            case 'dis':
+                                point.dis = value;
+                                break;
+                            case 'bacnetCur':
+                                point.bacnetCur = value;
+                                break;
+                            case 'bacnetDesc':
+                                point.bacnetDesc = value.replace(/"/g, '');
+                                break;
+                            case 'bacnetDis':
+                                point.bacnetDis = value.replace(/"/g, '');
+                                break;
+                            case 'kind':
+                                point.kind = value;
+                                break;
+                            case 'unit':
+                                point.unit = value.replace(/"/g, '');
+                                break;
+                        }
+                    } else {
+                        // Handle standalone markers
+                        switch (trimmedLine) {
+                            case 'point':
+                                point.point = true;
+                                break;
+                            case 'writable':
+                                point.writable = true;
+                                break;
+                            case 'cmd':
+                                point.cmd = true;
+                                break;
+                        }
+                    }
+                });
+
+                return point;
+            }
+
+            getEffectiveDisplayName(point) {
+                // Hierarchy: bacnetDesc > dis > bacnetDis > bacnetCur (last resort)
+                if (point.bacnetDesc && point.bacnetDesc.trim()) {
+                    return point.bacnetDesc.trim();
+                }
+                if (point.dis && point.dis.trim()) {
+                    return point.dis.trim();
+                }
+                if (point.bacnetDis && point.bacnetDis.trim()) {
+                    return point.bacnetDis.trim();
+                }
+                if (point.bacnetCur && point.bacnetCur.trim()) {
+                    return `[${point.bacnetCur.trim()}]`; // Brackets to indicate it's a fallback address
+                }
+                return '[Unmapped Point]';
+            }
+
+            generatePointId() {
+                return 'point_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            applyGrouping() {
+                let filteredPoints = this.originalPoints.filter(point => {
+                    if (!this.searchQuery) return true;
+                    
+                    const effectiveDisplayName = this.getEffectiveDisplayName(point);
+                    const searchFields = [
+                        effectiveDisplayName,
+                        point.dis,
+                        point.bacnetDesc,
+                        point.bacnetDis,
+                        point.bacnetCur,
+                        point.kind,
+                        point.unit,
+                        point.fileName
+                    ].join(' ').toLowerCase();
+                    
+                    return searchFields.includes(this.searchQuery);
+                });
+
+                let groupedData;
+                switch (this.currentGrouping) {
+                    case 'kind':
+                        groupedData = this.groupByKind(filteredPoints);
+                        break;
+                    case 'unit':
+                        groupedData = this.groupByUnit(filteredPoints);
+                        break;
+                    case 'smart':
+                        groupedData = this.smartGrouping(filteredPoints);
+                        break;
+                    default:
+                        groupedData = this.groupByEquipmentType(filteredPoints);
+                }
+
+                this.renderGroupedData(groupedData);
+            }
+
+            groupByEquipmentType(points) {
+                const equipmentPatterns = {
+                    'Variable Air Volume Units': /VAV|Variable.*Air|var.*air/i,
+                    'Air Handling Units': /AHU|Air.*Hand|air.*hand/i,
+                    'Control Valves': /CV|Control.*Valve|ctrl.*valve/i,
+                    'Terminal Units': /TU|Terminal.*Unit|term.*unit/i,
+                    'Fan Units': /F-|Fan|FAN/i,
+                    'Pump Units': /Pump|PUMP/i,
+                    'Chiller Units': /Chill|CHILL/i,
+                    'Boiler Units': /Boil|BOIL/i
+                };
+
+                // Group by file first, then by equipment type
+                const fileGroups = {};
+                points.forEach(point => {
+                    if (!fileGroups[point.fileName]) fileGroups[point.fileName] = [];
+                    fileGroups[point.fileName].push(point);
+                });
+
+                const groups = {};
+                
+                Object.entries(fileGroups).forEach(([fileName, filePoints]) => {
+                    const equipmentType = this.determineEquipmentTypeFromFile(fileName, equipmentPatterns);
+                    const instanceName = this.extractEquipmentInstanceName(fileName);
+                    
+                    // Create a compound key that maintains the hierarchy
+                    const groupKey = `${equipmentType} | ${instanceName}`;
+                    groups[groupKey] = filePoints;
+                });
+
+                return groups;
+            }
+
+            groupByKind(points) {
+                const groups = {};
+                points.forEach(point => {
+                    const kind = point.kind || 'Unknown';
+                    if (!groups[kind]) groups[kind] = [];
+                    groups[kind].push(point);
+                });
+                return groups;
+            }
+
+            groupByUnit(points) {
+                const groups = {};
+                points.forEach(point => {
+                    const unit = point.unit || 'No Unit';
+                    if (!groups[unit]) groups[unit] = [];
+                    groups[unit].push(point);
+                });
+                return groups;
+            }
+
+            smartGrouping(points) {
+                const equipmentPatterns = {
+                    'Variable Air Volume Units': /VAV|Variable.*Air|var.*air/i,
+                    'Air Handling Units': /AHU|Air.*Hand|air.*hand/i,
+                    'Control Valves': /CV|Control.*Valve|ctrl.*valve/i,
+                    'Terminal Units': /TU|Terminal.*Unit|term.*unit/i,
+                    'Fan Units': /F-|Fan|FAN/i,
+                    'Pump Units': /Pump|PUMP/i,
+                    'Chiller Units': /Chill|CHILL/i,
+                    'Boiler Units': /Boil|BOIL/i
+                };
+
+                // Group points by file first
+                const fileGroups = {};
+                points.forEach(point => {
+                    if (!fileGroups[point.fileName]) fileGroups[point.fileName] = [];
+                    fileGroups[point.fileName].push(point);
+                });
+
+                const equipmentTypeGroups = {};
+
+                // Process each file to create equipment type groups
+                Object.entries(fileGroups).forEach(([fileName, filePoints]) => {
+                    // Determine equipment type from filename
+                    const equipmentType = this.determineEquipmentTypeFromFile(fileName, equipmentPatterns);
+                    
+                    // Identify sub-instances within this file
+                    const subInstances = this.identifySubInstances(filePoints, fileName);
+                    
+                    // Create the equipment type group if it doesn't exist
+                    if (!equipmentTypeGroups[equipmentType]) {
+                        equipmentTypeGroups[equipmentType] = {};
+                    }
+                    
+                    // Add each sub-instance to the equipment type group
+                    Object.entries(subInstances).forEach(([instanceName, instancePoints]) => {
+                        const deduplicatedPoints = this.deduplicatePoints(instancePoints);
+                        const classification = this.classifyInstance(deduplicatedPoints);
+                        const instanceKey = `${instanceName} (${deduplicatedPoints.length} points) - ${classification}`;
+                        equipmentTypeGroups[equipmentType][instanceKey] = deduplicatedPoints;
+                    });
+                });
+
+                // Flatten for rendering while maintaining hierarchy information
+                const flattenedGroups = {};
+                Object.entries(equipmentTypeGroups).forEach(([equipmentType, instances]) => {
+                    Object.entries(instances).forEach(([instanceKey, points]) => {
+                        const groupName = `${equipmentType} | ${instanceKey}`;
+                        flattenedGroups[groupName] = points;
+                    });
+                });
+
+                return flattenedGroups;
+            }
+
+            determineEquipmentTypeFromFile(fileName, equipmentPatterns) {
+                // Check filename against equipment patterns
+                for (const [equipType, pattern] of Object.entries(equipmentPatterns)) {
+                    if (pattern.test(fileName)) {
+                        return equipType;
+                    }
+                }
+                
+                // Fallback: extract base equipment type from filename
+                const baseName = fileName.replace(/\.(txt|trio)$/, '').toUpperCase();
+                if (baseName.includes('VAV')) return 'Variable Air Volume Units';
+                if (baseName.includes('AHU')) return 'Air Handling Units';
+                if (baseName.includes('TU')) return 'Terminal Units';
+                if (baseName.includes('CV')) return 'Control Valves';
+                if (baseName.includes('FAN') || baseName.startsWith('F-')) return 'Fan Units';
+                
+                return 'Unknown Equipment Type';
+            }
+
+            classifyInstance(points) {
+                const pointCount = points.length;
+                
+                if (pointCount >= 5) {
+                    return 'Complete System';
+                } else if (pointCount >= 3) {
+                    return 'Partial System';
+                } else if (pointCount === 2) {
+                    return 'Minimal System';
+                } else {
+                    return 'Single Point';
+                }
+            }
+
+            identifySubInstances(filePoints, fileName) {
+                const subInstances = {};
+                const prefixGroups = {};
+
+                filePoints.forEach(point => {
+                    // Extract sub-instance prefix from point display name
+                    const prefix = this.extractSubInstancePrefix(point.dis);
+                    
+                    if (prefix && this.isValidPrefix(prefix, fileName)) {
+                        // Valid prefix found - group by prefix
+                        if (!prefixGroups[prefix]) prefixGroups[prefix] = [];
+                        prefixGroups[prefix].push(point);
+                    } else {
+                        // No clear prefix - group under file-based instance
+                        const fallbackName = this.extractEquipmentId(fileName);
+                        if (!prefixGroups[fallbackName]) prefixGroups[fallbackName] = [];
+                        prefixGroups[fallbackName].push(point);
+                    }
+                });
+
+                return prefixGroups;
+            }
+
+            extractSubInstancePrefix(pointName) {
+                if (!pointName) return null;
+                
+                // Look for patterns like "VAV1.ZoneTemp", "AHU-2.SupplyTemp", "TU_3_Flow"
+                const patterns = [
+                    /^([A-Z]+[_-]?\d+)[.\-_]/i,  // VAV1., AHU-2., TU_3_
+                    /^([A-Z]+[_-]?[A-Z]+[_-]?\d*)[.\-_]/i,  // VAV_COOL_1., AHU_SUPPLY.
+                    /^([A-Z]+[_-]?[A-Z]+)[.\-_]/i  // VAV_COOL., AHU_SUPPLY.
+                ];
+
+                for (const pattern of patterns) {
+                    const match = pointName.match(pattern);
+                    if (match) {
+                        return match[1].toUpperCase();
+                    }
+                }
+
+                // Check for standalone equipment identifiers
+                const standalonePattern = /^([A-Z]+[_-]?\d+)$/i;
+                const standaloneMatch = pointName.match(standalonePattern);
+                if (standaloneMatch) {
+                    return standaloneMatch[1].toUpperCase();
+                }
+
+                return null;
+            }
+
+            isValidPrefix(prefix, fileName) {
+                // Ensure prefix isn't just a generic equipment type
+                const genericTypes = ['VAV', 'AHU', 'TU', 'CV', 'FAN', 'PUMP'];
+                
+                // Valid if it has numbers or additional descriptors
+                const hasNumbers = /\d/.test(prefix);
+                const hasDescriptor = prefix.split(/[_-]/).length > 1;
+                const notGeneric = !genericTypes.includes(prefix);
+                
+                return hasNumbers || hasDescriptor || notGeneric;
+            }
+
+            deduplicatePoints(points) {
+                const seen = new Set();
+                return points.filter(point => {
+                    const effectiveDisplayName = this.getEffectiveDisplayName(point);
+                    const key = `${effectiveDisplayName}_${point.bacnetCur}_${point.kind}`;
+                    if (seen.has(key)) {
+                        return false;
+                    }
+                    seen.add(key);
+                    return true;
+                });
+            }
+
+            extractEquipmentId(fileName) {
+                // Extract meaningful equipment identifier from filename
+                const cleanName = fileName.replace(/\.txt$|\.trio$/, '');
+                return cleanName;
+            }
+
+            normalizeBacnetId(bacnetId) {
+                if (!bacnetId) return 'Unknown';
+                
+                // Extract base pattern from BACnet ID
+                const basePattern = bacnetId.replace(/\d+$/, '');
+                return basePattern || bacnetId.substring(0, 3);
+            }
+
+            renderGroupedData(groupedData) {
+                const dataContent = document.getElementById('dataContent');
+                
+                if (Object.keys(groupedData).length === 0) {
+                    dataContent.innerHTML = '<div class="no-data">No data matches your current filters.</div>';
+                    return;
+                }
+
+                let html = '';
+                
+                if (this.currentGrouping === 'smart') {
+                    // For smart grouping, organize as hierarchy
+                    html = this.renderHierarchicalView(groupedData);
+                } else if (this.currentGrouping === 'none') {
+                    // For no grouping, show equipment instances directly at top level
+                    html = this.renderDirectEquipmentView(groupedData);
+                } else {
+                    // For kind and unit grouping, use flat structure
+                    for (const [groupName, points] of Object.entries(groupedData)) {
+                        const groupClass = this.getGroupClass();
+                        html += this.renderFlatGroup(groupName, points, groupClass);
+                    }
+                }
+
+                dataContent.innerHTML = html;
+                document.getElementById('equipmentGroups').textContent = Object.keys(groupedData).length;
+            }
+
+            renderDirectEquipmentView(groupedData) {
+                let html = '';
+                const unmappedPoints = [];
+                const equipmentInstances = [];
+                
+                Object.entries(groupedData).forEach(([key, points]) => {
+                    // Extract instance name from the key (format: "Equipment Type | Instance Name")
+                    const instanceName = key.includes(' | ') ? key.split(' | ')[1] : key;
+                    
+                    // Check if this represents a real equipment instance or just unmapped points
+                    const hasValidEquipmentName = this.hasValidEquipmentIdentification(instanceName, points);
+                    
+                    if (hasValidEquipmentName) {
+                        equipmentInstances.push({ instanceName, points });
+                    } else {
+                        unmappedPoints.push(...points);
+                    }
+                });
+
+                // Render equipment instances first
+                equipmentInstances.forEach(({ instanceName, points }) => {
+                    const instanceId = `direct-${this.generateUniqueId(instanceName)}`;
+                    
+                    html += `
+                        <div class="equipment-group">
+                            <div class="group-header" onclick="toggleGroup('${instanceId}')">
+                                <span class="group-title">${this.escapeHtml(instanceName)}</span>
+                                <span class="group-count">${points.length} points</span>
+                            </div>
+                            <div class="group-content" id="group-${instanceId}">
+                                ${this.renderPoints(points, instanceName)}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Render unmapped points container if there are any
+                if (unmappedPoints.length > 0) {
+                    const unmappedId = `direct-${this.generateUniqueId('no-equipment-defined')}`;
+                    html += `
+                        <div class="equipment-group">
+                            <div class="group-header" onclick="toggleGroup('${unmappedId}')">
+                                <span class="group-title">No Equipment Defined</span>
+                                <span class="group-count">${unmappedPoints.length} points</span>
+                            </div>
+                            <div class="group-content" id="group-${unmappedId}">
+                                ${this.renderPoints(unmappedPoints, 'No Equipment Defined')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return html;
+            }
+
+            hasValidEquipmentIdentification(instanceName, points) {
+                // Check if the instance name represents a real equipment piece
+                // vs just a fallback grouping of unmapped points
+                
+                // If instance name is just "Unknown Equipment Type", it's unmapped
+                if (instanceName.includes('Unknown Equipment Type')) {
+                    return false;
+                }
+                
+                // If all points only have BACnet addresses as names (fallback), likely unmapped
+                const pointsWithOnlyAddresses = points.filter(point => {
+                    const effectiveName = this.getEffectiveDisplayName(point);
+                    return effectiveName.startsWith('[') && effectiveName.endsWith(']');
+                });
+                
+                // If more than 80% of points only have addresses, probably unmapped
+                if (pointsWithOnlyAddresses.length / points.length > 0.8) {
+                    return false;
+                }
+                
+                // Otherwise, assume it's a valid equipment instance
+                return true;
+            }
+
+            renderHierarchicalView(groupedData) {
+                // Organize data into equipment types and instances
+                const equipmentTypes = {};
+                
+                Object.entries(groupedData).forEach(([key, points]) => {
+                    let equipmentType, instanceName;
+                    
+                    if (key.includes(' | ')) {
+                        // Format: "Equipment Type | Instance" or "Equipment Type | Instance (X points) - Classification"
+                        const parts = key.split(' | ');
+                        equipmentType = parts[0];
+                        instanceName = parts[1];
+                    } else {
+                        // Fallback - treat key as equipment type and derive instance from filename
+                        equipmentType = key;
+                        instanceName = this.extractEquipmentInstanceName(points[0].fileName);
+                    }
+                    
+                    if (!equipmentTypes[equipmentType]) {
+                        equipmentTypes[equipmentType] = {};
+                    }
+                    
+                    equipmentTypes[equipmentType][instanceName] = points;
+                });
+
+                let html = '';
+                Object.entries(equipmentTypes).forEach(([equipmentType, instances]) => {
+                    const typeClass = this.getGroupClass();
+                    const totalPoints = Object.values(instances).flat().length;
+                    const instanceCount = Object.keys(instances).length;
+                    const typeId = `type-${this.generateUniqueId(equipmentType)}`;
+                    
+                    html += `
+                        <div class="equipment-group">
+                            <div class="group-header ${typeClass}" onclick="toggleGroup('${typeId}')">
+                                <span class="group-title">${this.escapeHtml(equipmentType)}</span>
+                                <span class="group-count">${instanceCount} units, ${totalPoints} points</span>
+                            </div>
+                            <div class="group-content" id="group-${typeId}">
+                                ${this.renderEquipmentInstances(instances)}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                return html;
+            }
+
+            renderEquipmentInstances(instances) {
+                let html = '';
+                
+                Object.entries(instances).forEach(([instanceName, points]) => {
+                    const instanceId = `instance-${this.generateUniqueId(instanceName)}`;
+                    html += `
+                        <div class="equipment-instance">
+                            <div class="instance-header" onclick="toggleGroup('${instanceId}')">
+                                <span class="instance-title">${this.escapeHtml(instanceName)}</span>
+                                <span class="instance-count">${points.length} points</span>
+                            </div>
+                            <div class="instance-content" id="group-${instanceId}">
+                                ${this.renderPoints(points, instanceName)}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                return html;
+            }
+
+            generateUniqueId(name) {
+                // Generate a unique ID from the name for DOM purposes
+                return name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() + '_' + Math.random().toString(36).substr(2, 5);
+            }
+
+            renderFlatGroup(groupName, points, groupClass) {
+                const groupId = `flat-${this.generateUniqueId(groupName)}`;
+                return `
+                    <div class="equipment-group">
+                        <div class="group-header ${groupClass}" onclick="toggleGroup('${groupId}')">
+                            <span class="group-title">${this.escapeHtml(groupName)}</span>
+                            <span class="group-count">${points.length} points</span>
+                        </div>
+                        <div class="group-content" id="group-${groupId}">
+                            ${this.renderPoints(points, groupName)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            extractEquipmentInstanceName(fileName) {
+                // Extract clean equipment instance name from filename
+                const cleanName = fileName.replace(/\.(txt|trio)$/, '');
+                // Remove any trailing file extension dots but preserve equipment naming
+                return cleanName;
+            }
+
+            extractEquipmentId(fileName) {
+                // Alias for backwards compatibility
+                return this.extractEquipmentInstanceName(fileName);
+            }
+
+            getGroupClass() {
+                switch (this.currentGrouping) {
+                    case 'smart': return 'smart-group-badge';
+                    case 'kind': return 'kind-group-badge';
+                    case 'unit': return 'unit-group-badge';
+                    default: return '';
+                }
+            }
+
+            renderPoints(points, groupName) {
+                return points.map(point => {
+                    const effectiveDisplayName = this.getEffectiveDisplayName(point);
+                    return `
+                    <div class="point-item">
+                        <div class="point-header">
+                            <span class="point-dis">${this.escapeHtml(effectiveDisplayName)}</span>
+                            <span class="point-kind">${this.escapeHtml(point.kind)}</span>
+                        </div>
+                        <div class="point-details">
+                            <div class="detail-item">
+                                <span class="detail-label">BACnet ID</span>
+                                <span class="detail-value">${this.escapeHtml(point.bacnetCur)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Description</span>
+                                <span class="detail-value">${this.escapeHtml(point.bacnetDesc) || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Display Name</span>
+                                <span class="detail-value">${this.escapeHtml(point.dis) || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Unit</span>
+                                <span class="detail-value">${this.escapeHtml(point.unit) || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Properties</span>
+                                <span class="detail-value">${this.getPointProperties(point)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Source File</span>
+                                <span class="detail-value">${this.escapeHtml(point.fileName)}</span>
+                            </div>
+                        </div>
+                        <div class="equipment-controls">
+                            <button class="btn btn-confirm" onclick="confirmEquipment('${point.pointId}', '${this.escapeHtml(groupName)}')">
+                                Confirm Equipment
+                            </button>
+                            <button class="btn btn-flag" onclick="flagForReview('${point.pointId}')">
+                                Flag for Review
+                            </button>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+            }
+
+            getPointProperties(point) {
+                const properties = [];
+                if (point.point) properties.push('Point');
+                if (point.writable) properties.push('Writable');
+                if (point.cmd) properties.push('Command');
+                return properties.length > 0 ? properties.join(', ') : 'N/A';
+            }
+
+            updateStatistics() {
+                document.getElementById('totalPoints').textContent = this.points.length;
+                document.getElementById('filesLoaded').textContent = new Set(this.points.map(p => p.fileName)).size;
+                
+                const uniqueUnits = new Set(this.points.map(p => p.unit).filter(u => u));
+                document.getElementById('uniqueUnits').textContent = uniqueUnits.size;
+            }
+
+            escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            resetAllData() {
+                // Clear all data arrays
+                this.points = [];
+                this.originalPoints = [];
+                this.equipmentMappings.clear();
+                
+                // Reset form controls
+                document.getElementById('fileInput').value = '';
+                document.getElementById('groupingMethod').value = 'none';
+                document.getElementById('searchBox').value = '';
+                
+                // Reset instance variables
+                this.currentGrouping = 'none';
+                this.searchQuery = '';
+                
+                // Reset statistics
+                document.getElementById('totalPoints').textContent = '0';
+                document.getElementById('filesLoaded').textContent = '0';
+                document.getElementById('equipmentGroups').textContent = '0';
+                document.getElementById('uniqueUnits').textContent = '0';
+                
+                // Reset data content area
+                document.getElementById('dataContent').innerHTML = `
+                    <div class="no-data">
+                        Upload building automation files to begin data processing and equipment identification.
+                    </div>
+                `;
+                
+                console.log('All data has been reset. Ready for new files.');
+            }
+        }
+
+        // Global functions for UI interactions
+        function toggleGroup(groupId) {
+            const content = document.getElementById(`group-${groupId}`);
+            if (content) {
+                content.classList.toggle('expanded');
+            }
+        }
+
+        function confirmEquipment(pointId, groupName) {
+            console.log(`Confirmed equipment mapping for point ${pointId} in group ${groupName}`);
+            // Implementation for confirming equipment mappings
+            alert(`Equipment mapping confirmed for point in ${groupName}`);
+        }
+
+        function flagForReview(pointId) {
+            console.log(`Flagged point ${pointId} for review`);
+            // Implementation for flagging points for manual review
+            alert('Point flagged for manual review');
+        }
+
+        // Initialize the application
+        const processor = new BuildingAutomationProcessor();
+    </script>
+</body>
+</html>
