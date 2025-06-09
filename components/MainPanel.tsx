@@ -5,6 +5,7 @@ import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { useGroupingStore } from '../lib/store';
+import { getEquipmentDisplayName } from '../lib/utils';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 export function MainPanel() {
@@ -21,8 +22,19 @@ export function MainPanel() {
     assignPoints
   } = useGroupingStore();
 
+  const [expandedEquipmentTypes, setExpandedEquipmentTypes] = useState<Set<string>>(new Set());
   const [expandedEquipment, setExpandedEquipment] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
+
+  const toggleEquipmentType = (typeId: string) => {
+    const newExpanded = new Set(expandedEquipmentTypes);
+    if (newExpanded.has(typeId)) {
+      newExpanded.delete(typeId);
+    } else {
+      newExpanded.add(typeId);
+    }
+    setExpandedEquipmentTypes(newExpanded);
+  };
 
   const toggleEquipment = (equipmentId: string) => {
     const newExpanded = new Set(expandedEquipment);
@@ -38,6 +50,10 @@ export function MainPanel() {
     return points.filter(point => point.equipRef === equipmentId);
   };
 
+  const getEquipmentForType = (typeId: string) => {
+    return equipmentInstances.filter(equipment => equipment.typeId === typeId);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-green-100 text-green-800 border-green-200';
@@ -48,16 +64,61 @@ export function MainPanel() {
   };
 
   const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 1.0) return 'text-green-700 bg-green-100 font-semibold'; // Extra emphasis for 100%
     if (confidence >= 0.8) return 'text-green-600 bg-green-50';
     if (confidence >= 0.6) return 'text-yellow-600 bg-yellow-50';
     return 'text-red-600 bg-red-50';
   };
 
   const formatConfidence = (confidence: number) => {
-    return `${Math.round(confidence * 100)}%`;
+    const percentage = Math.round(confidence * 100);
+    return confidence >= 1.0 ? `${percentage}% ✓` : `${percentage}%`;
+  };
+
+  const getEquipmentLabel = (equipment: any) => {
+    // Check if it's user created
+    if (equipment.vendor === 'User Created' || equipment.status === 'user-created') {
+      return 'User Created Manual Assignment';
+    }
+    
+    // Use vendor and model if available
+    if (equipment.vendor && equipment.model) {
+      return `${equipment.vendor} ${equipment.model}`;
+    }
+    
+    // Use just vendor if model not available
+    if (equipment.vendor) {
+      return equipment.vendor;
+    }
+    
+    // Check points for vendor/model info (from connector data)
+    const equipmentPoints = getPointsForEquipment(equipment.id);
+    if (equipmentPoints.length > 0) {
+      const firstPoint = equipmentPoints[0];
+      if (firstPoint.vendor && firstPoint.model) {
+        return `${firstPoint.vendor} ${firstPoint.model}`;
+      }
+      if (firstPoint.vendor) {
+        return firstPoint.vendor;
+      }
+    }
+    
+    return null;
   };
 
   const unassignedCount = points.filter(p => !p.equipRef).length;
+
+  // Group equipment instances by type
+  const equipmentByType = equipmentTypes.reduce((acc, type) => {
+    const equipmentForType = getEquipmentForType(type.id);
+    if (equipmentForType.length > 0) {
+      acc[type.id] = {
+        type,
+        equipment: equipmentForType
+      };
+    }
+    return acc;
+  }, {} as Record<string, { type: any; equipment: any[] }>);
 
   return (
     <div className="space-y-6">
@@ -71,7 +132,7 @@ export function MainPanel() {
         </Button>
       </div>
 
-      {/* Equipment List */}
+      {/* Equipment List - Now Hierarchical */}
       <Card>
         <Card.Header className="bg-slate-600 text-white">
           <Card.Title className="flex items-center space-x-2">
@@ -92,7 +153,7 @@ export function MainPanel() {
               </div>
               <input
                 type="text"
-                placeholder="Search points by name, description, or BACnet ID..."
+                placeholder="Search points by name, description, BACnet ID, or device location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
@@ -100,192 +161,263 @@ export function MainPanel() {
             </div>
           </div>
 
-          {/* Equipment Items */}
+          {/* Equipment Types - Top Level */}
           <div className="space-y-3">
-            {equipmentInstances.map(equipment => {
-              const equipmentPoints = getPointsForEquipment(equipment.id);
-              const isEquipmentExpanded = expandedEquipment.has(equipment.id);
-              
-              // Filter points based on search term
-              const filteredPoints = equipmentPoints.filter(point => 
-                !searchTerm || 
-                point.dis?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                point.bacnetCur?.toLowerCase().includes(searchTerm.toLowerCase())
-              );
-
-              const getStatusBadge = (status: string) => {
-                switch (status) {
-                  case 'confirmed':
-                    return <Badge className="bg-green-600 text-white hover:bg-green-700">Confirmed</Badge>;
-                  case 'suggested':
-                    return <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">Pending</Badge>;
-                  case 'needs-review':
-                    return <Badge className="bg-red-600 text-white hover:bg-red-700">Needs Review</Badge>;
-                  default:
-                    return <Badge className="bg-gray-500 text-white hover:bg-gray-600">Unknown</Badge>;
-                }
-              };
+            {Object.entries(equipmentByType).map(([typeId, { type, equipment }]) => {
+              const isTypeExpanded = expandedEquipmentTypes.has(typeId);
+              const totalPoints = equipment.reduce((sum, eq) => sum + getPointsForEquipment(eq.id).length, 0);
               
               return (
-                <div key={equipment.id} className="bg-gray-100 rounded-lg">
-                  {/* Equipment Header */}
-                  <div className="px-4 py-3 bg-gray-100 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      {/* Left side - Equipment info and expand button */}
-                      <button
-                        onClick={() => toggleEquipment(equipment.id)}
-                        className="flex items-center space-x-3 text-left hover:text-blue-600"
-                      >
-                        {isEquipmentExpanded ? (
-                          <ChevronDownIcon className="h-4 w-4 text-gray-500" />
-                        ) : (
-                          <ChevronRightIcon className="h-4 w-4 text-gray-500" />
-                        )}
-                        <span className="font-medium text-gray-900">{equipment.name}</span>
-                        <Badge variant="secondary" className="bg-gray-600 text-white">
-                          {equipmentPoints.length} points
-                        </Badge>
-                        <Badge 
-                          variant="outline" 
-                          className={`${getConfidenceColor(equipment.confidence)} border-0 text-xs font-medium`}
-                        >
-                          {formatConfidence(equipment.confidence)} confidence
-                        </Badge>
-                      </button>
-
-                      {/* Right side - Actions and status */}
+                <div key={typeId} className="bg-blue-50 border border-blue-200 rounded-lg">
+                  {/* Equipment Type Header */}
+                  <div className="px-4 py-3">
+                    <button
+                      onClick={() => toggleEquipmentType(typeId)}
+                      className="flex items-center justify-between w-full text-left hover:text-blue-700"
+                    >
                       <div className="flex items-center space-x-3">
-                        {equipment.status !== 'confirmed' && (
-                          <Button
-                            size="sm"
-                            className="bg-blue-600 text-white hover:bg-blue-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              confirmAllEquipmentPoints(equipment.id);
-                            }}
-                          >
-                            Confirm All Points
-                          </Button>
+                        {isTypeExpanded ? (
+                          <ChevronDownIcon className="h-5 w-5 text-blue-600" />
+                        ) : (
+                          <ChevronRightIcon className="h-5 w-5 text-blue-600" />
                         )}
-                        {getStatusBadge(equipment.status)}
+                        <div className="flex flex-col">
+                          <span className="text-lg font-semibold text-blue-900">{type.name}</span>
+                          <span className="text-sm text-blue-700">{type.description}</span>
+                        </div>
                       </div>
-                    </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge className="bg-blue-600 text-white">
+                          {equipment.length} units, {totalPoints} points
+                        </Badge>
+                      </div>
+                    </button>
                   </div>
 
-                                    {/* Equipment Points - Show when expanded */}
-                  {isEquipmentExpanded && (
-                    <div className="px-4 pb-4 space-y-4">
-                      {(searchTerm ? filteredPoints : equipmentPoints).map((point, idx) => {
-                        // Dynamic strategies for fields
-                        const getDescription = (point: any) => {
-                          return point.bacnetDesc || point.bacnetDis || point.dis || point.bacnetCur;
-                        };
+                  {/* Equipment Instances - Second Level */}
+                  {isTypeExpanded && (
+                    <div className="px-4 pb-4 space-y-3">
+                      {equipment.map(equipmentInstance => {
+                        const equipmentPoints = getPointsForEquipment(equipmentInstance.id);
+                        const isEquipmentExpanded = expandedEquipment.has(equipmentInstance.id);
                         
-                        const getDisplayName = (point: any) => {
-                          return point.navName || point.bacnetDis || point.bacnetCur;
-                        };
-                        
-                        const getProperties = (point: any) => {
-                          const markers = point.markers || [];
-                          return markers.length > 0 ? markers.join(', ') : 'Point';
-                        };
-                        
-                        const getSource = (point: any) => {
-                          return point.source || 'read(point)';
-                        };
+                        // Filter points based on search term
+                        const filteredPoints = equipmentPoints.filter(point => 
+                          !searchTerm || 
+                          point.dis?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          point.bacnetCur?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          point.bacnetDeviceName?.toLowerCase().includes(searchTerm.toLowerCase())
+                        );
 
+                        const getStatusBadge = (status: string) => {
+                          switch (status) {
+                            case 'confirmed':
+                              return <Badge className="bg-green-600 text-white hover:bg-green-700">Confirmed</Badge>;
+                            case 'suggested':
+                              return <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">Pending</Badge>;
+                            case 'needs-review':
+                              return <Badge className="bg-red-600 text-white hover:bg-red-700">Needs Review</Badge>;
+                            default:
+                              return <Badge className="bg-gray-500 text-white hover:bg-gray-600">Unknown</Badge>;
+                          }
+                        };
+                        
                         return (
-                          <div key={point.id} className="bg-white border rounded-lg p-6">
-                            {/* Point Header */}
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                  {getDisplayName(point)}
-                                </h3>
-                                <div className="flex items-center space-x-2">
-                                  <Badge className="bg-blue-100 text-blue-800">{point.kind}</Badge>
-                                  {equipment.equipTypeName && (
-                                    <span className="text-sm text-gray-500">
-                                      {equipment.equipTypeName} → {equipment.name}
-                                    </span>
+                          <div key={equipmentInstance.id} className="bg-gray-100 rounded-lg">
+                            {/* Equipment Instance Header */}
+                            <div className="px-4 py-3 bg-gray-100 rounded-lg">
+                              <div className="flex items-center justify-between">
+                                {/* Left side - Equipment info and expand button */}
+                                <div className="flex-1">
+                                  <button
+                                    onClick={() => toggleEquipment(equipmentInstance.id)}
+                                    className="flex items-center space-x-3 text-left hover:text-blue-600"
+                                  >
+                                    {isEquipmentExpanded ? (
+                                      <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+                                    ) : (
+                                      <ChevronRightIcon className="h-4 w-4 text-gray-500" />
+                                    )}
+                                    <span className="font-medium text-gray-900">{getEquipmentDisplayName(equipmentInstance.name)}</span>
+                                    <Badge variant="secondary" className="bg-gray-600 text-white">
+                                      {equipmentPoints.length} points
+                                    </Badge>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`${getConfidenceColor(equipmentInstance.confidence)} border-0 text-xs font-medium`}
+                                    >
+                                      {formatConfidence(equipmentInstance.confidence)} confidence
+                                    </Badge>
+                                  </button>
+                                  
+                                  {/* Equipment Label - Manufacturer/Model or User Created */}
+                                  {getEquipmentLabel(equipmentInstance) && (
+                                    <div className="mt-1 ml-7">
+                                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                        {getEquipmentLabel(equipmentInstance)}
+                                      </span>
+                                    </div>
                                   )}
+                                  
+                                  {/* Device Location - Show bacnetDeviceName if available */}
+                                  {(() => {
+                                    const deviceName = equipmentPoints.find(p => p.bacnetDeviceName)?.bacnetDeviceName;
+                                    return deviceName && (
+                                      <div className="mt-1 ml-7">
+                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200">
+                                          📍 {deviceName}
+                                        </span>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+
+                                {/* Right side - Actions and status */}
+                                <div className="flex items-center space-x-3">
+                                  {equipmentInstance.status !== 'confirmed' && (
+                                    <Button
+                                      size="sm"
+                                      className="bg-blue-600 text-white hover:bg-blue-700"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        confirmAllEquipmentPoints(equipmentInstance.id);
+                                      }}
+                                    >
+                                      Confirm All Points
+                                    </Button>
+                                  )}
+                                  {getStatusBadge(equipmentInstance.status)}
                                 </div>
                               </div>
-                              {point.status === 'confirmed' ? (
-                                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded">
-                                  Confirmed
-                                </span>
-                              ) : point.status === 'flagged' ? (
-                                <span className="text-sm text-white bg-orange-500 px-3 py-2 rounded">
-                                  Flagged
-                                </span>
-                              ) : (
-                                <div className="flex space-x-2">
-                                  <Button
-                                    size="sm"
-                                    className="bg-green-600 text-white hover:bg-green-700"
-                                    onClick={() => confirmPoint(point.id)}
-                                  >
-                                    Confirm Equipment
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    className="bg-orange-500 text-white hover:bg-orange-600"
-                                    onClick={() => flagPoint(point.id)}
-                                  >
-                                    Flag for Review
-                                  </Button>
-                                </div>
-                              )}
                             </div>
 
-                            {/* Point Details Grid */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">BACnet ID</dt>
-                                <dd className="mt-1 text-sm text-gray-900">{point.bacnetCur}</dd>
+                            {/* Equipment Points - Third Level */}
+                            {isEquipmentExpanded && (
+                              <div className="px-4 pb-4 space-y-4">
+                                {(searchTerm ? filteredPoints : equipmentPoints).map((point, idx) => {
+                                  // Dynamic strategies for fields
+                                  const getDescription = (point: any) => {
+                                    return point.bacnetDesc || point.bacnetDis || point.dis || point.bacnetCur;
+                                  };
+                                  
+                                  const getDisplayName = (point: any) => {
+                                    return point.navName || point.bacnetDis || point.bacnetCur;
+                                  };
+                                  
+                                  const getProperties = (point: any) => {
+                                    const markers = point.markers || [];
+                                    return markers.length > 0 ? markers.join(', ') : 'Point';
+                                  };
+                                  
+                                  const getSource = (point: any) => {
+                                    return point.source || 'read(point)';
+                                  };
+
+                                  return (
+                                    <div key={point.id} className="bg-white border rounded-lg p-6">
+                                      {/* Point Header */}
+                                      <div className="flex items-start justify-between mb-4">
+                                        <div className="flex-1">
+                                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                            {getDisplayName(point)}
+                                          </h3>
+                                          <div className="flex items-center space-x-2">
+                                            <Badge className="bg-blue-100 text-blue-800">{point.kind}</Badge>
+                                                                                         {equipmentInstance.equipTypeName && (
+                                               <span className="text-sm text-gray-500">
+                                                 {equipmentInstance.equipTypeName} → {getEquipmentDisplayName(equipmentInstance.name)}
+                                               </span>
+                                             )}
+                                          </div>
+                                        </div>
+                                        {point.status === 'confirmed' ? (
+                                          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded">
+                                            Confirmed
+                                          </span>
+                                        ) : point.status === 'flagged' ? (
+                                          <span className="text-sm text-white bg-orange-500 px-3 py-2 rounded">
+                                            Flagged
+                                          </span>
+                                        ) : (
+                                          <div className="flex space-x-2">
+                                            <Button
+                                              size="sm"
+                                              className="bg-green-600 text-white hover:bg-green-700"
+                                              onClick={() => confirmPoint(point.id)}
+                                            >
+                                              Confirm Equipment
+                                            </Button>
+                                            <Button
+                                              size="sm"
+                                              className="bg-orange-500 text-white hover:bg-orange-600"
+                                              onClick={() => flagPoint(point.id)}
+                                            >
+                                              Flag for Review
+                                            </Button>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Point Details Grid */}
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                        <div>
+                                          <dt className="text-sm font-medium text-gray-500">BACnet ID</dt>
+                                          <dd className="mt-1 text-sm text-gray-900">{point.bacnetCur}</dd>
+                                        </div>
+                                        
+                                        <div>
+                                          <dt className="text-sm font-medium text-gray-500">Description</dt>
+                                          <dd className="mt-1 text-sm text-gray-900">{getDescription(point)}</dd>
+                                        </div>
+                                        
+                                        <div>
+                                          <dt className="text-sm font-medium text-gray-500">Display Name</dt>
+                                          <dd className="mt-1 text-sm text-gray-900">{getDisplayName(point)}</dd>
+                                        </div>
+                                        
+                                        <div>
+                                          <dt className="text-sm font-medium text-gray-500">Unit</dt>
+                                          <dd className="mt-1 text-sm text-gray-900">{point.unit || '-'}</dd>
+                                        </div>
+                                        
+                                        <div>
+                                          <dt className="text-sm font-medium text-gray-500">Properties</dt>
+                                          <dd className="mt-1 text-sm text-gray-900">{getProperties(point)}</dd>
+                                        </div>
+                                        
+                                        <div>
+                                          <dt className="text-sm font-medium text-gray-500">Source</dt>
+                                          <dd className="mt-1 text-sm text-gray-900">{getSource(point)}</dd>
+                                        </div>
+                                        
+                                        {/* Show Vendor and Model when available (typically from bacnetConn) */}
+                                        {point.vendor && (
+                                          <div>
+                                            <dt className="text-sm font-medium text-gray-500">Vendor</dt>
+                                            <dd className="mt-1 text-sm text-gray-900">{point.vendor}</dd>
+                                          </div>
+                                        )}
+                                        
+                                        {point.model && (
+                                          <div>
+                                            <dt className="text-sm font-medium text-gray-500">Model</dt>
+                                            <dd className="mt-1 text-sm text-gray-900">{point.model}</dd>
+                                          </div>
+                                        )}
+                                        
+                                        {/* Show Device Location when available from connector */}
+                                        {point.bacnetDeviceName && (
+                                          <div>
+                                            <dt className="text-sm font-medium text-gray-500">Device Location</dt>
+                                            <dd className="mt-1 text-sm text-blue-600 font-medium">📍 {point.bacnetDeviceName}</dd>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                              
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Description</dt>
-                                <dd className="mt-1 text-sm text-gray-900">{getDescription(point)}</dd>
-                              </div>
-                              
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Display Name</dt>
-                                <dd className="mt-1 text-sm text-gray-900">{getDisplayName(point)}</dd>
-                              </div>
-                              
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Unit</dt>
-                                <dd className="mt-1 text-sm text-gray-900">{point.unit || '-'}</dd>
-                              </div>
-                              
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Properties</dt>
-                                <dd className="mt-1 text-sm text-gray-900">{getProperties(point)}</dd>
-                              </div>
-                              
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Source</dt>
-                                <dd className="mt-1 text-sm text-gray-900">{getSource(point)}</dd>
-                              </div>
-                              
-                              {/* Show Vendor and Model when available (typically from bacnetConn) */}
-                              {point.vendor && (
-                                <div>
-                                  <dt className="text-sm font-medium text-gray-500">Vendor</dt>
-                                  <dd className="mt-1 text-sm text-gray-900">{point.vendor}</dd>
-                                </div>
-                              )}
-                              
-                              {point.model && (
-                                <div>
-                                  <dt className="text-sm font-medium text-gray-500">Model</dt>
-                                  <dd className="mt-1 text-sm text-gray-900">{point.model}</dd>
-                                </div>
-                              )}
-                            </div>
+                            )}
                           </div>
                         );
                       })}

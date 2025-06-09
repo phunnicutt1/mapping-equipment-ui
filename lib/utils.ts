@@ -2,31 +2,224 @@ import { BACnetPoint, EquipmentType, EquipmentInstance, ProcessingStats } from '
 
 export const equipmentTypes: EquipmentType[] = [
   {
-    id: 'ahu',
-    name: 'Air Handling Units',
-    pattern: /AHU|Air.*Hand|ERV/i,
+    id: 'ahus',
+    name: 'AHUs (air handling units)',
+    description: 'Equipment that conditions and delivers air via fans.',
+    pattern: /AHU|Air.*Hand|ERV|MAU|RTU/i,
     confidence: 0.9,
-    pointPatterns: ['temp', 'flow', 'pressure', 'fan', 'damper'],
+    pointPatterns: ['temp', 'flow', 'pressure', 'fan', 'damper', 'filter'],
     minPoints: 5,
     maxPoints: 100
   },
   {
-    id: 'vav',
-    name: 'VAV Terminal Units', 
-    pattern: /VAV|Variable.*Air/i,
+    id: 'doas',
+    name: 'DOAS (Dedicated Outside Air Systems)',
+    description: 'AHUs that supply air directly to a zone.',
+    pattern: /DOAS|Dedicated.*Outside.*Air|Outside.*Air.*System/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'flow', 'pressure', 'fan', 'damper', 'enthalpy'],
+    minPoints: 5,
+    maxPoints: 50
+  },
+  {
+    id: 'boilers',
+    name: 'Boilers',
+    description: 'Equipment used to generate hot water or steam for heating.',
+    pattern: /BOILER|Boiler|HW.*Boiler|Steam.*Boiler|Hot.*Water.*Gen/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'pressure', 'flow', 'status', 'setpoint', 'flame'],
+    minPoints: 3,
+    maxPoints: 30
+  },
+  {
+    id: 'chillers',
+    name: 'Chillers',
+    description: 'Equipment used to remove heat from a liquid.',
+    pattern: /CHILLER|Chiller|CW.*Chiller|CHW.*Plant|Cooling.*Plant/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'pressure', 'flow', 'status', 'setpoint', 'capacity'],
+    minPoints: 5,
+    maxPoints: 40
+  },
+  {
+    id: 'vavs',
+    name: 'VAVs (variable air volume terminal units)',
+    description: 'Equipment in air distribution systems.',
+    pattern: /VAV|Variable.*Air|VVT|Terminal.*Box/i,
     confidence: 0.85,
-    pointPatterns: ['temp', 'flow', 'damper', 'setpoint'],
+    pointPatterns: ['temp', 'flow', 'damper', 'setpoint', 'reheat'],
     minPoints: 3,
     maxPoints: 20
   },
   {
-    id: 'terminal-unit',
-    name: 'Terminal Units',
-    pattern: /TU|Terminal.*Unit/i,
-    confidence: 0.8,
-    pointPatterns: ['temp', 'valve', 'setpoint'],
+    id: 'heat-pumps',
+    name: 'Heat Pumps',
+    description: 'Equipment employing a vapor compression cycle with a reversing valve for heating or cooling.',
+    pattern: /HP-|Heat.*Pump|VRF.*HP|Air.*Source.*HP|Water.*Source.*HP/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'mode', 'setpoint', 'status', 'capacity', 'reversing'],
+    minPoints: 4,
+    maxPoints: 25
+  },
+  {
+    id: 'cracs',
+    name: 'CRACs (Computer Room Air Conditioners)',
+    description: 'Used to cool spaces housing computer and networking gear.',
+    pattern: /CRAC|CRAH|Computer.*Room.*Air|Server.*Room.*AC|IT.*Cooling/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'humidity', 'airflow', 'status', 'setpoint', 'cooling'],
+    minPoints: 4,
+    maxPoints: 20
+  },
+  {
+    id: 'fcus',
+    name: 'FCUs (Fan Coil Units)',
+    description: 'Devices with a fan used to condition air.',
+    pattern: /FCU|Fan.*Coil|Unit.*Ventilator|Terminal.*Fan|Room.*Fan.*Coil/i,
+    confidence: 0.85,
+    pointPatterns: ['temp', 'fan', 'valve', 'setpoint', 'status'],
+    minPoints: 3,
+    maxPoints: 15
+  },
+  {
+    id: 'dehumidifiers',
+    name: 'Desiccant Dehumidifiers',
+    description: 'Equipment that decreases air humidity using a substance that absorbs moisture.',
+    pattern: /DEHUM|Dehumidifier|Desiccant|Humidity.*Control|Moisture.*Removal/i,
+    confidence: 0.9,
+    pointPatterns: ['humidity', 'temp', 'status', 'regen', 'wheel'],
+    minPoints: 3,
+    maxPoints: 15
+  },
+  {
+    id: 'cooling-towers',
+    name: 'Cooling Towers',
+    description: 'Equipment used to transfer waste heat into the atmosphere.',
+    pattern: /TOWER|Cooling.*Tower|CT-|Cool.*Tower|Heat.*Rejection/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'flow', 'fan', 'status', 'approach', 'range'],
+    minPoints: 4,
+    maxPoints: 20
+  },
+  {
+    id: 'fume-hoods',
+    name: 'Fume Hoods',
+    description: 'Ventilation equipment designed to limit exposure to hazardous fumes.',
+    pattern: /HOOD|Fume.*Hood|Lab.*Hood|Chemical.*Hood|Exhaust.*Hood/i,
+    confidence: 0.9,
+    pointPatterns: ['flow', 'sash', 'status', 'alarm', 'face.*velocity'],
+    minPoints: 2,
+    maxPoints: 10
+  },
+  {
+    id: 'evse',
+    name: 'EVSE (Electric Vehicle Supply Equipment)',
+    description: 'Equipment that delivers power to an electric vehicle.',
+    pattern: /EVSE|EV.*Charger|Electric.*Vehicle|Charging.*Station/i,
+    confidence: 0.9,
+    pointPatterns: ['power', 'current', 'status', 'session', 'energy'],
     minPoints: 2,
     maxPoints: 15
+  },
+  {
+    id: 'elec-meters',
+    name: 'Electric Meters',
+    description: 'Representing the measurement of electricity consumption.',
+    pattern: /ELEC.*METER|Electric.*Meter|KWH.*Meter|Power.*Meter|Energy.*Meter/i,
+    confidence: 0.9,
+    pointPatterns: ['energy', 'power', 'current', 'voltage', 'demand'],
+    minPoints: 1,
+    maxPoints: 10
+  },
+  {
+    id: 'gas-meters',
+    name: 'Gas Meters',
+    description: 'Representing the measurement of gas consumption.',
+    pattern: /GAS.*METER|Gas.*Meter|BTU.*Meter|Thermal.*Meter|Natural.*Gas.*Meter/i,
+    confidence: 0.9,
+    pointPatterns: ['flow', 'volume', 'energy', 'pressure', 'temperature'],
+    minPoints: 1,
+    maxPoints: 8
+  },
+  {
+    id: 'water-meters',
+    name: 'Water Meters',
+    description: 'Representing the measurement of water consumption.',
+    pattern: /WATER.*METER|Water.*Meter|Flow.*Meter|H2O.*Meter|Domestic.*Water.*Meter/i,
+    confidence: 0.9,
+    pointPatterns: ['flow', 'volume', 'pressure', 'rate'],
+    minPoints: 1,
+    maxPoints: 6
+  },
+  {
+    id: 'steam-meters',
+    name: 'Steam Meters',
+    description: 'Representing the measurement of steam consumption.',
+    pattern: /STEAM.*METER|Steam.*Meter|Steam.*Flow|Condensate.*Meter/i,
+    confidence: 0.9,
+    pointPatterns: ['flow', 'pressure', 'temp', 'mass', 'energy'],
+    minPoints: 2,
+    maxPoints: 8
+  },
+  {
+    id: 'zones',
+    name: 'Zones (zone occupancy, hvac, air quality, lighting)',
+    description: 'Room or space control systems for occupancy, HVAC, air quality, and lighting.',
+    pattern: /ZONE|Zone|Room|Space|Area|Occupancy|Lighting|CO2/i,
+    confidence: 0.8,
+    pointPatterns: ['temp', 'occupancy', 'co2', 'lighting', 'setpoint'],
+    minPoints: 1,
+    maxPoints: 15
+  },
+  {
+    id: 'motors',
+    name: 'Motors (fans, pumps, and other motors)',
+    description: 'Motor-driven equipment including fans, pumps, and variable frequency drives.',
+    pattern: /MOTOR|Motor|FAN|Fan|PUMP|Pump|HWP|CWP|EF-|SF-|RF-|VFD|Drive/i,
+    confidence: 0.85,
+    pointPatterns: ['speed', 'status', 'flow', 'pressure', 'current'],
+    minPoints: 2,
+    maxPoints: 25
+  },
+  {
+    id: 'elec-panels',
+    name: 'Elec Panels (electrical panels, circuits, and breakers)',
+    description: 'Electrical distribution panels, circuits, and protective equipment.',
+    pattern: /PANEL|Panel|MDP|DP|Circuit|Breaker|Electrical|Switch.*Gear/i,
+    confidence: 0.85,
+    pointPatterns: ['voltage', 'current', 'power', 'status', 'breaker'],
+    minPoints: 1,
+    maxPoints: 30
+  },
+  {
+    id: 'vrf',
+    name: 'VRF (variable refrigerant flow systems)',
+    description: 'Variable refrigerant flow air conditioning systems.',
+    pattern: /VRF|Variable.*Refrigerant|VRV|Multi.*Split/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'mode', 'setpoint', 'status', 'capacity'],
+    minPoints: 3,
+    maxPoints: 40
+  },
+  {
+    id: 'ates',
+    name: 'ATES (aquifer thermal energy storage)',
+    description: 'Aquifer thermal energy storage systems for seasonal energy storage.',
+    pattern: /ATES|Aquifer|Thermal.*Storage|Ground.*Source/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'flow', 'pressure', 'energy'],
+    minPoints: 2,
+    maxPoints: 20
+  },
+  {
+    id: 'data-centers',
+    name: 'Data Centers (data center spaces and equipment)',
+    description: 'Data center infrastructure including servers, networking, and environmental controls.',
+    pattern: /DATA.*CENTER|Server.*Room|IT.*Room|UPS|PDU/i,
+    confidence: 0.9,
+    pointPatterns: ['temp', 'humidity', 'power', 'cooling', 'airflow'],
+    minPoints: 3,
+    maxPoints: 50
   }
 ];
 
@@ -46,8 +239,8 @@ export const vendorModelPatterns = [
 export function calculateJaccardSimilarity(setA: string[], setB: string[]): number {
   const sA = new Set(setA);
   const sB = new Set(setB);
-  const intersection = new Set([...sA].filter(x => sB.has(x)));
-  const union = new Set([...sA, ...sB]);
+  const intersection = new Set(Array.from(sA).filter(x => sB.has(x)));
+  const union = new Set([...setA, ...setB]);
   return intersection.size / union.size;
 }
 
@@ -191,15 +384,55 @@ export function processEquipmentGrouping(points: BACnetPoint[]) {
 function determineEquipmentTypeFromName(equipmentName: string): string {
   const name = equipmentName.toUpperCase();
   
-  if (name.includes('AHU') || name.includes('AIR_HAND')) return 'ahu';
-  if (name.includes('VAV') || name.includes('VARIABLE_AIR') || (name.includes('VV') && /\d/.test(name))) return 'vav';
-  if (name.includes('TU') || name.includes('TERMINAL')) return 'terminal-unit';
-  if (name.includes('FAN') || name.includes('EXHAUST')) return 'fan';
-  if (name.includes('PUMP')) return 'pump';
-  if (name.includes('CHILLER')) return 'chiller';
-  if (name.includes('BOILER')) return 'boiler';
-  if (name.includes('ERV')) return 'erv';
-  if (name.includes('CV') || name.includes('VALVE')) return 'control-valve';
+  // Meters
+  if (name.includes('METER') || name.includes('BTU') || name.includes('KWH')) return 'meters';
+  
+  // AHUs
+  if (name.includes('AHU') || name.includes('AIR_HAND') || name.includes('ERV') || name.includes('MAU') || name.includes('RTU')) return 'ahus';
+  
+  // VAVs
+  if (name.includes('VAV') || name.includes('VARIABLE_AIR') || name.includes('VVT') || name.includes('TERMINAL_BOX')) return 'vavs';
+  
+  // Zones
+  if (name.includes('ZONE') || name.includes('ROOM') || name.includes('SPACE') || name.includes('OCCUPANCY') || name.includes('LIGHTING')) return 'zones';
+  
+  // Plants
+  if (name.includes('PLANT') || name.includes('BOILER') || name.includes('CHILLER') || name.includes('HX-') || 
+      name.includes('HEAT_EXCHANGER') || name.includes('HP-') || name.includes('HEAT_PUMP') || name.includes('TOWER')) return 'plants';
+  
+  // Motors
+  if (name.includes('MOTOR') || name.includes('FAN') || name.includes('PUMP') || name.includes('HWP') || 
+      name.includes('CWP') || name.includes('EF-') || name.includes('SF-') || name.includes('RF-') || name.includes('VFD')) return 'motors';
+  
+  // Electrical Panels
+  if (name.includes('PANEL') || name.includes('MDP') || name.includes('DP') || name.includes('CIRCUIT') || 
+      name.includes('BREAKER') || name.includes('ELECTRICAL')) return 'elec-panels';
+  
+  // EVSE
+  if (name.includes('EVSE') || name.includes('EV_CHARGER') || name.includes('CHARGING_STATION')) return 'evse';
+  
+  // VRF
+  if (name.includes('VRF') || name.includes('VARIABLE_REFRIGERANT') || name.includes('VRV')) return 'vrf';
+  
+  // ATES
+  if (name.includes('ATES') || name.includes('AQUIFER') || name.includes('THERMAL_STORAGE') || name.includes('GROUND_SOURCE')) return 'ates';
+  
+  // Data Centers
+  if (name.includes('DATA_CENTER') || name.includes('SERVER_ROOM') || name.includes('IT_ROOM') || 
+      name.includes('UPS') || name.includes('PDU') || name.includes('CRAC') || name.includes('CRAH')) return 'data-centers';
+  
+  // Default fallback - try to match against equipment patterns
+  for (const type of equipmentTypes) {
+    if (type.pattern.test(equipmentName)) {
+      return type.id;
+    }
+  }
   
   return 'equipment';
+}
+
+export function getEquipmentDisplayName(fullName: string): string {
+  // Split by spaces and take the last segment
+  const segments = fullName.trim().split(/\s+/);
+  return segments[segments.length - 1];
 }

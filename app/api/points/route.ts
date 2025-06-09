@@ -497,6 +497,7 @@ function transformSkysparkData(skysparkData: any, connectorsData: any = { rows: 
         bacnetDesc,
         bacnetDis,
         bacnetConnRef,
+        bacnetDeviceName: connectorInfo?.bacnetDeviceName || null, // Include valuable location/descriptive info
         kind: normalizeKind(kind),
         unit,
         vendor: detectedVendor,

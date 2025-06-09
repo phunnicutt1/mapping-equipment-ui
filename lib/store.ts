@@ -116,12 +116,12 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   confirmEquipment: (equipmentId) => {
     set(state => ({
       equipmentInstances: state.equipmentInstances.map(eq =>
-        eq.id === equipmentId ? { ...eq, status: 'confirmed' } : eq
+        eq.id === equipmentId ? { ...eq, status: 'confirmed', confidence: 1.0 } : eq
       )
     }));
     get().addConsoleMessage({
       level: 'success',
-      message: `Equipment confirmed: ${equipmentId}`
+      message: `Equipment confirmed: ${equipmentId} (confidence set to 100%)`
     });
   },
 
@@ -140,12 +140,12 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   confirmPoint: (pointId) => {
     set(state => ({
       points: state.points.map(point =>
-        point.id === pointId ? { ...point, status: 'confirmed' } : point
+        point.id === pointId ? { ...point, status: 'confirmed', confidence: 1.0 } : point
       )
     }));
     get().addConsoleMessage({
       level: 'success',
-      message: `Point confirmed: ${pointId}`
+      message: `Point confirmed: ${pointId} (confidence set to 100%)`
     });
   },
 
@@ -167,16 +167,16 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
     
     set(state => ({
       points: state.points.map(point =>
-        point.equipRef === equipmentId ? { ...point, status: 'confirmed' } : point
+        point.equipRef === equipmentId ? { ...point, status: 'confirmed', confidence: 1.0 } : point
       ),
       equipmentInstances: state.equipmentInstances.map(eq =>
-        eq.id === equipmentId ? { ...eq, status: 'confirmed' } : eq
+        eq.id === equipmentId ? { ...eq, status: 'confirmed', confidence: 1.0 } : eq
       )
     }));
     
     get().addConsoleMessage({
       level: 'success',
-      message: `Confirmed all ${equipmentPoints.length} points for equipment: ${equipmentId}`
+      message: `Confirmed all ${equipmentPoints.length} points for equipment: ${equipmentId} (confidence set to 100%)`
     });
   },
 
@@ -184,18 +184,18 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
     set(state => ({
       points: state.points.map(point =>
         pointIds.includes(point.id) 
-          ? { ...point, equipRef: equipmentId, status: 'confirmed' }
+          ? { ...point, equipRef: equipmentId, status: 'confirmed', confidence: 1.0 }
           : point
       ),
       equipmentInstances: state.equipmentInstances.map(eq =>
         eq.id === equipmentId 
-          ? { ...eq, pointIds: Array.from(new Set([...eq.pointIds, ...pointIds])) }
+          ? { ...eq, pointIds: Array.from(new Set([...eq.pointIds, ...pointIds])), confidence: 1.0 }
           : eq
       )
     }));
     get().addConsoleMessage({
       level: 'success',
-      message: `Assigned ${pointIds.length} points to equipment ${equipmentId}`
+      message: `Assigned ${pointIds.length} points to equipment ${equipmentId} (confidence set to 100%)`
     });
   },
 

@@ -12,6 +12,7 @@ export interface BACnetPoint {
   bacnetDesc?: string | null;
   bacnetDis?: string | null;
   bacnetConnRef?: string | null;
+  bacnetDeviceName?: string | null; // Descriptive location/device information from connector
   fileName?: string;
   confidence?: number;
   status: 'unassigned' | 'suggested' | 'confirmed' | 'flagged';
@@ -24,6 +25,7 @@ export interface BACnetPoint {
 export interface EquipmentType {
   id: string;
   name: string;
+  description: string;
   pattern: RegExp;
   confidence: number;
   pointPatterns: string[];
