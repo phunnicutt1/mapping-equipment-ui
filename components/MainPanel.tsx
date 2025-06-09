@@ -19,6 +19,8 @@ export function MainPanel() {
     flagPoint,
     confirmAllEquipmentPoints,
     toggleUnassignedDrawer,
+    toggleConfirmedDrawer,
+    createTemplate,
     assignPoints
   } = useGroupingStore();
 
@@ -51,7 +53,41 @@ export function MainPanel() {
   };
 
   const getEquipmentForType = (typeId: string) => {
-    return equipmentInstances.filter(equipment => equipment.typeId === typeId);
+    // Filter out confirmed equipment from the main panel
+    return equipmentInstances.filter(equipment => 
+      equipment.typeId === typeId && equipment.status !== 'confirmed'
+    );
+  };
+
+  const getConfirmedPointsForEquipment = (equipmentId: string) => {
+    return points.filter(point => 
+      point.equipRef === equipmentId && point.status === 'confirmed'
+    );
+  };
+
+  const handleCreateTemplate = async (equipmentId: string, equipmentName: string) => {
+    const confirmedPoints = getConfirmedPointsForEquipment(equipmentId);
+    
+    if (confirmedPoints.length === 0) {
+      alert('Please confirm at least one point before creating a template.');
+      return;
+    }
+
+    const templateName = prompt(`Enter template name for ${equipmentName}:`, `${equipmentName} Template`);
+    if (!templateName) return;
+
+    try {
+      const result = await createTemplate(equipmentId, templateName);
+      
+      if (result.success && result.appliedCount !== undefined && result.appliedCount > 0) {
+        alert(`Template created successfully!\n\nAutomatically applied to ${result.appliedCount} similar equipment instances.`);
+      } else if (result.success) {
+        alert('Template created successfully!\n\nNo similar equipment found to auto-apply.');
+      }
+    } catch (error) {
+      console.error('Error creating template:', error);
+      alert('Failed to create template. Please try again.');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -107,8 +143,9 @@ export function MainPanel() {
   };
 
   const unassignedCount = points.filter(p => !p.equipRef).length;
+  const confirmedCount = equipmentInstances.filter(eq => eq.status === 'confirmed').length;
 
-  // Group equipment instances by type
+  // Group equipment instances by type (excluding confirmed equipment)
   const equipmentByType = equipmentTypes.reduce((acc, type) => {
     const equipmentForType = getEquipmentForType(type.id);
     if (equipmentForType.length > 0) {
@@ -122,8 +159,16 @@ export function MainPanel() {
 
   return (
     <div className="space-y-6">
-      {/* Unassigned Points Button */}
-      <div className="flex justify-end">
+      {/* Confirmed and Unassigned Points Buttons */}
+      <div className="flex justify-between">
+        <Button 
+          onClick={toggleConfirmedDrawer}
+          variant="outline"
+          className="text-green-600 border-green-300 hover:bg-green-50"
+        >
+          Confirmed ({confirmedCount})
+        </Button>
+        
         <Button 
           onClick={toggleUnassignedDrawer}
           variant="outline"
@@ -275,16 +320,31 @@ export function MainPanel() {
                                 {/* Right side - Actions and status */}
                                 <div className="flex items-center space-x-3">
                                   {equipmentInstance.status !== 'confirmed' && (
-                                    <Button
-                                      size="sm"
-                                      className="bg-blue-600 text-white hover:bg-blue-700"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        confirmAllEquipmentPoints(equipmentInstance.id);
-                                      }}
-                                    >
-                                      Confirm All Points
-                                    </Button>
+                                    <>
+                                      <Button
+                                        size="sm"
+                                        className="bg-blue-600 text-white hover:bg-blue-700"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          confirmAllEquipmentPoints(equipmentInstance.id);
+                                        }}
+                                      >
+                                        Confirm All Points
+                                      </Button>
+                                      
+                                      {getConfirmedPointsForEquipment(equipmentInstance.id).length > 0 && (
+                                        <Button
+                                          size="sm"
+                                          className="bg-purple-600 text-white hover:bg-purple-700"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleCreateTemplate(equipmentInstance.id, getEquipmentDisplayName(equipmentInstance.name));
+                                          }}
+                                        >
+                                          Save as Template
+                                        </Button>
+                                      )}
+                                    </>
                                   )}
                                   {getStatusBadge(equipmentInstance.status)}
                                 </div>

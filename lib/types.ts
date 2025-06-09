@@ -1,55 +1,78 @@
 export interface BACnetPoint {
   id: string;
   dis: string;
-  bacnetCur: string;
-  kind: 'Number' | 'Bool' | 'Str';
-  unit: string | null;
+  navName?: string;
+  unit?: string;
+  kind?: string;
+  equipRef?: string | null;
+  bacnetCur?: string;
+  bacnetDesc?: string;
+  bacnetDis?: string;
+  bacnetConnRef?: string;
+  bacnetDeviceName?: string;
   vendor?: string;
   model?: string;
-  equipRef?: string | null;
-  equipName?: string | null;
-  navName?: string | null;
-  bacnetDesc?: string | null;
-  bacnetDis?: string | null;
-  bacnetConnRef?: string | null;
-  bacnetDeviceName?: string | null; // Descriptive location/device information from connector
-  fileName?: string;
+  siteRef?: string;
+  status?: 'unassigned' | 'suggested' | 'confirmed' | 'flagged';
   confidence?: number;
-  status: 'unassigned' | 'suggested' | 'confirmed' | 'flagged';
-  // Additional SkySpark fields
-  markers?: string[]; // Marker tags like 'point', 'bacnetPoint', 'cur', 'his'
-  source?: string; // Data source like 'read(point)' or 'read(bacnetConn)'
-  equipTypeName?: string; // Parent equipment type name
+  point?: string;
+  writable?: string;
+  cmd?: string;
+  sensor?: string;
+  his?: string;
+  curVal?: any;
+  curStatus?: string;
+  curErr?: string;
+  writeStatus?: string;
+  writeErr?: string;
+  fileName?: string;
 }
 
 export interface EquipmentType {
   id: string;
   name: string;
-  description: string;
-  pattern: RegExp;
-  confidence: number;
-  pointPatterns: string[];
-  minPoints: number;
-  maxPoints: number;
+  description?: string;
+  category?: string;
+  templates?: EquipmentTemplate[]; // Available templates for this type
 }
 
 export interface EquipmentInstance {
   id: string;
   name: string;
   typeId: string;
-  equipTypeName?: string; // Parent equipment type name for display
-  vendor?: string;
-  model?: string;
   confidence: number;
   status: 'suggested' | 'confirmed' | 'needs-review';
   pointIds: string[];
-  fileName?: string;
+  vendor?: string;
+  model?: string;
+  bacnetDeviceName?: string;
+  templateId?: string; // Reference to applied template
+}
+
+export interface EquipmentTemplate {
+  id: string;
+  name: string;
+  equipmentTypeId: string;
+  createdFrom: string; // Equipment instance ID this was created from
+  pointSignature: PointSignature[];
+  createdAt: Date;
+  appliedCount: number; // How many times this template has been applied
+}
+
+export interface PointSignature {
+  navName: string;
+  kind?: string;
+  unit?: string;
+  bacnetPointType?: string; // e.g., 'AO', 'AI', 'BO', 'BI'
+  properties: string[]; // e.g., ['point', 'writable', 'cmd']
+  isRequired: boolean;
 }
 
 export interface ProcessingStats {
   totalPoints: number;
   assignedPoints: number;
   equipmentGroups: number;
+  templatedEquipment?: number; // New stat for template usage
   confidenceDistribution: {
     high: number;
     medium: number;
@@ -60,7 +83,7 @@ export interface ProcessingStats {
 export interface ConsoleMessage {
   id: string;
   timestamp: Date;
-  level: 'info' | 'success' | 'warning' | 'error';
+  level: 'info' | 'warning' | 'error' | 'success';
   message: string;
 }
 
@@ -68,10 +91,12 @@ export interface GroupingState {
   points: BACnetPoint[];
   equipmentTypes: EquipmentType[];
   equipmentInstances: EquipmentInstance[];
+  templates: EquipmentTemplate[]; // Global template storage
   stats: ProcessingStats;
   consoleMessages: ConsoleMessage[];
   selectedGroupingMethod: 'none' | 'kind' | 'unit' | 'smart';
   isProcessing: boolean;
   showUnassignedDrawer: boolean;
+  showConfirmedDrawer: boolean;
   selectedPoints: Set<string>;
 }
