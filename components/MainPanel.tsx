@@ -243,51 +243,50 @@ export function MainPanel() {
                                     <Badge variant="secondary" className="bg-gray-600 text-white">
                                       {equipmentPoints.length} points
                                     </Badge>
-                                    <Badge 
-                                      variant="outline" 
-                                      className={`${getConfidenceColor(equipmentInstance.confidence)} border-0 text-xs font-medium`}
-                                    >
-                                      {formatConfidence(equipmentInstance.confidence)} confidence
-                                    </Badge>
-                                  </button>
-                                  
-                                  {/* Equipment Label - Manufacturer/Model or User Created */}
-                                  {getEquipmentLabel(equipmentInstance) && (
-                                    <div className="mt-1 ml-7">
-                                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                    
+                                    {/* Equipment Label - Manufacturer/Model inline */}
+                                    {getEquipmentLabel(equipmentInstance) && (
+                                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded ml-18">
                                         {getEquipmentLabel(equipmentInstance)}
                                       </span>
-                                    </div>
-                                  )}
-                                  
-                                  {/* Device Location - Show bacnetDeviceName if available */}
-                                  {(() => {
-                                    const deviceName = equipmentPoints.find(p => p.bacnetDeviceName)?.bacnetDeviceName;
-                                    return deviceName && (
-                                      <div className="mt-1 ml-7">
-                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200">
+                                    )}
+                                    
+                                    {/* Device Location - Show bacnetDeviceName inline */}
+                                    {(() => {
+                                      const deviceName = equipmentPoints.find(p => p.bacnetDeviceName)?.bacnetDeviceName;
+                                      return deviceName && (
+                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200 ml-2">
                                           📍 {deviceName}
                                         </span>
-                                      </div>
-                                    );
-                                  })()}
+                                      );
+                                    })()}
+                                  </button>
                                 </div>
 
                                 {/* Right side - Actions and status */}
-                                <div className="flex items-center space-x-3">
-                                  {equipmentInstance.status !== 'confirmed' && (
-                                    <Button
-                                      size="sm"
-                                      className="bg-blue-600 text-white hover:bg-blue-700"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        confirmAllEquipmentPoints(equipmentInstance.id);
-                                      }}
-                                    >
-                                      Confirm All Points
-                                    </Button>
-                                  )}
-                                  {getStatusBadge(equipmentInstance.status)}
+                                <div className="flex flex-col items-end space-y-2">
+                                  <div className="flex items-center space-x-3">
+                                    {equipmentInstance.status !== 'confirmed' && (
+                                      <Button
+                                        size="sm"
+                                        className="bg-blue-600 text-white hover:bg-blue-700"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          confirmAllEquipmentPoints(equipmentInstance.id);
+                                        }}
+                                      >
+                                        Confirm All Points
+                                      </Button>
+                                    )}
+                                    {getStatusBadge(equipmentInstance.status)}
+                                  </div>
+                                  {/* Confidence Badge below actions */}
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`${getConfidenceColor(equipmentInstance.confidence)} border-0 text-xs font-medium`}
+                                  >
+                                    {formatConfidence(equipmentInstance.confidence)} confidence
+                                  </Badge>
                                 </div>
                               </div>
                             </div>
