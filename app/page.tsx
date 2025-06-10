@@ -6,13 +6,15 @@ import { LeftRail } from '../components/LeftRail';
 import { MainPanel } from '../components/MainPanel';
 import { RightRail } from '../components/RightRail';
 import { UnassignedPointsDrawer } from '../components/UnassignedPointsDrawer';
+import ConfirmedEquipmentDrawer from '../components/ConfirmedEquipmentDrawer';
 import { TopStatsPanel } from '../components/TopStatsPanel';
 import { mockBACnetPoints } from '../lib/mock-data';
 
 export default function HomePage() {
   const { 
     loadPoints, 
-    showUnassignedDrawer, 
+    showUnassignedDrawer,
+    showConfirmedDrawer, 
     isProcessing,
     saveDraft 
   } = useGroupingStore();
@@ -134,6 +136,7 @@ export default function HomePage() {
 
       {/* Unassigned Points Drawer */}
       {showUnassignedDrawer && <UnassignedPointsDrawer />}
+      {showConfirmedDrawer && <ConfirmedEquipmentDrawer />}
     </div>
   );
 }

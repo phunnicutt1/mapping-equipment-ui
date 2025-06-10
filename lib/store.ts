@@ -14,6 +14,8 @@ interface GroupingActions {
   assignSinglePoint: (pointId: string, equipmentId: string) => void;
   createEquipment: (name: string, typeId: string) => void;
   toggleUnassignedDrawer: () => void;
+  toggleConfirmedDrawer: () => void;
+  saveAsTemplate: (equipmentId: string) => void;
   togglePointSelection: (pointId: string) => void;
   clearSelection: () => void;
   addConsoleMessage: (message: Omit<ConsoleMessage, 'id' | 'timestamp'>) => void;
@@ -36,6 +38,8 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   selectedGroupingMethod: 'smart',
   isProcessing: false,
   showUnassignedDrawer: false,
+  showConfirmedDrawer: false,
+  confirmedEquipment: [],
   selectedPoints: new Set(),
 
   // Actions
@@ -245,6 +249,37 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
 
   toggleUnassignedDrawer: () => {
     set(state => ({ showUnassignedDrawer: !state.showUnassignedDrawer }));
+  },
+
+  toggleConfirmedDrawer: () => {
+    set(state => ({ showConfirmedDrawer: !state.showConfirmedDrawer }));
+  },
+
+  saveAsTemplate: (equipmentId) => {
+    const state = get();
+    const equipment = state.equipmentInstances.find(eq => eq.id === equipmentId);
+    const equipmentPoints = state.points.filter(point => point.equipRef === equipmentId);
+    
+    if (equipment) {
+      // Move equipment to confirmed list
+      const confirmedEquipment = {
+        ...equipment,
+        status: 'template' as const,
+        templateId: `template-${Date.now()}`,
+        pointIds: equipmentPoints.map(p => p.id)
+      };
+      
+      set(state => ({
+        confirmedEquipment: [...state.confirmedEquipment, confirmedEquipment],
+        equipmentInstances: state.equipmentInstances.filter(eq => eq.id !== equipmentId),
+        points: state.points.filter(point => point.equipRef !== equipmentId)
+      }));
+      
+      get().addConsoleMessage({
+        level: 'success',
+        message: `Created template for ${equipment.name} with ${equipmentPoints.length} points`
+      });
+    }
   },
 
   togglePointSelection: (pointId) => {

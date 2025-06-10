@@ -68,10 +68,12 @@ export interface GroupingState {
   points: BACnetPoint[];
   equipmentTypes: EquipmentType[];
   equipmentInstances: EquipmentInstance[];
+  confirmedEquipment: EquipmentInstance[];
   stats: ProcessingStats;
   consoleMessages: ConsoleMessage[];
   selectedGroupingMethod: 'none' | 'kind' | 'unit' | 'smart';
   isProcessing: boolean;
   showUnassignedDrawer: boolean;
+  showConfirmedDrawer: boolean;
   selectedPoints: Set<string>;
 }

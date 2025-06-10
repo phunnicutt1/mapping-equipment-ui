@@ -20,7 +20,8 @@ export function MainPanel() {
     flagPoint,
     confirmAllEquipmentPoints,
     toggleUnassignedDrawer,
-    assignPoints
+    assignPoints,
+    saveAsTemplate
   } = useGroupingStore();
 
   const [expandedEquipmentTypes, setExpandedEquipmentTypes] = useState<Set<string>>(new Set());
@@ -379,6 +380,20 @@ export function MainPanel() {
                                         )}
                                       </div>
                                     )}
+                                    
+                                    {equipmentInstance.status === 'confirmed' && (
+                                      <Button
+                                        size="sm"
+                                        className="bg-green-600 text-white hover:bg-green-700"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          saveAsTemplate(equipmentInstance.id);
+                                        }}
+                                      >
+                                        Save as Template
+                                      </Button>
+                                    )}
+                                    
                                     {getStatusBadge(equipmentInstance.status)}
                                   </div>
                                   {/* Confidence Badge below actions */}

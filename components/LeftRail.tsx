@@ -9,7 +9,9 @@ export function LeftRail() {
     setGroupingMethod, 
     stats, 
     consoleMessages,
-    equipmentTypes 
+    equipmentTypes,
+    confirmedEquipment,
+    toggleConfirmedDrawer 
   } = useGroupingStore();
 
   return (
@@ -43,6 +45,38 @@ export function LeftRail() {
                 SkySpark Test Panel
               </button>
             </div>
+          </div>
+        </Card.Content>
+      </Card>
+
+      {/* Confirmed Equipment Templates */}
+      <Card>
+        <Card.Header>
+          <Card.Title>Confirmed Equipment</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {confirmedEquipment.length}
+                </div>
+                <div className="text-xs text-gray-600">Templates</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {confirmedEquipment.reduce((sum, eq) => sum + eq.pointIds.length, 0)}
+                </div>
+                <div className="text-xs text-gray-600">Points</div>
+              </div>
+            </div>
+            
+            <button
+              onClick={toggleConfirmedDrawer}
+              className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+            >
+              View Confirmed Equipment
+            </button>
           </div>
         </Card.Content>
       </Card>
