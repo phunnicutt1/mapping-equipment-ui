@@ -12,8 +12,38 @@ export function LeftRail() {
     equipmentTypes 
   } = useGroupingStore();
 
+  // Get confirmed equipment for display
+  const confirmedEquipment = useGroupingStore(state => 
+    state.equipmentInstances.filter(eq => eq.status === 'confirmed')
+  );
+
   return (
     <div className="space-y-6">
+      {/* Confirmed Equipment Templates */}
+      <Card>
+        <Card.Header>
+          <Card.Title>Confirmed Equipment</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {confirmedEquipment.length}
+                </div>
+                <div className="text-xs text-gray-600">Templates</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {confirmedEquipment.reduce((sum: number, eq: any) => sum + eq.pointIds.length, 0)}
+                </div>
+                <div className="text-xs text-gray-600">Points</div>
+              </div>
+            </div>
+          </div>
+        </Card.Content>
+      </Card>
+
       {/* Grouping Method */}
       <Card>
         <Card.Header>

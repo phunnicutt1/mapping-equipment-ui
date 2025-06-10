@@ -7,6 +7,7 @@ import { Button } from './ui/Button';
 import { useGroupingStore } from '../lib/store';
 import { getEquipmentDisplayName } from '../lib/utils';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import PointPropertiesTags from './PointPropertiesTags';
 
 export function MainPanel() {
   const { 
@@ -268,9 +269,9 @@ export function MainPanel() {
                         };
                         
                         return (
-                          <div key={equipmentInstance.id} className="bg-gray-100 rounded-lg">
+                          <div key={equipmentInstance.id} className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
                             {/* Equipment Instance Header */}
-                            <div className="px-4 py-3 bg-gray-100 rounded-lg">
+                            <div className="px-4 py-3 bg-gray-50 rounded-lg">
                               <div className="flex items-center justify-between">
                                 {/* Left side - Equipment info and expand button */}
                                 <div className="flex-1">
@@ -287,67 +288,67 @@ export function MainPanel() {
                                     <Badge variant="secondary" className="bg-gray-600 text-white">
                                       {equipmentPoints.length} points
                                     </Badge>
-                                    <Badge 
-                                      variant="outline" 
-                                      className={`${getConfidenceColor(equipmentInstance.confidence)} border-0 text-xs font-medium`}
-                                    >
-                                      {formatConfidence(equipmentInstance.confidence)} confidence
-                                    </Badge>
-                                  </button>
-                                  
-                                  {/* Equipment Label - Manufacturer/Model or User Created */}
-                                  {getEquipmentLabel(equipmentInstance) && (
-                                    <div className="mt-1 ml-7">
-                                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                    
+                                    {/* Equipment Label - Manufacturer/Model inline with better spacing */}
+                                    {getEquipmentLabel(equipmentInstance) && (
+                                      <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded ml-18">
                                         {getEquipmentLabel(equipmentInstance)}
                                       </span>
-                                    </div>
-                                  )}
-                                  
-                                  {/* Device Location - Show bacnetDeviceName if available */}
-                                  {(() => {
-                                    const deviceName = equipmentPoints.find(p => p.bacnetDeviceName)?.bacnetDeviceName;
-                                    return deviceName && (
-                                      <div className="mt-1 ml-7">
-                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200">
+                                    )}
+                                    
+                                    {/* Device Location - Show bacnetDeviceName inline */}
+                                    {(() => {
+                                      const deviceName = equipmentPoints.find(p => p.bacnetDeviceName)?.bacnetDeviceName;
+                                      return deviceName && (
+                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200 ml-2">
                                           📍 {deviceName}
                                         </span>
-                                      </div>
-                                    );
-                                  })()}
+                                      );
+                                    })()}
+                                  </button>
                                 </div>
 
-                                {/* Right side - Actions and status */}
-                                <div className="flex items-center space-x-3">
-                                  {equipmentInstance.status !== 'confirmed' && (
-                                    <>
-                                      <Button
-                                        size="sm"
-                                        className="bg-blue-600 text-white hover:bg-blue-700"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          confirmAllEquipmentPoints(equipmentInstance.id);
-                                        }}
-                                      >
-                                        Confirm All Points
-                                      </Button>
-                                      
-                                      {getConfirmedPointsForEquipment(equipmentInstance.id).length > 0 && (
-                                        <Button
-                                          size="sm"
-                                          className="bg-purple-600 text-white hover:bg-purple-700"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleCreateTemplate(equipmentInstance.id, getEquipmentDisplayName(equipmentInstance.name));
-                                          }}
-                                        >
-                                          Save as Template
-                                        </Button>
-                                      )}
-                                    </>
-                                  )}
-                                  {getStatusBadge(equipmentInstance.status)}
-                                </div>
+                                                                 {/* Right side - Actions and status */}
+                                 <div className="flex flex-col items-end space-y-2">
+                                   <div className="flex items-center space-x-3">
+                                     {equipmentInstance.status !== 'confirmed' && (
+                                       <>
+                                         <Button
+                                           size="sm"
+                                           className="bg-blue-600 text-white hover:bg-blue-700"
+                                           onClick={(e) => {
+                                             e.stopPropagation();
+                                             confirmAllEquipmentPoints(equipmentInstance.id);
+                                           }}
+                                         >
+                                           Confirm All Points
+                                         </Button>
+                                         
+                                         {getConfirmedPointsForEquipment(equipmentInstance.id).length > 0 && (
+                                           <Button
+                                             size="sm"
+                                             className="bg-purple-600 text-white hover:bg-purple-700"
+                                             onClick={(e) => {
+                                               e.stopPropagation();
+                                               handleCreateTemplate(equipmentInstance.id, getEquipmentDisplayName(equipmentInstance.name));
+                                             }}
+                                           >
+                                             Save as Template
+                                           </Button>
+                                         )}
+                                       </>
+                                     )}
+                                     {getStatusBadge(equipmentInstance.status)}
+                                   </div>
+                                   
+                                   {/* Confidence Badge below actions */}
+                                   <Badge 
+                                     variant="outline" 
+                                     className={`${getConfidenceColor(equipmentInstance.confidence)} border-0 text-xs font-medium`}
+                                   >
+                                     {formatConfidence(equipmentInstance.confidence)} confidence
+                                   </Badge>
+                                 </div>
                               </div>
                             </div>
 
@@ -374,22 +375,21 @@ export function MainPanel() {
                                   };
 
                                   return (
-                                    <div key={point.id} className="bg-white border rounded-lg p-6">
-                                      {/* Point Header */}
-                                      <div className="flex items-start justify-between mb-4">
-                                        <div className="flex-1">
-                                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                                            {getDisplayName(point)}
-                                          </h3>
-                                          <div className="flex items-center space-x-2">
-                                            <Badge className="bg-blue-100 text-blue-800">{point.kind}</Badge>
-                                                                                         {equipmentInstance.equipTypeName && (
-                                               <span className="text-sm text-gray-500">
-                                                 {equipmentInstance.equipTypeName} → {getEquipmentDisplayName(equipmentInstance.name)}
-                                               </span>
+                                                                         <div key={point.id} className="bg-white border rounded-lg p-6 relative">
+                                       {/* Point Header */}
+                                       <div className="flex items-start justify-between mb-4">
+                                         <div className="flex-1">
+                                           <h3 className="text-xl font-bold mb-1 font-detail" style={{ color: '#2c3e50' }}>
+                                             {getDisplayName(point)}
+                                           </h3>
+                                           <div className="flex items-center space-x-2">
+                                                                                          {equipmentInstance.equipTypeName && (
+                                                <span className="text-base text-gray-600 font-medium">
+                                                  {equipmentInstance.equipTypeName} → {getEquipmentDisplayName(equipmentInstance.name)}
+                                                </span>
                                              )}
-                                          </div>
-                                        </div>
+                                           </div>
+                                         </div>
                                         {point.status === 'confirmed' ? (
                                           <span className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded">
                                             Confirmed
@@ -418,61 +418,67 @@ export function MainPanel() {
                                         )}
                                       </div>
 
-                                      {/* Point Details Grid */}
-                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">BACnet ID</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{point.bacnetCur}</dd>
-                                        </div>
+                                                                             {/* Point Details Grid */}
+                                       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 font-detail">
+                                         <div>
+                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>BACnet ID</dt>
+                                           <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.bacnetCur}</dd>
+                                         </div>
+                                         
+                                         <div>
+                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Description</dt>
+                                           <dd className="font-medium" style={{ color: '#2c3e50' }}>{getDescription(point)}</dd>
+                                         </div>
+                                         
+                                         <div>
+                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Device Location</dt>
+                                           <dd className="font-medium text-blue-600">
+                                             {point.bacnetDeviceName ? `📍 ${point.bacnetDeviceName}` : '-'}
+                                           </dd>
+                                         </div>
+                                         
+                                         <div>
+                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Unit</dt>
+                                           <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.unit || '-'}</dd>
+                                         </div>
+                                         
+                                         <div></div>
                                         
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">Description</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getDescription(point)}</dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">Display Name</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getDisplayName(point)}</dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">Unit</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{point.unit || '-'}</dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">Properties</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getProperties(point)}</dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">Source</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getSource(point)}</dd>
-                                        </div>
-                                        
-                                        {/* Show Vendor and Model when available (typically from bacnetConn) */}
-                                        {point.vendor && (
-                                          <div>
-                                            <dt className="text-sm font-medium text-gray-500">Vendor</dt>
-                                            <dd className="mt-1 text-sm text-gray-900">{point.vendor}</dd>
-                                          </div>
-                                        )}
-                                        
-                                        {point.model && (
-                                          <div>
-                                            <dt className="text-sm font-medium text-gray-500">Model</dt>
-                                            <dd className="mt-1 text-sm text-gray-900">{point.model}</dd>
-                                          </div>
-                                        )}
-                                        
-                                        {/* Show Device Location when available from connector */}
-                                        {point.bacnetDeviceName && (
-                                          <div>
-                                            <dt className="text-sm font-medium text-gray-500">Device Location</dt>
-                                            <dd className="mt-1 text-sm text-blue-600 font-medium">📍 {point.bacnetDeviceName}</dd>
-                                          </div>
-                                        )}
-                                      </div>
+                                                                                 {/* Show Vendor and Model when available (typically from bacnetConn) */}
+                                         {point.vendor && (
+                                           <div>
+                                             <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Vendor</dt>
+                                             <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.vendor}</dd>
+                                           </div>
+                                         )}
+                                         
+                                         {point.model && (
+                                           <div>
+                                             <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Model</dt>
+                                             <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.model}</dd>
+                                           </div>
+                                         )}
+                                       </div>
+
+                                       {/* Bottom Line - Properties on left, Source File and Data Type on right */}
+                                       <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                                         {/* Properties - Left Side */}
+                                         <div>
+                                           <div className="text-xs font-medium mb-1" style={{ color: '#7f8c8d' }}>Properties</div>
+                                           <PointPropertiesTags point={point} />
+                                         </div>
+
+                                         {/* Source File and Data Type - Right Side */}
+                                         <div className="flex items-end space-x-3">
+                                           <div className="text-right">
+                                             <span className="text-xs font-medium" style={{ color: '#7f8c8d' }}>Source File: </span>
+                                             <span className="font-medium text-xs" style={{ color: '#2c3e50' }}>{getSource(point)}</span>
+                                           </div>
+                                           <Badge className="bg-blue-100 text-blue-800 text-sm font-medium">
+                                             {point.kind}
+                                           </Badge>
+                                         </div>
+                                       </div>
                                     </div>
                                   );
                                 })}

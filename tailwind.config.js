@@ -26,6 +26,15 @@ module.exports = {
           50: '#fef2f2',
           600: '#dc2626',
         },
+        // Custom colors for precise typography matching
+        detail: {
+          label: '#7f8c8d',  // Exact color for field labels
+          value: '#2c3e50',  // Exact color for field values
+        },
+      },
+      fontFamily: {
+        // Custom font family matching exact specifications
+        'detail': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
       },
     },
   },
