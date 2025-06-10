@@ -88,7 +88,7 @@ export function TopStatsPanel() {
               {templatedEquipment}
             </div>
             <div className="text-sm font-medium text-gray-600 mt-1">
-              Templated
+             Auto Assigned Using Template
             </div>
           </div>
         </div>
