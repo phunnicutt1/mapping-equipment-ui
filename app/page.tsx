@@ -8,6 +8,7 @@ import { RightRail } from '../components/RightRail';
 import { UnassignedPointsDrawer } from '../components/UnassignedPointsDrawer';
 import { TopStatsPanel } from '../components/TopStatsPanel';
 import { ConfirmedEquipmentDrawer } from '../components/ConfirmedEquipmentDrawer';
+import { SuccessCelebration } from '../components/SuccessCelebration';
 import { mockBACnetPoints } from '../lib/mock-data';
 
 export default function HomePage() {
@@ -15,8 +16,15 @@ export default function HomePage() {
     loadPoints, 
     showUnassignedDrawer, 
     showConfirmedDrawer,
+    showCelebration,
     isProcessing,
-    saveDraft 
+    saveDraft,
+    dismissCelebration,
+    checkCompletion,
+    triggerCelebration,
+    points,
+    equipmentInstances,
+    templates
   } = useGroupingStore();
 
   useEffect(() => {
@@ -50,6 +58,11 @@ export default function HomePage() {
           console.warn('API warning:', result.error);
         }
         loadPoints(result.data);
+        
+        // Check for completion after data loads
+        setTimeout(() => {
+          useGroupingStore.getState().checkCompletion();
+        }, 500);
       } else {
         console.error('Failed to load data, using fallback');
         loadPoints(mockBACnetPoints);
@@ -68,6 +81,8 @@ export default function HomePage() {
 
     return () => clearInterval(interval);
   }, [saveDraft]);
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -99,6 +114,18 @@ export default function HomePage() {
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
               >
                 Save Draft
+              </button>
+              <button
+                onClick={checkCompletion}
+                className="px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-300 rounded-md hover:bg-purple-100"
+              >
+                Check Complete
+              </button>
+              <button
+                onClick={triggerCelebration}
+                className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-300 rounded-md hover:bg-green-100"
+              >
+                🎉 Test Celebration
               </button>
               <button
                 onClick={() => useGroupingStore.getState().finalize()}
@@ -139,6 +166,17 @@ export default function HomePage() {
       
       {/* Confirmed Equipment Drawer */}
       {showConfirmedDrawer && <ConfirmedEquipmentDrawer />}
+      
+      {/* Success Celebration */}
+      <SuccessCelebration
+        isVisible={showCelebration}
+        onComplete={dismissCelebration}
+        stats={{
+          totalPoints: points.length,
+          equipmentCount: equipmentInstances.filter(eq => eq.status === 'confirmed').length,
+          templatesUsed: templates.length
+        }}
+      />
     </div>
   );
 }

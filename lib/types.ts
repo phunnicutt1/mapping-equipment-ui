@@ -101,4 +101,6 @@ export interface GroupingState {
   showUnassignedDrawer: boolean;
   showConfirmedDrawer: boolean;
   selectedPoints: Set<string>;
+  showCelebration: boolean;
+  isComplete: boolean;
 }

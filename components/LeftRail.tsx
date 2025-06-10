@@ -31,7 +31,7 @@ export function LeftRail() {
                 <div className="text-2xl font-bold text-green-600">
                   {confirmedEquipment.length}
                 </div>
-                <div className="text-xs text-gray-600">Templates</div>
+                <div className="text-xs text-gray-600">Equipment</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">

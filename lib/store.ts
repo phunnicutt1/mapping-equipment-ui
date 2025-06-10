@@ -23,6 +23,9 @@ interface GroupingActions {
   addConsoleMessage: (message: Omit<ConsoleMessage, 'id' | 'timestamp'>) => void;
   saveDraft: () => Promise<void>;
   finalize: () => Promise<{ success: boolean; errors?: string[] }>;
+  checkCompletion: () => void;
+  dismissCelebration: () => void;
+  triggerCelebration: () => void;
 }
 
 export const useGroupingStore = create<GroupingState & GroupingActions>((set, get) => ({
@@ -44,6 +47,8 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   showUnassignedDrawer: false,
   showConfirmedDrawer: false,
   selectedPoints: new Set(),
+  showCelebration: false,
+  isComplete: false,
 
   // Actions
   loadPoints: (points) => {
@@ -131,6 +136,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       level: 'success',
       message: `Equipment confirmed: ${equipmentId} (confidence set to 100%)`
     });
+    get().checkCompletion();
   },
 
   flagEquipment: (equipmentId) => {
@@ -155,6 +161,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       level: 'success',
       message: `Point confirmed: ${pointId} (confidence set to 100%)`
     });
+    get().checkCompletion();
   },
 
   flagPoint: (pointId) => {
@@ -184,8 +191,9 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
     
     get().addConsoleMessage({
       level: 'success',
-      message: `Confirmed all ${equipmentPoints.length} points for equipment: ${equipmentId} (confidence set to 100%)`
+      message: `Confirmed all ${equipmentPoints.length} points for equipment: ${equipmentPoints.length} (confidence set to 100%)`
     });
+    get().checkCompletion();
   },
 
   assignPoints: (pointIds, equipmentId) => {
@@ -205,6 +213,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       level: 'success',
       message: `Assigned ${pointIds.length} points to equipment ${equipmentId} (confidence set to 100%)`
     });
+    get().checkCompletion();
   },
 
   assignSinglePoint: (pointId, equipmentId) => {
@@ -229,6 +238,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       level: 'success',
       message: `Assigned "${point?.dis}" to ${equipment?.name}`
     });
+    get().checkCompletion();
   },
 
   createEquipment: (name, typeId) => {
@@ -427,6 +437,8 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
         level: 'success',
         message: `Template "${template.name}" automatically applied to ${appliedCount} similar equipment instances`
       });
+      
+      get().checkCompletion();
     }
 
     return appliedCount;
@@ -496,5 +508,74 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
     }
     
     return result;
+  },
+
+  checkCompletion: () => {
+    const state = get();
+    const totalEquipment = state.equipmentInstances.length;
+    const confirmedEquipment = state.equipmentInstances.filter(eq => eq.status === 'confirmed').length;
+    const unconfirmedEquipment = state.equipmentInstances.filter(eq => eq.status !== 'confirmed').length;
+    
+    // The main panel disappears when all equipment is confirmed (unconfirmedEquipment === 0)
+    const isEquipmentComplete = totalEquipment > 0 && unconfirmedEquipment === 0;
+    
+    // Also check points for completeness
+    const totalPoints = state.points.length;
+    const assignedPoints = state.points.filter(p => p.equipRef).length;
+    const unassignedPoints = state.points.filter(p => !p.equipRef).length;
+    
+    // Complete when equipment panel is empty AND most/all points are assigned
+    const isPointsComplete = totalPoints > 0 && (assignedPoints === totalPoints || unassignedPoints === 0);
+    
+    const isComplete = isEquipmentComplete && isPointsComplete;
+    
+    // Debug logging
+    console.log('🎯 Equipment Panel Completion Check:', {
+      totalEquipment,
+      confirmedEquipment,
+      unconfirmedEquipment,
+      equipmentPanelEmpty: unconfirmedEquipment === 0,
+      totalPoints,
+      assignedPoints,
+      unassignedPoints,
+      isEquipmentComplete,
+      isPointsComplete,
+      isComplete,
+      alreadyComplete: state.isComplete,
+      showingCelebration: state.showCelebration
+    });
+    
+    if (isComplete && !state.isComplete) {
+      console.log('🎉 EQUIPMENT PANEL EMPTY - TRIGGERING CELEBRATION!');
+      
+      // Trigger celebration and auto-save
+      set({ isComplete: true, showCelebration: true });
+      
+      // Auto-save when complete
+      get().saveDraft();
+      
+      get().addConsoleMessage({
+        level: 'success',
+        message: '🎉 All equipment mapping completed! Equipment panel cleared. Data automatically saved.'
+      });
+    } else if (isComplete && state.isComplete && !state.showCelebration) {
+      // Handle case where completion state exists but celebration wasn't shown
+      console.log('🎉 COMPLETION DETECTED - ENSURING CELEBRATION IS VISIBLE!');
+      set({ showCelebration: true });
+    }
+  },
+
+  dismissCelebration: () => {
+    set({ showCelebration: false });
+  },
+
+  triggerCelebration: () => {
+    console.log('🎉 MANUAL CELEBRATION TRIGGER!');
+    set({ showCelebration: true, isComplete: true });
+    
+    get().addConsoleMessage({
+      level: 'success',
+      message: '🎉 Manual celebration triggered!'
+    });
   }
 }));

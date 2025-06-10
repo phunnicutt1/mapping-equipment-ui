@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
@@ -23,7 +23,9 @@ export function MainPanel() {
     toggleUnassignedDrawer,
     toggleConfirmedDrawer,
     createTemplate,
-    assignPoints
+    assignPoints,
+    checkCompletion,
+    triggerCelebration
   } = useGroupingStore();
 
   const [expandedEquipmentTypes, setExpandedEquipmentTypes] = useState<Set<string>>(new Set());
@@ -159,6 +161,29 @@ export function MainPanel() {
     return acc;
   }, {} as Record<string, { type: any; equipment: any[] }>);
 
+  // Detect when equipment panel becomes empty (perfect trigger for celebration!)
+  const hasUnconfirmedEquipment = Object.keys(equipmentByType).length > 0;
+  const totalEquipment = equipmentInstances.length;
+  
+  useEffect(() => {
+    console.log('🔍 MainPanel useEffect triggered:', {
+      hasUnconfirmedEquipment,
+      totalEquipment,
+      equipmentByTypeKeys: Object.keys(equipmentByType),
+      equipmentByTypeLength: Object.keys(equipmentByType).length
+    });
+    
+    // When panel becomes empty but we have equipment (all confirmed), trigger completion check
+    if (!hasUnconfirmedEquipment && totalEquipment > 0) {
+      console.log('🏆 Equipment panel is now empty - all equipment confirmed! Calling checkCompletion...');
+      
+      // Slight delay to ensure state is stable, then check completion
+      setTimeout(() => {
+        checkCompletion();
+      }, 100);
+    }
+  }, [hasUnconfirmedEquipment, totalEquipment, checkCompletion]);
+
   return (
     <div className="space-y-6">
       {/* Confirmed and Unassigned Points Buttons */}
@@ -210,6 +235,20 @@ export function MainPanel() {
 
           {/* Equipment Types - Top Level */}
           <div className="space-y-3">
+            {Object.keys(equipmentByType).length === 0 && totalEquipment > 0 ? (
+              <div className="text-center py-12 bg-green-50 border-2 border-green-200 rounded-lg">
+                <div className="text-6xl mb-4">🎉</div>
+                <h3 className="text-lg font-semibold text-green-800 mb-2">All Equipment Confirmed!</h3>
+                <p className="text-green-600 mb-4">All {totalEquipment} equipment instances have been successfully mapped and confirmed.</p>
+                <Button
+                  onClick={triggerCelebration}
+                  className="bg-green-600 text-white hover:bg-green-700 px-6 py-3 text-lg font-semibold"
+                >
+                  🎉 Celebrate Success!
+                </Button>
+              </div>
+            ) : null}
+            
             {Object.entries(equipmentByType).map(([typeId, { type, equipment }]) => {
               const isTypeExpanded = expandedEquipmentTypes.has(typeId);
               const totalPoints = equipment.reduce((sum, eq) => sum + getPointsForEquipment(eq.id).length, 0);
