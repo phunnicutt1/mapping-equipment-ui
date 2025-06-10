@@ -18,6 +18,9 @@
 - Consider adding more sophisticated validation rules
 ## Current Session Notes
 
+- [2:31:13 AM] [Unknown User] Simplified Grouping Method card: Updated LeftRail card title from 'Upload & Settings' to 'Grouping Method', removed horizontal line and redundant subtitle text, creating a cleaner layout with just the title, dropdown, and SkySpark Test Panel link
+- [2:28:42 AM] [Unknown User] Moved Equipment Insights to right sidebar: Relocated Equipment Insights cards from individual equipment panels to the right sidebar, replacing Equipment Distribution card. Updated styling to match reference with dark header, color-coded insight cards (green, yellow, blue, purple) and proper icons for each insight type
+- [2:23:12 AM] [Unknown User] Added animated confirm button and equipment insights: Implemented animated Confirm All Points button with blue-to-green color transition, swipe motion, and starburst effect. Added Equipment Insights cards below confidence badge showing high confidence, review needed, mapping statistics, and smart grouping efficiency with color-coded styling and icons
 - [2:08:45 AM] [Unknown User] Tripled equipment panel spacing: Increased spacing from ml-6 to ml-18 (tripled from 24px to 72px) to position manufacturer/model labels much further toward the center of the equipment panel for better visual balance
 - [2:07:25 AM] [Unknown User] Added spacing to equipment panel layout: Increased margin from ml-2 to ml-6 after points count badge to position manufacturer/model labels more toward the center of the panel with better visual balance
 - [2:03:44 AM] [Unknown User] Reorganized equipment panel layout: Moved confidence label to underneath action buttons on right side and moved location label to be inline with manufacturer/model on left side, creating better space utilization and visual hierarchy

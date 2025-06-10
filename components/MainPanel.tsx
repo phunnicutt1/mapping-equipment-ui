@@ -26,6 +26,7 @@ export function MainPanel() {
   const [expandedEquipmentTypes, setExpandedEquipmentTypes] = useState<Set<string>>(new Set());
   const [expandedEquipment, setExpandedEquipment] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
+  const [animatingButtons, setAnimatingButtons] = useState<Set<string>>(new Set());
 
   const toggleEquipmentType = (typeId: string) => {
     const newExpanded = new Set(expandedEquipmentTypes);
@@ -107,6 +108,25 @@ export function MainPanel() {
     return null;
   };
 
+  const handleConfirmAllWithAnimation = async (equipmentId: string) => {
+    // Add to animating set
+    setAnimatingButtons(prev => new Set(prev).add(equipmentId));
+    
+    // Trigger the actual confirmation
+    confirmAllEquipmentPoints(equipmentId);
+    
+    // Remove from animating set after animation completes
+    setTimeout(() => {
+      setAnimatingButtons(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(equipmentId);
+        return newSet;
+      });
+    }, 1000);
+  };
+
+
+
   const unassignedCount = points.filter(p => !p.equipRef).length;
 
   // Group equipment instances by type
@@ -122,7 +142,81 @@ export function MainPanel() {
   }, {} as Record<string, { type: any; equipment: any[] }>);
 
   return (
-    <div className="space-y-6">
+    <>
+      <style jsx>{`
+        @keyframes confirmSwipe {
+          0% {
+            transform: translateX(0) scale(1);
+            background-color: #2563eb;
+          }
+          25% {
+            transform: translateX(-10px) scale(1.05);
+            background-color: #1d4ed8;
+          }
+          50% {
+            transform: translateX(10px) scale(1.1);
+            background-color: #059669;
+          }
+          75% {
+            transform: translateX(-5px) scale(1.05);
+            background-color: #047857;
+          }
+          100% {
+            transform: translateX(0) scale(1);
+            background-color: #065f46;
+          }
+        }
+
+        @keyframes starburst {
+          0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.2) rotate(180deg);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(2) rotate(360deg);
+            opacity: 0;
+          }
+        }
+
+        .confirm-button-animate {
+          animation: confirmSwipe 1s ease-in-out;
+        }
+
+        .starburst {
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          background: radial-gradient(circle, #fbbf24 0%, #f59e0b 50%, transparent 70%);
+          border-radius: 50%;
+          pointer-events: none;
+          animation: starburst 0.6s ease-out;
+        }
+
+        .starburst::before,
+        .starburst::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 4px;
+          height: 20px;
+          background: #fbbf24;
+          transform: translate(-50%, -50%);
+        }
+
+        .starburst::before {
+          transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .starburst::after {
+          transform: translate(-50%, -50%) rotate(-45deg);
+        }
+      `}</style>
+      <div className="space-y-6">
       {/* Unassigned Points Button */}
       <div className="flex justify-end">
         <Button 
@@ -267,16 +361,23 @@ export function MainPanel() {
                                 <div className="flex flex-col items-end space-y-2">
                                   <div className="flex items-center space-x-3">
                                     {equipmentInstance.status !== 'confirmed' && (
-                                      <Button
-                                        size="sm"
-                                        className="bg-blue-600 text-white hover:bg-blue-700"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          confirmAllEquipmentPoints(equipmentInstance.id);
-                                        }}
-                                      >
-                                        Confirm All Points
-                                      </Button>
+                                      <div className="relative">
+                                        <Button
+                                          size="sm"
+                                          className={`bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 ${
+                                            animatingButtons.has(equipmentInstance.id) ? 'confirm-button-animate' : ''
+                                          }`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleConfirmAllWithAnimation(equipmentInstance.id);
+                                          }}
+                                        >
+                                          Confirm All Points
+                                        </Button>
+                                        {animatingButtons.has(equipmentInstance.id) && (
+                                          <div className="starburst" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+                                        )}
+                                      </div>
                                     )}
                                     {getStatusBadge(equipmentInstance.status)}
                                   </div>
@@ -287,6 +388,8 @@ export function MainPanel() {
                                   >
                                     {formatConfidence(equipmentInstance.confidence)} confidence
                                   </Badge>
+                                  
+
                                 </div>
                               </div>
                             </div>
@@ -437,5 +540,6 @@ export function MainPanel() {
         </Card.Content>
       </Card>
     </div>
+    </>
   );
 }
