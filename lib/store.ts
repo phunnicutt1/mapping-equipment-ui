@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { GroupingState, BACnetPoint, EquipmentInstance, EquipmentTemplate, PointSignature, ConsoleMessage } from './types';
 import { processEquipmentGrouping } from './utils';
+import { generateRandomTemplateColor } from './utils';
 
 interface GroupingActions {
   loadPoints: (points: BACnetPoint[]) => void;
@@ -324,7 +325,8 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       createdFrom: equipmentId,
       pointSignature,
       createdAt: new Date(),
-      appliedCount: 0
+      appliedCount: 0,
+      color: generateRandomTemplateColor()
     };
 
     // Add template to store

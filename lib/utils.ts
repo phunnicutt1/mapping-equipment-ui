@@ -375,7 +375,10 @@ export function processEquipmentGrouping(points: BACnetPoint[]) {
   
   return {
     points: updatedPoints,
-    equipmentTypes,
+    equipmentTypes: equipmentTypes.map(type => ({
+      ...type,
+      color: type.color || generateRandomTemplateColor() // Assign random color if not already set
+    })),
     equipmentInstances,
     stats
   };
@@ -435,4 +438,115 @@ export function getEquipmentDisplayName(fullName: string): string {
   // Split by spaces and take the last segment
   const segments = fullName.trim().split(/\s+/);
   return segments[segments.length - 1];
+}
+
+// Generate a random color for equipment templates
+export function generateRandomTemplateColor(): string {
+  const colors = [
+    'bg-blue-500',
+    'bg-purple-500', 
+    'bg-green-500',
+    'bg-orange-500',
+    'bg-red-500',
+    'bg-indigo-500',
+    'bg-cyan-500',
+    'bg-pink-500',
+    'bg-yellow-500',
+    'bg-teal-500',
+    'bg-violet-500',
+    'bg-emerald-500',
+    'bg-amber-500',
+    'bg-lime-500',
+    'bg-rose-500',
+    'bg-slate-500',
+    'bg-zinc-500',
+    'bg-red-600',
+    'bg-blue-600',
+    'bg-purple-600',
+    'bg-green-600',
+    'bg-indigo-600',
+    'bg-cyan-600',
+    'bg-pink-600',
+    'bg-teal-600',
+    'bg-emerald-600',
+    'bg-amber-600',
+    'bg-orange-600'
+  ];
+  
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Convert background color to border color
+export function bgColorToBorderColor(bgColor: string): string {
+  return bgColor.replace('bg-', 'border-l-');
+}
+
+// Equipment type color mapping for visual consistency across components
+export function getEquipmentTypeColor(typeId: string, templates?: any[]): string {
+  // If templates are provided, find the template color
+  if (templates) {
+    const template = templates.find(t => t.id === typeId || t.equipmentTypeId === typeId);
+    if (template && template.color) {
+      return template.color;
+    }
+  }
+  
+  // Fallback to predefined colors for backward compatibility
+  const colors = {
+    'ahu': 'bg-blue-500',
+    'vav': 'bg-purple-500', 
+    'terminal-unit': 'bg-green-500',
+    'control-valve': 'bg-orange-500',
+    'fan-unit': 'bg-red-500',
+    'pump-unit': 'bg-indigo-500',
+    'boiler': 'bg-red-600',
+    'chiller': 'bg-cyan-500',
+    'heat-exchanger': 'bg-pink-500',
+    'damper': 'bg-yellow-500',
+    'sensor': 'bg-teal-500',
+    'controller': 'bg-violet-500',
+    'vfd': 'bg-emerald-500',
+    'meter': 'bg-amber-500',
+    'lighting': 'bg-lime-500',
+    'hvac-equipment': 'bg-slate-500',
+    'mechanical-equipment': 'bg-zinc-500',
+    'electrical-equipment': 'bg-rose-500',
+    'auto': 'bg-gradient-to-r from-blue-400 to-purple-500'
+  };
+  return colors[typeId as keyof typeof colors] || 'bg-gray-500';
+}
+
+// Get border color variant for equipment type indicators
+export function getEquipmentTypeBorderColor(typeId: string, templates?: any[]): string {
+  // If templates are provided, find the template color and convert to border
+  if (templates) {
+    const template = templates.find(t => t.id === typeId || t.equipmentTypeId === typeId);
+    if (template && template.color) {
+      return bgColorToBorderColor(template.color);
+    }
+  }
+  
+  // Fallback to predefined colors
+  const colors = {
+    'ahu': 'border-l-blue-500',
+    'vav': 'border-l-purple-500', 
+    'terminal-unit': 'border-l-green-500',
+    'control-valve': 'border-l-orange-500',
+    'fan-unit': 'border-l-red-500',
+    'pump-unit': 'border-l-indigo-500',
+    'boiler': 'border-l-red-600',
+    'chiller': 'border-l-cyan-500',
+    'heat-exchanger': 'border-l-pink-500',
+    'damper': 'border-l-yellow-500',
+    'sensor': 'border-l-teal-500',
+    'controller': 'border-l-violet-500',
+    'vfd': 'border-l-emerald-500',
+    'meter': 'border-l-amber-500',
+    'lighting': 'border-l-lime-500',
+    'hvac-equipment': 'border-l-slate-500',
+    'mechanical-equipment': 'border-l-zinc-500',
+    'electrical-equipment': 'border-l-rose-500',
+    'auto': 'border-l-blue-500' // fallback for gradient
+  };
+  return colors[typeId as keyof typeof colors] || 'border-l-gray-500';
 }

@@ -5,16 +5,32 @@ import { useGroupingStore } from '../lib/store';
 export function TopStatsPanel() {
   const { points, equipmentInstances, equipmentTypes, templates, stats } = useGroupingStore();
 
-  // Calculate equipment type distribution
+  // Calculate equipment type distribution (initial auto-detected types)
   const equipmentTypeDistribution = equipmentTypes.map(type => {
-    const instancesOfType = equipmentInstances.filter(eq => eq.typeId === type.id);
+    const instancesOfType = equipmentInstances.filter(eq => eq.typeId === type.id && !eq.templateId);
     return {
       id: type.id,
       name: type.name,
       count: instancesOfType.length,
-      points: instancesOfType.reduce((sum, eq) => sum + eq.pointIds.length, 0)
+      points: instancesOfType.reduce((sum, eq) => sum + eq.pointIds.length, 0),
+      color: type.color || 'bg-gray-500'
     };
   }).filter(type => type.count > 0);
+
+  // Calculate template distribution (templates are also equipment types)
+  const templateDistribution = templates.map(template => {
+    const instancesWithTemplate = equipmentInstances.filter(eq => eq.templateId === template.id);
+    return {
+      id: template.id,
+      name: template.name,
+      count: instancesWithTemplate.length,
+      points: instancesWithTemplate.reduce((sum, eq) => sum + eq.pointIds.length, 0),
+      color: template.color
+    };
+  }).filter(template => template.count > 0);
+
+  // Combine both initial types and templates
+  const allEquipmentTypes = [...equipmentTypeDistribution, ...templateDistribution];
 
   const totalEquipmentInstances = equipmentInstances.length;
   const totalPoints = points.length;
@@ -87,24 +103,24 @@ export function TopStatsPanel() {
         )}
 
         {/* Equipment Type Distribution */}
-        {equipmentTypeDistribution.length > 0 && (
+        {allEquipmentTypes.length > 0 && (
           <div className="mt-6 pt-6 border-t border-gray-100">
             <div className="text-sm font-medium text-gray-700 mb-3">
               Equipment Types Detected
             </div>
-            <div className="flex flex-wrap gap-3">
-              {equipmentTypeDistribution.map(type => (
+            <div className="flex flex-wrap gap-2">
+              {allEquipmentTypes.map(type => (
                 <div
                   key={type.id}
-                  className="inline-flex items-center px-3 py-2 rounded-lg bg-gray-50 border border-gray-200"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${getEquipmentTypeColor(type.id)}`}></div>
+                    <div className={`w-2.5 h-2.5 rounded-full ${type.color}`}></div>
                     <span className="text-sm font-medium text-gray-900">
                       {type.name}
                     </span>
-                    <span className="text-sm text-gray-500">
-                      ({type.count} {type.count === 1 ? 'instance' : 'instances'}, {type.points} points)
+                    <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+                      {type.count}
                     </span>
                   </div>
                 </div>
@@ -115,16 +131,4 @@ export function TopStatsPanel() {
       </div>
     </div>
   );
-}
-
-function getEquipmentTypeColor(typeId: string): string {
-  const colors = {
-    'ahu': 'bg-blue-500',
-    'vav': 'bg-purple-500',
-    'terminal-unit': 'bg-green-500',
-    'control-valve': 'bg-orange-500',
-    'fan-unit': 'bg-red-500',
-    'pump-unit': 'bg-indigo-500',
-  };
-  return colors[typeId as keyof typeof colors] || 'bg-gray-500';
 }

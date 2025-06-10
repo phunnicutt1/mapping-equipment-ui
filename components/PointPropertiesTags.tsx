@@ -2,71 +2,136 @@ import React from 'react';
 
 interface PointPropertiesTagsProps {
   point: any;
+  className?: string;
 }
 
-const PointPropertiesTags: React.FC<PointPropertiesTagsProps> = ({ point }) => {
-  // Define the 6 allowed BACnet markers according to Project Haystack standards
-  const allowedMarkers = ['bacnetPoint', 'cmd', 'cur', 'his', 'point', 'writable'];
+// Allowed BACnet marker tags according to Project Haystack
+const ALLOWED_MARKERS = [
+  'bacnetPoint',
+  'cmd',
+  'cur', 
+  'his',
+  'point',
+  'writable'
+] as const;
+
+type AllowedMarker = typeof ALLOWED_MARKERS[number];
+
+// Tag styling configurations
+const TAG_STYLES: Record<AllowedMarker, string> = {
+  'point': 'bg-blue-100 text-blue-800 border-blue-200',
+  'cmd': 'bg-orange-100 text-orange-800 border-orange-200',
+  'cur': 'bg-green-100 text-green-800 border-green-200',
+  'his': 'bg-purple-100 text-purple-800 border-purple-200',
+  'writable': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  'bacnetPoint': 'bg-gray-100 text-gray-800 border-gray-200'
+};
+
+// Tag display names (for better UX)
+const TAG_LABELS: Record<AllowedMarker, string> = {
+  'point': 'Point',
+  'cmd': 'Command',
+  'cur': 'Current',
+  'his': 'Historized',
+  'writable': 'Writable',
+  'bacnetPoint': 'BACnet'
+};
+
+// Validate tags according to Project Haystack rules
+function validateTags(markers: string[]): { valid: AllowedMarker[], invalid: string[] } {
+  const valid: AllowedMarker[] = [];
+  const invalid: string[] = [];
   
-  // Define marker descriptions for tooltips
-  const markerDescriptions: Record<string, string> = {
-    bacnetPoint: 'BACnet point reference',
-    cmd: 'Command point (writable)',
-    cur: 'Current value available',
-    his: 'Historical data available',
-    point: 'Data point marker',
-    writable: 'Point supports writing'
-  };
+  markers.forEach(marker => {
+    if (ALLOWED_MARKERS.includes(marker as AllowedMarker)) {
+      valid.push(marker as AllowedMarker);
+    } else {
+      invalid.push(marker);
+    }
+  });
+  
+  return { valid, invalid };
+}
 
-  // Define colors for each marker type
-  const markerColors: Record<string, string> = {
-    bacnetPoint: 'bg-blue-100 text-blue-800 border-blue-200',
-    cmd: 'bg-purple-100 text-purple-800 border-purple-200', 
-    cur: 'bg-green-100 text-green-800 border-green-200',
-    his: 'bg-orange-100 text-orange-800 border-orange-200',
-    point: 'bg-gray-100 text-gray-800 border-gray-200',
-    writable: 'bg-red-100 text-red-800 border-red-200'
-  };
+// Extract markers from point object - ONLY the 6 allowed markers
+function extractMarkers(point: any): string[] {
+  const markers: string[] = [];
+  
+  // Handle different point data structures but ONLY extract allowed markers
+  if (point.markers && Array.isArray(point.markers)) {
+    // Filter the markers array to only include allowed markers
+    const allowedFromArray = point.markers.filter((marker: string) => 
+      ALLOWED_MARKERS.includes(marker as AllowedMarker)
+    );
+    markers.push(...allowedFromArray);
+  } else {
+    // Check individual properties but ONLY for the 6 allowed markers
+    // Note: In SkySpark data, 'M' typically means the marker is present
+    if (point.point === 'M' || point.point === true) markers.push('point');
+    if (point.cmd === 'M' || point.cmd === true) markers.push('cmd');
+    if (point.cur === 'M' || point.cur === true) markers.push('cur');
+    if (point.his === 'M' || point.his === true) markers.push('his');
+    if (point.writable === 'M' || point.writable === true) markers.push('writable');
+    if (point.bacnetPoint === 'M' || point.bacnetPoint === true) markers.push('bacnetPoint');
+  }
+  
+  // Ensure 'point' marker is always present (Project Haystack requirement)
+  if (!markers.includes('point')) {
+    markers.unshift('point');
+  }
+  
+  return markers;
+}
 
-  // Extract valid markers from the point
-  const extractMarkers = (point: any): string[] => {
-    const markers: string[] = [];
-    
-    // Check for each allowed marker in the point properties
-    allowedMarkers.forEach(marker => {
-      // Handle both boolean properties and SkySpark 'M' marker format
-      const value = point[marker];
-      if (value === true || value === 'M' || value === 'm') {
-        markers.push(marker);
-      }
-    });
-    
-    return markers;
-  };
-
-  const validMarkers = extractMarkers(point);
-
+export function PointPropertiesTags({ point, className = '' }: PointPropertiesTagsProps) {
+  const rawMarkers = extractMarkers(point);
+  const { valid: validMarkers } = validateTags(rawMarkers);
+  
   if (validMarkers.length === 0) {
     return (
-      <span className="text-xs text-gray-500 italic">
-        No BACnet markers
-      </span>
+      <div className={`flex items-center space-x-1 ${className}`}>
+        <span className="text-xs text-gray-500 italic">No valid properties</span>
+      </div>
     );
   }
-
+  
   return (
-    <div className="flex flex-wrap gap-1">
-      {validMarkers.map((marker) => (
+    <div className={`flex flex-wrap items-center gap-1 ${className}`}>
+      {validMarkers.map(marker => (
         <span
           key={marker}
-          title={markerDescriptions[marker]}
-          className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${markerColors[marker]} cursor-help`}
+          className={`
+            inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border
+            ${TAG_STYLES[marker]}
+            transition-colors duration-200 hover:opacity-80
+          `}
+          title={`${TAG_LABELS[marker]} marker - ${getMarkerDescription(marker)}`}
         >
-          {marker}
+          {TAG_LABELS[marker]}
         </span>
       ))}
     </div>
   );
-};
+}
+
+// Helper function to provide descriptions for markers
+function getMarkerDescription(marker: AllowedMarker): string {
+  switch (marker) {
+    case 'point':
+      return 'Indicates this is a point entity';
+    case 'cmd':
+      return 'Command/output point (AO/BO)';
+    case 'cur':
+      return 'Has current real-time value';
+    case 'his':
+      return 'Historized/logged point';
+    case 'writable':
+      return 'Writable point with priority array';
+    case 'bacnetPoint':
+      return 'BACnet protocol point';
+    default:
+      return 'Unknown marker';
+  }
+}
 
 export default PointPropertiesTags; 

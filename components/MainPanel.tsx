@@ -5,7 +5,7 @@ import { Card } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { useGroupingStore } from '../lib/store';
-import { getEquipmentDisplayName } from '../lib/utils';
+import { getEquipmentDisplayName, getEquipmentTypeBorderColor } from '../lib/utils';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import PointPropertiesTags from './PointPropertiesTags';
 
@@ -13,7 +13,8 @@ export function MainPanel() {
   const { 
     points, 
     equipmentInstances, 
-    equipmentTypes, 
+    equipmentTypes,
+    templates,
     confirmEquipment, 
     flagEquipment,
     confirmPoint,
@@ -268,8 +269,27 @@ export function MainPanel() {
                           }
                         };
                         
+                        // Get the border color for this equipment
+                        const getBorderColor = () => {
+                          if (equipmentInstance.templateId) {
+                            const template = templates.find(t => t.id === equipmentInstance.templateId);
+                            if (template?.color) {
+                              return template.color.replace('bg-', 'border-l-');
+                            }
+                          }
+                          
+                          const equipmentType = equipmentTypes.find(t => t.id === equipmentInstance.typeId);
+                          if (equipmentType?.color) {
+                            return equipmentType.color.replace('bg-', 'border-l-');
+                          }
+                          
+                          return 'border-l-gray-500';
+                        };
+
+                        const borderColorClass = getBorderColor();
+                        
                         return (
-                          <div key={equipmentInstance.id} className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
+                          <div key={equipmentInstance.id} className={`bg-gray-50 border border-gray-200 rounded-lg shadow-sm border-l-4 ${borderColorClass}`}>
                             {/* Equipment Instance Header */}
                             <div className="px-4 py-3 bg-gray-50 rounded-lg">
                               <div className="flex items-center justify-between">

@@ -33,6 +33,7 @@ export interface EquipmentType {
   name: string;
   description?: string;
   category?: string;
+  color?: string; // Random color assigned when equipment type is created
   templates?: EquipmentTemplate[]; // Available templates for this type
 }
 
@@ -57,6 +58,7 @@ export interface EquipmentTemplate {
   pointSignature: PointSignature[];
   createdAt: Date;
   appliedCount: number; // How many times this template has been applied
+  color: string; // Random color assigned when template is created (e.g., 'bg-blue-500')
 }
 
 export interface PointSignature {
