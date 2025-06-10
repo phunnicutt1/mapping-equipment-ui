@@ -7,6 +7,7 @@ import { Button } from './ui/Button';
 import { useGroupingStore } from '../lib/store';
 import { getEquipmentDisplayName } from '../lib/utils';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import PointPropertiesTags from './PointPropertiesTags';
 
 export function MainPanel() {
   const { 
@@ -223,9 +224,9 @@ export function MainPanel() {
                         };
                         
                         return (
-                          <div key={equipmentInstance.id} className="bg-gray-100 rounded-lg">
+                          <div key={equipmentInstance.id} className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
                             {/* Equipment Instance Header */}
-                            <div className="px-4 py-3 bg-gray-100 rounded-lg">
+                            <div className="px-4 py-3 bg-gray-50 rounded-lg">
                               <div className="flex items-center justify-between">
                                 {/* Left side - Equipment info and expand button */}
                                 <div className="flex-1">
@@ -314,17 +315,16 @@ export function MainPanel() {
                                   };
 
                                   return (
-                                    <div key={point.id} className="bg-white border rounded-lg p-6">
+                                    <div key={point.id} className="bg-white border rounded-lg p-6 relative">
                                       {/* Point Header */}
                                       <div className="flex items-start justify-between mb-4">
                                         <div className="flex-1">
-                                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                          <h3 className="text-xl font-bold mb-1 font-detail" style={{ color: '#2c3e50' }}>
                                             {getDisplayName(point)}
                                           </h3>
                                           <div className="flex items-center space-x-2">
-                                            <Badge className="bg-blue-100 text-blue-800">{point.kind}</Badge>
                                                                                          {equipmentInstance.equipTypeName && (
-                                               <span className="text-sm text-gray-500">
+                                               <span className="text-base text-gray-600 font-medium">
                                                  {equipmentInstance.equipTypeName} → {getEquipmentDisplayName(equipmentInstance.name)}
                                                </span>
                                              )}
@@ -359,59 +359,67 @@ export function MainPanel() {
                                       </div>
 
                                       {/* Point Details Grid */}
-                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 font-detail">
                                         <div>
-                                          <dt className="text-sm font-medium text-gray-500">BACnet ID</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{point.bacnetCur}</dd>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>BACnet ID</dt>
+                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.bacnetCur}</dd>
                                         </div>
                                         
                                         <div>
-                                          <dt className="text-sm font-medium text-gray-500">Description</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getDescription(point)}</dd>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Description</dt>
+                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{getDescription(point)}</dd>
                                         </div>
                                         
                                         <div>
-                                          <dt className="text-sm font-medium text-gray-500">Display Name</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getDisplayName(point)}</dd>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Device Location</dt>
+                                          <dd className="font-medium text-blue-600">
+                                            {point.bacnetDeviceName ? `📍 ${point.bacnetDeviceName}` : '-'}
+                                          </dd>
                                         </div>
                                         
                                         <div>
-                                          <dt className="text-sm font-medium text-gray-500">Unit</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{point.unit || '-'}</dd>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Unit</dt>
+                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.unit || '-'}</dd>
                                         </div>
                                         
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">Properties</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getProperties(point)}</dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-sm font-medium text-gray-500">Source</dt>
-                                          <dd className="mt-1 text-sm text-gray-900">{getSource(point)}</dd>
-                                        </div>
+                                        <div></div>
                                         
                                         {/* Show Vendor and Model when available (typically from bacnetConn) */}
                                         {point.vendor && (
                                           <div>
-                                            <dt className="text-sm font-medium text-gray-500">Vendor</dt>
-                                            <dd className="mt-1 text-sm text-gray-900">{point.vendor}</dd>
+                                            <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Vendor</dt>
+                                            <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.vendor}</dd>
                                           </div>
                                         )}
                                         
                                         {point.model && (
                                           <div>
-                                            <dt className="text-sm font-medium text-gray-500">Model</dt>
-                                            <dd className="mt-1 text-sm text-gray-900">{point.model}</dd>
+                                            <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Model</dt>
+                                            <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.model}</dd>
                                           </div>
                                         )}
                                         
-                                        {/* Show Device Location when available from connector */}
-                                        {point.bacnetDeviceName && (
-                                          <div>
-                                            <dt className="text-sm font-medium text-gray-500">Device Location</dt>
-                                            <dd className="mt-1 text-sm text-blue-600 font-medium">📍 {point.bacnetDeviceName}</dd>
+
+                                      </div>
+
+                                      {/* Bottom Line - Properties on left, Source File and Data Type on right */}
+                                      <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                                        {/* Properties - Left Side */}
+                                        <div>
+                                          <div className="text-xs font-medium mb-1" style={{ color: '#7f8c8d' }}>Properties</div>
+                                          <PointPropertiesTags point={point} />
+                                        </div>
+
+                                        {/* Source File and Data Type - Right Side */}
+                                        <div className="flex items-end space-x-3">
+                                          <div className="text-right">
+                                            <span className="text-xs font-medium" style={{ color: '#7f8c8d' }}>Source File: </span>
+                                            <span className="font-medium text-xs" style={{ color: '#2c3e50' }}>{getSource(point)}</span>
                                           </div>
-                                        )}
+                                          <Badge className="bg-blue-100 text-blue-800 text-sm font-medium">
+                                            {point.kind}
+                                          </Badge>
+                                        </div>
                                       </div>
                                     </div>
                                   );

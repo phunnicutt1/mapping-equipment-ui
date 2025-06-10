@@ -6,6 +6,7 @@ import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
 import { useGroupingStore } from '../lib/store';
 import { XMarkIcon, MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import PointPropertiesTags from './PointPropertiesTags';
 
 export function UnassignedPointsDrawer() {
   const { 
@@ -317,8 +318,8 @@ export function UnassignedPointsDrawer() {
                             
                             <div>
                               <dt className="font-medium text-gray-500">Properties</dt>
-                              <dd className="text-gray-900 truncate">
-                                {point.markers?.length ? point.markers.join(', ') : 'Point'}
+                              <dd className="mt-1">
+                                <PointPropertiesTags point={point} />
                               </dd>
                             </div>
                             

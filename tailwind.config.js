@@ -26,6 +26,13 @@ module.exports = {
           50: '#fef2f2',
           600: '#dc2626',
         },
+        detail: {
+          label: '#7f8c8d',
+          value: '#2c3e50',
+        },
+      },
+      fontFamily: {
+        'detail': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
       },
     },
   },
