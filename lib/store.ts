@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GroupingState, BACnetPoint, EquipmentInstance, EquipmentTemplate, PointSignature, ConsoleMessage } from './types';
+import { GroupingState, BACnetPoint, EquipmentInstance, ConsoleMessage } from './types';
 import { processEquipmentGrouping } from './utils';
 
 interface GroupingActions {
@@ -14,11 +14,8 @@ interface GroupingActions {
   assignSinglePoint: (pointId: string, equipmentId: string) => void;
   createEquipment: (name: string, typeId: string) => void;
   toggleUnassignedDrawer: () => void;
-  toggleConfirmedDrawer: () => void;
   togglePointSelection: (pointId: string) => void;
   clearSelection: () => void;
-  createTemplate: (equipmentId: string, templateName?: string) => Promise<{ success: boolean; appliedCount?: number; templateId?: string }>;
-  applyTemplateToSimilarEquipment: (templateId: string) => Promise<number>;
   addConsoleMessage: (message: Omit<ConsoleMessage, 'id' | 'timestamp'>) => void;
   saveDraft: () => Promise<void>;
   finalize: () => Promise<{ success: boolean; errors?: string[] }>;
@@ -29,19 +26,16 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   points: [],
   equipmentTypes: [],
   equipmentInstances: [],
-  templates: [],
   stats: {
     totalPoints: 0,
     assignedPoints: 0,
     equipmentGroups: 0,
-    templatedEquipment: 0,
     confidenceDistribution: { high: 0, medium: 0, low: 0 }
   },
   consoleMessages: [],
   selectedGroupingMethod: 'smart',
   isProcessing: false,
   showUnassignedDrawer: false,
-  showConfirmedDrawer: false,
   selectedPoints: new Set(),
 
   // Actions
@@ -102,7 +96,6 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
           totalPoints: updatedPoints.length,
           assignedPoints: 0,
           equipmentGroups: 0,
-          templatedEquipment: 0,
           confidenceDistribution: { high: 0, medium: 0, low: 0 }
         };
         
@@ -254,10 +247,6 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
     set(state => ({ showUnassignedDrawer: !state.showUnassignedDrawer }));
   },
 
-  toggleConfirmedDrawer: () => {
-    set(state => ({ showConfirmedDrawer: !state.showConfirmedDrawer }));
-  },
-
   togglePointSelection: (pointId) => {
     set(state => {
       const newSelection = new Set(state.selectedPoints);
@@ -272,162 +261,6 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
 
   clearSelection: () => {
     set({ selectedPoints: new Set() });
-  },
-
-  createTemplate: async (equipmentId, templateName) => {
-    const state = get();
-    const equipment = state.equipmentInstances.find(eq => eq.id === equipmentId);
-    const equipmentType = state.equipmentTypes.find(type => type.id === equipment?.typeId);
-    
-    if (!equipment || !equipmentType) {
-      get().addConsoleMessage({
-        level: 'error',
-        message: 'Equipment or equipment type not found'
-      });
-      return { success: false };
-    }
-
-    // Get confirmed points for this equipment
-    const equipmentPoints = state.points.filter(point => 
-      point.equipRef === equipmentId && point.status === 'confirmed'
-    );
-
-    if (equipmentPoints.length === 0) {
-      get().addConsoleMessage({
-        level: 'warning',
-        message: 'No confirmed points found. Please confirm points before creating a template.'
-      });
-      return { success: false };
-    }
-
-    // Create point signature from confirmed points
-    const pointSignature: PointSignature[] = equipmentPoints.map(point => ({
-      navName: point.navName || point.dis,
-      kind: point.kind,
-      unit: point.unit,
-      bacnetPointType: point.bacnetCur?.match(/^[A-Z]{2}/)?.[0], // Extract AO, AI, BO, BI etc.
-      properties: [
-        ...(point.point ? ['point'] : []),
-        ...(point.writable ? ['writable'] : []),
-        ...(point.cmd ? ['cmd'] : []),
-        ...(point.sensor ? ['sensor'] : []),
-        ...(point.his ? ['his'] : [])
-      ],
-      isRequired: true
-    }));
-
-    // Create template
-    const template: EquipmentTemplate = {
-      id: `template-${Date.now()}`,
-      name: templateName || `${equipment.name} Template`,
-      equipmentTypeId: equipment.typeId,
-      createdFrom: equipmentId,
-      pointSignature,
-      createdAt: new Date(),
-      appliedCount: 0
-    };
-
-    // Add template to store
-    set(state => ({
-      templates: [...state.templates, template],
-      equipmentInstances: state.equipmentInstances.map(eq =>
-        eq.id === equipmentId ? { ...eq, templateId: template.id } : eq
-      )
-    }));
-
-    get().addConsoleMessage({
-      level: 'success',
-      message: `Template "${template.name}" created with ${pointSignature.length} point signatures`
-    });
-
-    // Apply template to similar equipment automatically
-    const appliedCount = await get().applyTemplateToSimilarEquipment(template.id);
-
-    return { 
-      success: true, 
-      appliedCount,
-      templateId: template.id
-    };
-  },
-
-  applyTemplateToSimilarEquipment: async (templateId: string) => {
-    const state = get();
-    const template = state.templates.find(t => t.id === templateId);
-    
-    if (!template) return 0;
-
-    // Find equipment of the same type that doesn't have a template applied
-    const candidateEquipment = state.equipmentInstances.filter(eq => 
-      eq.typeId === template.equipmentTypeId && 
-      eq.status !== 'confirmed' && 
-      !eq.templateId &&
-      eq.id !== template.createdFrom
-    );
-
-    let appliedCount = 0;
-
-    for (const equipment of candidateEquipment) {
-      const equipmentPoints = state.points.filter(point => point.equipRef === equipment.id);
-      
-      // Check if equipment has points that match the template signature
-      const matchingPoints = template.pointSignature.filter(signature => 
-        equipmentPoints.some(point => 
-          (point.navName === signature.navName || point.dis === signature.navName) &&
-          point.kind === signature.kind &&
-          point.unit === signature.unit
-        )
-      );
-
-      // If equipment matches at least 70% of the template signature, apply it
-      const matchPercentage = matchingPoints.length / template.pointSignature.length;
-      
-      if (matchPercentage >= 0.7) {
-        // Apply template by confirming matching points and equipment
-        set(state => ({
-          points: state.points.map(point => {
-            if (point.equipRef === equipment.id) {
-              const matchesTemplate = template.pointSignature.some(sig => 
-                (point.navName === sig.navName || point.dis === sig.navName) &&
-                point.kind === sig.kind &&
-                point.unit === sig.unit
-              );
-              
-              if (matchesTemplate) {
-                return { ...point, status: 'confirmed', confidence: 1.0 };
-              }
-            }
-            return point;
-          }),
-          equipmentInstances: state.equipmentInstances.map(eq =>
-            eq.id === equipment.id 
-              ? { ...eq, status: 'confirmed', confidence: 1.0, templateId: template.id }
-              : eq
-          ),
-          templates: state.templates.map(t =>
-            t.id === templateId ? { ...t, appliedCount: t.appliedCount + 1 } : t
-          )
-        }));
-
-        appliedCount++;
-      }
-    }
-
-    if (appliedCount > 0) {
-      // Update stats
-      set(state => ({
-        stats: {
-          ...state.stats,
-          templatedEquipment: (state.stats.templatedEquipment || 0) + appliedCount
-        }
-      }));
-
-      get().addConsoleMessage({
-        level: 'success',
-        message: `Template "${template.name}" automatically applied to ${appliedCount} similar equipment instances`
-      });
-    }
-
-    return appliedCount;
   },
 
   addConsoleMessage: (message) => {
@@ -449,8 +282,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         points: state.points,
-        equipmentInstances: state.equipmentInstances,
-        templates: state.templates
+        equipmentInstances: state.equipmentInstances
       })
     });
     
@@ -474,8 +306,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         points: state.points,
-        equipmentInstances: state.equipmentInstances,
-        templates: state.templates
+        equipmentInstances: state.equipmentInstances
       })
     });
     

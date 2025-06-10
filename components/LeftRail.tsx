@@ -14,14 +14,17 @@ export function LeftRail() {
 
   return (
     <div className="space-y-6">
-      {/* Grouping Method */}
+      {/* Upload & Settings */}
       <Card>
         <Card.Header>
-          <Card.Title>Grouping Method</Card.Title>
+          <Card.Title>Upload & Settings</Card.Title>
         </Card.Header>
         <Card.Content>
           <div className="space-y-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Grouping Method
+              </label>
               <select
                 value={selectedGroupingMethod}
                 onChange={(e) => setGroupingMethod(e.target.value as any)}

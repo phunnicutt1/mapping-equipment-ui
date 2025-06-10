@@ -3,7 +3,7 @@
 import { useGroupingStore } from '../lib/store';
 
 export function TopStatsPanel() {
-  const { points, equipmentInstances, equipmentTypes, templates, stats } = useGroupingStore();
+  const { points, equipmentInstances, equipmentTypes, stats } = useGroupingStore();
 
   // Calculate equipment type distribution
   const equipmentTypeDistribution = equipmentTypes.map(type => {
@@ -20,12 +20,11 @@ export function TopStatsPanel() {
   const totalPoints = points.length;
   const assignedPoints = points.filter(p => p.equipRef).length;
   const completionPercentage = totalPoints > 0 ? Math.round((assignedPoints / totalPoints) * 100) : 0;
-  const templatedEquipment = equipmentInstances.filter(eq => eq.templateId).length;
 
   return (
     <div className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Total Points */}
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">
@@ -65,26 +64,7 @@ export function TopStatsPanel() {
               Equipment
             </div>
           </div>
-
-          {/* Template Usage */}
-          <div className="text-center">
-            <div className="text-3xl font-bold text-indigo-600">
-              {templatedEquipment}
-            </div>
-            <div className="text-sm font-medium text-gray-600 mt-1">
-              Templated
-            </div>
-          </div>
         </div>
-
-        {/* Template Summary */}
-        {templates.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="text-sm font-medium text-gray-700 mb-2">
-              Templates Created: {templates.length} | Auto-Applied: {templates.reduce((sum, t) => sum + t.appliedCount, 0)} times
-            </div>
-          </div>
-        )}
 
         {/* Equipment Type Distribution */}
         {equipmentTypeDistribution.length > 0 && (

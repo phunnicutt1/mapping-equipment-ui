@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { BACnetPoint } from './types';
+import { BACnetPoint } from '../types';
 
 /**
  * Trio File Parser for Building Automation Data
@@ -284,7 +284,7 @@ export async function loadSampleTrioData(): Promise<BACnetPoint[]> {
           
           console.log(`  ✅ ${file}: ${trioPoints.length} points`);
         } catch (error) {
-          console.log(`  ❌ ${file}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          console.log(`  ❌ ${file}: ${error.message}`);
         }
       }
     }

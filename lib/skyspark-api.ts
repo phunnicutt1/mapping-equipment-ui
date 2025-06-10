@@ -609,3 +609,6 @@ export class SkysparkAPI {
 
 // Export singleton instance for easy use
 export const skysparkApi = new SkysparkAPI();
+
+// Export types
+export type { SkysparkResponse, SkysparkConfig, AuthenticationResult };
