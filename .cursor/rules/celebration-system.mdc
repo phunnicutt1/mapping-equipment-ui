@@ -1,0 +1,81 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Celebration System Architecture
+
+## Overview
+The celebration system provides satisfying user feedback when 100% equipment mapping completion is achieved, featuring confetti animations and auto-save functionality.
+
+## Core Components
+
+### SuccessCelebration Component
+Located in [components/SuccessCelebration.tsx](mdc:components/SuccessCelebration.tsx):
+- **150 animated confetti pieces** with physics simulation
+- **10 vibrant colors** with random shapes (circles and squares)
+- **8-second celebration sequence** with staged animations
+- **Framer Motion** for spring animations and transitions
+- **Auto-save confirmation** message display
+- **Stats display** showing total points, equipment count, templates used
+
+### Trigger System (Event-Driven)
+The celebration uses an intelligent event-driven architecture:
+
+#### Primary Trigger (MainPanel Detection)
+```typescript
+// components/MainPanel.tsx
+useEffect(() => {
+  if (!hasUnconfirmedEquipment && totalEquipment > 0) {
+    setTimeout(() => {
+      checkCompletion();
+    }, 100);
+  }
+}, [hasUnconfirmedEquipment, totalEquipment]);
+```
+
+#### Completion Validation (Store Logic)
+```typescript
+// lib/store.ts - checkCompletion()
+const isEquipmentComplete = totalEquipment > 0 && unconfirmedEquipment === 0;
+const isPointsComplete = totalPoints > 0 && assignedPoints === totalPoints;
+const isComplete = isEquipmentComplete && isPointsComplete;
+
+if (isComplete && !state.isComplete) {
+  set({ isComplete: true, showCelebration: true });
+  get().saveDraft(); // Auto-save on completion
+}
+```
+
+## Trigger Flow
+1. User confirms equipment → Equipment status becomes 'confirmed'
+2. Equipment filtered out of MainPanel display (panel becomes empty)
+3. MainPanel useEffect detects empty state change
+4. `checkCompletion()` validates all equipment confirmed + points assigned
+5. Celebration triggers with confetti animation + auto-save
+
+## Multiple Trigger Layers
+- **Automatic Detection**: Panel-based completion detection
+- **Action Triggers**: Equipment confirmation, point assignment, template application
+- **Manual Backup**: "🎉 Celebrate Success!" button in completion message
+- **Test Button**: "🎉 Test Celebration" button in header for debugging
+
+## Performance Optimizations
+- **No Polling**: Replaced 5-second polling with event-driven triggers
+- **State Stabilization**: 100ms timeout before completion check
+- **Efficient Physics**: Optimized confetti animation with cleanup
+- **Memory Management**: Proper cleanup of intervals and timeouts
+
+## State Management
+```typescript
+interface GroupingState {
+  showCelebration: boolean;  // Controls celebration visibility
+  isComplete: boolean;       // Tracks completion state
+}
+```
+
+## Visual Design
+- **Green-themed success styling** with party emoji
+- **Backdrop blur** for focus on celebration
+- **Staged animation timing** for maximum impact
+- **Professional completion message** with statistics

@@ -1,0 +1,56 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Component Patterns & Guidelines
+
+## Core Component Structure
+
+### Main Panel Components
+- [components/MainPanel.tsx](mdc:components/MainPanel.tsx) - Primary equipment mapping interface with hierarchical equipment display
+- [components/TopStatsPanel.tsx](mdc:components/TopStatsPanel.tsx) - Statistics display with color-coded equipment types and progress tracking
+- [components/LeftRail.tsx](mdc:components/LeftRail.tsx) - Navigation and system controls
+- [components/RightRail.tsx](mdc:components/RightRail.tsx) - Equipment insights and analytics
+
+### Drawer Components
+- [components/UnassignedPointsDrawer.tsx](mdc:components/UnassignedPointsDrawer.tsx) - Left-side drawer for unassigned BACnet points
+- [components/ConfirmedEquipmentDrawer.tsx](mdc:components/ConfirmedEquipmentDrawer.tsx) - Left-side drawer for confirmed equipment with search functionality
+
+### Specialized Components
+- [components/SuccessCelebration.tsx](mdc:components/SuccessCelebration.tsx) - Confetti animation component with Framer Motion physics
+- [components/PointPropertiesTags.tsx](mdc:components/PointPropertiesTags.tsx) - Colored tags for BACnet markers following Project Haystack standards
+
+## Component Patterns
+
+### State Management Pattern
+All components connect to [lib/store.ts](mdc:lib/store.ts) using Zustand:
+```typescript
+const { 
+  points, 
+  equipmentInstances, 
+  confirmEquipment,
+  checkCompletion 
+} = useGroupingStore();
+```
+
+### Color System Pattern
+- Equipment types have assigned colors stored in templates
+- Colors are applied consistently across TopStatsPanel and MainPanel borders
+- Use `generateRandomTemplateColor()` from [lib/utils.ts](mdc:lib/utils.ts) for new templates
+- Border colors use `border-l-4` with dynamic class generation
+
+### Event-Driven Triggers
+Components use React useEffect for state-dependent triggers:
+```typescript
+useEffect(() => {
+  if (!hasUnconfirmedEquipment && totalEquipment > 0) {
+    checkCompletion();
+  }
+}, [hasUnconfirmedEquipment, totalEquipment]);
+```
+
+### Animation Patterns
+- Use Framer Motion for celebration and transition animations
+- Physics-based animations for confetti (150 pieces, 10 colors)
+- Staged animation sequences with delays and spring configurations
