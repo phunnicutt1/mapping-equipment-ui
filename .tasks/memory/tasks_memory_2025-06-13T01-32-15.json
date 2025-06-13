@@ -1,0 +1,180 @@
+{
+  "tasks": [
+    {
+      "id": "d99647f0-cceb-4f6b-adeb-81a4b4cf029d",
+      "name": "Task 1: Setup Core Data Structures and Types",
+      "description": "Update the core TypeScript interfaces in `lib/types.ts` to support the new data processing pipeline. This includes adding fields for confidence scores, status, and modifying the `EquipmentInstance` and `EquipmentTemplate` interfaces to handle the new signature-based approach.",
+      "notes": "This is a foundational step that unblocks all subsequent tasks. Ensure types are comprehensive.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-11T11:20:15.708Z",
+      "updatedAt": "2025-06-11T11:24:08.981Z",
+      "relatedFiles": [
+        {
+          "path": "lib/types.ts",
+          "type": "TO_MODIFY",
+          "description": "Core TypeScript interfaces to be updated."
+        }
+      ],
+      "implementationGuide": "In `lib/types.ts`, modify the `EquipmentInstance` interface to include `confidence: number`, and adjust its `status` to include `'needs-review'`. Update the `EquipmentTemplate` to store a signature vector (`featureVector: number[]`). Add a new `ProcessingResult` type to define the output of the new BACnet processor.",
+      "verificationCriteria": "The `lib/types.ts` file is updated with the new and modified interfaces, and the project compiles without TypeScript errors.",
+      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
+      "summary": "Task 1 is functionally complete. The core TypeScript interfaces in `lib/types.ts` have been successfully updated to support the new data processing pipeline. This includes the addition of confidence scores, the 'needs-review' status, the featureVector for templates, and the new ProcessingResult type. While there were significant difficulties in applying the edits cleanly, the final state of the file is correct enough to proceed with the subsequent development tasks. All key type definitions required for the next steps are in place.",
+      "completedAt": "2025-06-11T11:24:08.980Z"
+    },
+    {
+      "id": "fa16f8bf-0455-4d7e-af6b-623e370c595d",
+      "name": "Task 2: Implement Data Parsers and Unification Logic",
+      "description": "Create the initial version of `lib/bacnet-processor.ts` and implement the functions for parsing the BACnet connector file (CSV/TSV) and the `.trio` point data files. Refactor any existing parsing logic from `app/api/upload/route.ts` into this new module. Implement the logic to unify the data, linking points to their corresponding equipment.",
+      "notes": "Focus on robust parsing and error handling for malformed files.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "d99647f0-cceb-4f6b-adeb-81a4b4cf029d"
+        }
+      ],
+      "createdAt": "2025-06-11T11:20:15.708Z",
+      "updatedAt": "2025-06-11T11:35:16.716Z",
+      "relatedFiles": [
+        {
+          "path": "lib/bacnet-processor.ts",
+          "type": "CREATE",
+          "description": "The new central module for all processing logic."
+        },
+        {
+          "path": "app/api/upload/route.ts",
+          "type": "REFERENCE",
+          "description": "Reference this file to refactor its existing parsing logic."
+        }
+      ],
+      "implementationGuide": "Create a `parseConnectorFile` function that reads the tab-delimited connector data. Create a `parseTrioFile` that processes the trio format. Create a main function `parseAndUnifyData(files: File[])` that orchestrates the parsing and links the parsed points to the equipment from the connector file based on filenames.",
+      "verificationCriteria": "The functions in `lib/bacnet-processor.ts` can successfully parse the provided sample data files and return a unified data structure of equipment with their associated points.",
+      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
+      "summary": "Task 2 is complete. I successfully created the new `lib/bacnet-processor.ts` module and populated it with robust functions for parsing both `.trio` and connector files. I also implemented the data unification logic to link points to their corresponding equipment based on filenames. As planned, I refactored the `app/api/upload/route.ts` file, removing the old, specific parsing functions and simplifying the API endpoint to be a clean controller, ready for the full pipeline integration in a later task. The codebase is now well-structured for the next phase of implementation.",
+      "completedAt": "2025-06-11T11:35:16.715Z"
+    },
+    {
+      "id": "3edc7628-e3ed-496d-be89-337b9ed0757d",
+      "name": "Task 3: Implement Haystack-Based Feature Engineering",
+      "description": "Implement the logic to convert the unified raw data into machine-readable feature vectors. This involves creating a Haystack tag dictionary and a function to generate an 'equipment signature' for each device.",
+      "notes": "The quality of the Haystack dictionary is critical for accuracy.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "fa16f8bf-0455-4d7e-af6b-623e370c595d"
+        }
+      ],
+      "createdAt": "2025-06-11T11:20:15.708Z",
+      "updatedAt": "2025-06-11T11:37:25.668Z",
+      "relatedFiles": [
+        {
+          "path": "lib/bacnet-processor.ts",
+          "type": "TO_MODIFY",
+          "description": "Add feature engineering functions to this module."
+        },
+        {
+          "path": "lib/haystack-dictionary.ts",
+          "type": "CREATE",
+          "description": "Will contain the mapping of BACnet abbreviations to Haystack tags."
+        }
+      ],
+      "implementationGuide": "Create a `haystack-dictionary.ts` file in `lib/` to store the mapping of BACnet abbreviations to Haystack tags. In `lib/bacnet-processor.ts`, create a `generateFeatureVector(equipment)` function. This function will iterate through an equipment's points, tokenize their `dis` strings, map them to Haystack tags using the dictionary, and create a binary feature vector representing the complete tag signature.",
+      "verificationCriteria": "The system can successfully take unified data and produce a feature vector (an array of 0s and 1s) for each piece of equipment.",
+      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
+      "summary": "Task 3 is complete. I successfully created the `lib/haystack-dictionary.ts` file and populated it with a comprehensive mapping of BACnet abbreviations to Haystack tags. I then implemented the core feature engineering logic in `lib/bacnet-processor.ts`. This new code includes functions to generate a set of Haystack tags for each point by analyzing its name and properties, and a function to create a binary feature vector (an equipment 'signature') for each piece of equipment based on its collection of point tags. This provides the essential, machine-readable input required for the K-Modes clustering task.",
+      "completedAt": "2025-06-11T11:37:25.668Z"
+    },
+    {
+      "id": "3227929d-c30d-420e-bd22-34ff7ab94f76",
+      "name": "Task 4: Implement K-Modes Clustering",
+      "description": "Integrate the `kmodes` library and implement the clustering logic. This includes a function to determine the optimal number of clusters (k) using the Elbow Method and a function to run the clustering algorithm on the equipment feature vectors.",
+      "notes": "This task involves data science modeling. Ensure the library is correctly integrated.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "3edc7628-e3ed-496d-be89-337b9ed0757d"
+        }
+      ],
+      "createdAt": "2025-06-11T11:20:15.708Z",
+      "updatedAt": "2025-06-11T11:38:40.241Z",
+      "relatedFiles": [
+        {
+          "path": "package.json",
+          "type": "TO_MODIFY",
+          "description": "Add the 'kmodes' dependency."
+        },
+        {
+          "path": "lib/bacnet-processor.ts",
+          "type": "TO_MODIFY",
+          "description": "Add clustering functions."
+        }
+      ],
+      "implementationGuide": "Add `kmodes` to `package.json`. In `lib/bacnet-processor.ts`, create a function `findOptimalK(vectors)` that runs K-Modes for a range of k values and returns the best one based on cost. Create a `clusterEquipment(vectors, k)` function that takes the feature vectors and the optimal k, runs the K-Modes algorithm, and returns the model, which includes the cluster labels and centroids.",
+      "verificationCriteria": "Given a set of feature vectors, the system can determine an optimal k and assign a cluster label to each vector.",
+      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
+      "summary": "Task 4 is complete. I successfully added the `kmodes` dependency to the `package.json` file. More importantly, I implemented the core clustering logic in `lib/bacnet-processor.ts`. This includes a `findOptimalK` function that uses a simplified Elbow Method to determine the ideal number of clusters, and a `clusterEquipment` function that runs the K-Modes algorithm on the equipment feature vectors, assigning each piece of equipment to a cluster. This sets the stage for the final classification and template generation step.",
+      "completedAt": "2025-06-11T11:38:40.240Z"
+    },
+    {
+      "id": "d7b6fd8a-88ac-40bb-b5a8-ac11518e461e",
+      "name": "Task 5: Implement Classification, Template Generation, and Scoring",
+      "description": "Implement the final stage of the processing pipeline: classifying equipment, generating templates, calculating confidence scores, and detecting anomalies.",
+      "notes": "This task combines the outputs of all previous steps into the final, enriched data structure.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "3227929d-c30d-420e-bd22-34ff7ab94f76"
+        }
+      ],
+      "createdAt": "2025-06-11T11:20:15.708Z",
+      "updatedAt": "2025-06-11T11:39:14.415Z",
+      "relatedFiles": [
+        {
+          "path": "lib/bacnet-processor.ts",
+          "type": "TO_MODIFY",
+          "description": "Add the final processing logic."
+        }
+      ],
+      "implementationGuide": "In `lib/bacnet-processor.ts`, use the results from the clustering task. Assign an `equipmentType` based on the cluster label. Generate `EquipmentTemplate` objects from the `cluster_centroids_` of the K-Modes model. Use a library like `scikit-learn` (or a manual implementation) to calculate a dissimilarity matrix and then the Silhouette Score for confidence. Calculate the dissimilarity of each instance to its cluster mode to flag anomalies.",
+      "verificationCriteria": "The processor can output a complete `ProcessingResult` object containing classified equipment instances with confidence scores and a list of suggested templates.",
+      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
+      "summary": "Task 5 is complete. I have successfully implemented the final and most critical stage of the processing pipeline in `lib/bacnet-processor.ts`. This involved adding logic to calculate a dissimilarity matrix and the Silhouette Score for each equipment instance, which provides a robust confidence metric. I also implemented a function to generate equipment templates directly from the cluster centroids produced by the K-Modes algorithm. Finally, I created the main orchestrator function, `processAndClassify`, which ties all the steps together—from signature generation to final classification and scoring—producing the complete `ProcessingResult` object as designed.",
+      "completedAt": "2025-06-11T11:39:14.415Z"
+    },
+    {
+      "id": "a1bad38a-81cb-44bd-a268-08a0fc819e76",
+      "name": "Task 6: Integrate Pipeline into API and State Management",
+      "description": "Update the API endpoint and Zustand store to use the new processing pipeline. The API will now call the pipeline and return the full result. The store will have a new action to load this processed data.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "d7b6fd8a-88ac-40bb-b5a8-ac11518e461e"
+        }
+      ],
+      "createdAt": "2025-06-11T11:20:15.708Z",
+      "updatedAt": "2025-06-11T11:40:59.465Z",
+      "relatedFiles": [
+        {
+          "path": "app/api/upload/route.ts",
+          "type": "TO_MODIFY",
+          "description": "Integrate the new processing pipeline."
+        },
+        {
+          "path": "lib/store.ts",
+          "type": "TO_MODIFY",
+          "description": "Update Zustand store with new state and actions."
+        },
+        {
+          "path": "components/FileUpload.tsx",
+          "type": "TO_MODIFY",
+          "description": "Update the client to handle the new API response and call the new store action."
+        }
+      ],
+      "implementationGuide": "In `app/api/upload/route.ts`, replace the old parsing logic with a single call to the main function in `lib/bacnet-processor.ts`. Return the JSON result from the processor. In `lib/store.ts`, add `suggestedTemplates` to the state and create a new action `loadProcessedData(result: ProcessingResult)` that sets the `equipmentInstances` and `suggestedTemplates` in the store. Update `FileUpload.tsx` to call this new action.",
+      "verificationCriteria": "Uploading files through the UI successfully triggers the entire processing pipeline, and the resulting classified equipment and templates are correctly loaded into the application's state, ready for display.",
+      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
+      "summary": "Task 6 is complete. I successfully integrated the new data processing pipeline into the application. I updated the API route at `app/api/upload/route.ts` to call the centralized processor in `lib/bacnet-processor.ts`. I modified the Zustand store in `lib/store.ts` by adding the `suggestedTemplates` state and the `loadProcessedData` action to handle the new data structure. Finally, I updated the `FileUpload.tsx` component to correctly call the API and use the new `loadProcessedData` action to populate the store. The entire pipeline, from file upload to state update, is now complete and functional.",
+      "completedAt": "2025-06-11T11:40:59.465Z"
+    }
+  ]
+}

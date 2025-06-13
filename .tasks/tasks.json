@@ -1,180 +1,270 @@
 {
   "tasks": [
     {
-      "id": "d99647f0-cceb-4f6b-adeb-81a4b4cf029d",
-      "name": "Task 1: Setup Core Data Structures and Types",
-      "description": "Update the core TypeScript interfaces in `lib/types.ts` to support the new data processing pipeline. This includes adding fields for confidence scores, status, and modifying the `EquipmentInstance` and `EquipmentTemplate` interfaces to handle the new signature-based approach.",
-      "notes": "This is a foundational step that unblocks all subsequent tasks. Ensure types are comprehensive.",
-      "status": "completed",
+      "id": "30d515c0-afa8-4fa5-8965-b5b572b98644",
+      "name": "Enhanced Haystack Dictionary Implementation",
+      "description": "Expand the existing Haystack tag dictionary from 70 to 200+ standardized Project Haystack 5.0 tags to improve equipment signature accuracy. This involves researching official Project Haystack documentation, ASHRAE 135-2024 BACnet standards, and implementing comprehensive tag mappings for building automation systems.",
+      "notes": "This is a foundational enhancement that improves all downstream processing. Focus on standardized tags from official sources to ensure compatibility with industry standards.",
+      "status": "pending",
       "dependencies": [],
-      "createdAt": "2025-06-11T11:20:15.708Z",
-      "updatedAt": "2025-06-11T11:24:08.981Z",
+      "createdAt": "2025-06-13T01:32:15.325Z",
+      "updatedAt": "2025-06-13T01:32:15.325Z",
       "relatedFiles": [
+        {
+          "path": "lib/haystack-dictionary.ts",
+          "type": "TO_MODIFY",
+          "description": "Main dictionary file to expand with 200+ tags",
+          "lineStart": 1,
+          "lineEnd": 89
+        },
+        {
+          "path": "lib/bacnet-processor.ts",
+          "type": "REFERENCE",
+          "description": "Uses dictionary for feature engineering",
+          "lineStart": 115,
+          "lineEnd": 152
+        }
+      ],
+      "implementationGuide": "1. Research Project Haystack 5.0 official documentation for comprehensive tag list\\n2. Analyze ASHRAE 135-2024 BACnet equipment classification standards\\n3. Expand lib/haystack-dictionary.ts haystackTagDictionary object with 130+ additional tags\\n4. Add equipment-specific tag patterns and hierarchical relationships\\n5. Update GLOBAL_HAYSTACK_TAG_LIST to maintain feature vector compatibility\\n6. Add tag validation functions for semantic enrichment\\n7. Implement equipment-type-specific tag patterns (AHU, VAV, Chiller, etc.)\\n8. Test feature vector generation with expanded dictionary",
+      "verificationCriteria": "Dictionary contains 200+ standardized tags, feature vectors maintain compatibility, equipment signatures show improved accuracy, all existing functionality preserved",
+      "analysisResult": "Comprehensive refactoring of Next.js BACnet equipment classification system to implement advanced research methodology including enhanced Project Haystack dictionary (200+ tags), ensemble confidence scoring with calibration, anomaly detection for new equipment discovery, proactive auto-assignment with verified signature pools, and enhanced human-in-the-loop learning. The refactoring leverages existing architectural patterns while implementing production-ready automated BACnet point grouping and equipment classification capabilities."
+    },
+    {
+      "id": "db767b78-594f-4179-ab6c-3d1e27383adc",
+      "name": "Advanced Ensemble Confidence Scoring System",
+      "description": "Implement advanced confidence scoring using ensemble methods, Platt scaling calibration, and uncertainty quantification to replace the basic silhouette scoring. This enhances the existing Python clustering pipeline with multiple confidence calculation methods.",
+      "notes": "Build upon existing silhouette scoring foundation. Ensure backward compatibility with current confidence display in UI components.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "30d515c0-afa8-4fa5-8965-b5b572b98644"
+        }
+      ],
+      "createdAt": "2025-06-13T01:32:15.325Z",
+      "updatedAt": "2025-06-13T01:32:15.325Z",
+      "relatedFiles": [
+        {
+          "path": "scripts/kmodes_clustering.py",
+          "type": "TO_MODIFY",
+          "description": "Extend existing confidence calculation",
+          "lineStart": 14,
+          "lineEnd": 102
+        },
+        {
+          "path": "lib/confidence-scoring.ts",
+          "type": "CREATE",
+          "description": "New TypeScript module for confidence interfaces"
+        },
+        {
+          "path": "lib/bacnet-processor.ts",
+          "type": "TO_MODIFY",
+          "description": "Integration point for enhanced scoring",
+          "lineStart": 253,
+          "lineEnd": 283
+        },
         {
           "path": "lib/types.ts",
           "type": "TO_MODIFY",
-          "description": "Core TypeScript interfaces to be updated."
+          "description": "Update ProcessingResult interface",
+          "lineStart": 95,
+          "lineEnd": 100
         }
       ],
-      "implementationGuide": "In `lib/types.ts`, modify the `EquipmentInstance` interface to include `confidence: number`, and adjust its `status` to include `'needs-review'`. Update the `EquipmentTemplate` to store a signature vector (`featureVector: number[]`). Add a new `ProcessingResult` type to define the output of the new BACnet processor.",
-      "verificationCriteria": "The `lib/types.ts` file is updated with the new and modified interfaces, and the project compiles without TypeScript errors.",
-      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
-      "summary": "Task 1 is functionally complete. The core TypeScript interfaces in `lib/types.ts` have been successfully updated to support the new data processing pipeline. This includes the addition of confidence scores, the 'needs-review' status, the featureVector for templates, and the new ProcessingResult type. While there were significant difficulties in applying the edits cleanly, the final state of the file is correct enough to proceed with the subsequent development tasks. All key type definitions required for the next steps are in place.",
-      "completedAt": "2025-06-11T11:24:08.980Z"
+      "implementationGuide": "1. Create lib/confidence-scoring.ts module with TypeScript interfaces\\n2. Extend scripts/kmodes_clustering.py with ensemble methods:\\n   - Multiple K-modes runs with different initializations\\n   - Weighted majority voting across ensemble results\\n   - Platt scaling calibration using scikit-learn CalibratedClassifierCV\\n3. Implement uncertainty quantification with confidence intervals\\n4. Add domain-specific scoring metrics for building automation\\n5. Enhance existing calculate_silhouette_scores() function\\n6. Update ProcessingResult interface to include calibrated confidence\\n7. Modify lib/bacnet-processor.ts to use enhanced confidence scoring\\n8. Add confidence score validation and statistical analysis",
+      "verificationCriteria": "Ensemble confidence scores show improved accuracy, calibration provides meaningful probabilities, uncertainty metrics guide human validation, existing UI confidence displays work correctly",
+      "analysisResult": "Comprehensive refactoring of Next.js BACnet equipment classification system to implement advanced research methodology including enhanced Project Haystack dictionary (200+ tags), ensemble confidence scoring with calibration, anomaly detection for new equipment discovery, proactive auto-assignment with verified signature pools, and enhanced human-in-the-loop learning. The refactoring leverages existing architectural patterns while implementing production-ready automated BACnet point grouping and equipment classification capabilities."
     },
     {
-      "id": "fa16f8bf-0455-4d7e-af6b-623e370c595d",
-      "name": "Task 2: Implement Data Parsers and Unification Logic",
-      "description": "Create the initial version of `lib/bacnet-processor.ts` and implement the functions for parsing the BACnet connector file (CSV/TSV) and the `.trio` point data files. Refactor any existing parsing logic from `app/api/upload/route.ts` into this new module. Implement the logic to unify the data, linking points to their corresponding equipment.",
-      "notes": "Focus on robust parsing and error handling for malformed files.",
-      "status": "completed",
+      "id": "48e03032-a22b-427d-a6b1-e51202ec393c",
+      "name": "Anomaly Detection and New Equipment Discovery",
+      "description": "Implement anomaly detection system to identify equipment that doesn't fit existing categories, enabling discovery of new equipment types. This includes dissimilarity-based outlier scoring and user workflow for creating new equipment types from anomalies.",
+      "notes": "This is entirely new functionality. Design for seamless integration with existing equipment status system and UI workflows.",
+      "status": "pending",
       "dependencies": [
         {
-          "taskId": "d99647f0-cceb-4f6b-adeb-81a4b4cf029d"
+          "taskId": "db767b78-594f-4179-ab6c-3d1e27383adc"
         }
       ],
-      "createdAt": "2025-06-11T11:20:15.708Z",
-      "updatedAt": "2025-06-11T11:35:16.716Z",
+      "createdAt": "2025-06-13T01:32:15.325Z",
+      "updatedAt": "2025-06-13T01:32:15.325Z",
       "relatedFiles": [
         {
-          "path": "lib/bacnet-processor.ts",
+          "path": "lib/anomaly-detection.ts",
           "type": "CREATE",
-          "description": "The new central module for all processing logic."
+          "description": "New module for anomaly detection algorithms"
         },
         {
-          "path": "app/api/upload/route.ts",
-          "type": "REFERENCE",
-          "description": "Reference this file to refactor its existing parsing logic."
-        }
-      ],
-      "implementationGuide": "Create a `parseConnectorFile` function that reads the tab-delimited connector data. Create a `parseTrioFile` that processes the trio format. Create a main function `parseAndUnifyData(files: File[])` that orchestrates the parsing and links the parsed points to the equipment from the connector file based on filenames.",
-      "verificationCriteria": "The functions in `lib/bacnet-processor.ts` can successfully parse the provided sample data files and return a unified data structure of equipment with their associated points.",
-      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
-      "summary": "Task 2 is complete. I successfully created the new `lib/bacnet-processor.ts` module and populated it with robust functions for parsing both `.trio` and connector files. I also implemented the data unification logic to link points to their corresponding equipment based on filenames. As planned, I refactored the `app/api/upload/route.ts` file, removing the old, specific parsing functions and simplifying the API endpoint to be a clean controller, ready for the full pipeline integration in a later task. The codebase is now well-structured for the next phase of implementation.",
-      "completedAt": "2025-06-11T11:35:16.715Z"
-    },
-    {
-      "id": "3edc7628-e3ed-496d-be89-337b9ed0757d",
-      "name": "Task 3: Implement Haystack-Based Feature Engineering",
-      "description": "Implement the logic to convert the unified raw data into machine-readable feature vectors. This involves creating a Haystack tag dictionary and a function to generate an 'equipment signature' for each device.",
-      "notes": "The quality of the Haystack dictionary is critical for accuracy.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "fa16f8bf-0455-4d7e-af6b-623e370c595d"
-        }
-      ],
-      "createdAt": "2025-06-11T11:20:15.708Z",
-      "updatedAt": "2025-06-11T11:37:25.668Z",
-      "relatedFiles": [
-        {
-          "path": "lib/bacnet-processor.ts",
+          "path": "lib/types.ts",
           "type": "TO_MODIFY",
-          "description": "Add feature engineering functions to this module."
+          "description": "Add anomaly status to EquipmentInstance",
+          "lineStart": 38,
+          "lineEnd": 51
         },
         {
-          "path": "lib/haystack-dictionary.ts",
-          "type": "CREATE",
-          "description": "Will contain the mapping of BACnet abbreviations to Haystack tags."
-        }
-      ],
-      "implementationGuide": "Create a `haystack-dictionary.ts` file in `lib/` to store the mapping of BACnet abbreviations to Haystack tags. In `lib/bacnet-processor.ts`, create a `generateFeatureVector(equipment)` function. This function will iterate through an equipment's points, tokenize their `dis` strings, map them to Haystack tags using the dictionary, and create a binary feature vector representing the complete tag signature.",
-      "verificationCriteria": "The system can successfully take unified data and produce a feature vector (an array of 0s and 1s) for each piece of equipment.",
-      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
-      "summary": "Task 3 is complete. I successfully created the `lib/haystack-dictionary.ts` file and populated it with a comprehensive mapping of BACnet abbreviations to Haystack tags. I then implemented the core feature engineering logic in `lib/bacnet-processor.ts`. This new code includes functions to generate a set of Haystack tags for each point by analyzing its name and properties, and a function to create a binary feature vector (an equipment 'signature') for each piece of equipment based on its collection of point tags. This provides the essential, machine-readable input required for the K-Modes clustering task.",
-      "completedAt": "2025-06-11T11:37:25.668Z"
-    },
-    {
-      "id": "3227929d-c30d-420e-bd22-34ff7ab94f76",
-      "name": "Task 4: Implement K-Modes Clustering",
-      "description": "Integrate the `kmodes` library and implement the clustering logic. This includes a function to determine the optimal number of clusters (k) using the Elbow Method and a function to run the clustering algorithm on the equipment feature vectors.",
-      "notes": "This task involves data science modeling. Ensure the library is correctly integrated.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "3edc7628-e3ed-496d-be89-337b9ed0757d"
-        }
-      ],
-      "createdAt": "2025-06-11T11:20:15.708Z",
-      "updatedAt": "2025-06-11T11:38:40.241Z",
-      "relatedFiles": [
-        {
-          "path": "package.json",
+          "path": "scripts/kmodes_clustering.py",
           "type": "TO_MODIFY",
-          "description": "Add the 'kmodes' dependency."
-        },
-        {
-          "path": "lib/bacnet-processor.ts",
-          "type": "TO_MODIFY",
-          "description": "Add clustering functions."
-        }
-      ],
-      "implementationGuide": "Add `kmodes` to `package.json`. In `lib/bacnet-processor.ts`, create a function `findOptimalK(vectors)` that runs K-Modes for a range of k values and returns the best one based on cost. Create a `clusterEquipment(vectors, k)` function that takes the feature vectors and the optimal k, runs the K-Modes algorithm, and returns the model, which includes the cluster labels and centroids.",
-      "verificationCriteria": "Given a set of feature vectors, the system can determine an optimal k and assign a cluster label to each vector.",
-      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
-      "summary": "Task 4 is complete. I successfully added the `kmodes` dependency to the `package.json` file. More importantly, I implemented the core clustering logic in `lib/bacnet-processor.ts`. This includes a `findOptimalK` function that uses a simplified Elbow Method to determine the ideal number of clusters, and a `clusterEquipment` function that runs the K-Modes algorithm on the equipment feature vectors, assigning each piece of equipment to a cluster. This sets the stage for the final classification and template generation step.",
-      "completedAt": "2025-06-11T11:38:40.240Z"
-    },
-    {
-      "id": "d7b6fd8a-88ac-40bb-b5a8-ac11518e461e",
-      "name": "Task 5: Implement Classification, Template Generation, and Scoring",
-      "description": "Implement the final stage of the processing pipeline: classifying equipment, generating templates, calculating confidence scores, and detecting anomalies.",
-      "notes": "This task combines the outputs of all previous steps into the final, enriched data structure.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "3227929d-c30d-420e-bd22-34ff7ab94f76"
-        }
-      ],
-      "createdAt": "2025-06-11T11:20:15.708Z",
-      "updatedAt": "2025-06-11T11:39:14.415Z",
-      "relatedFiles": [
-        {
-          "path": "lib/bacnet-processor.ts",
-          "type": "TO_MODIFY",
-          "description": "Add the final processing logic."
-        }
-      ],
-      "implementationGuide": "In `lib/bacnet-processor.ts`, use the results from the clustering task. Assign an `equipmentType` based on the cluster label. Generate `EquipmentTemplate` objects from the `cluster_centroids_` of the K-Modes model. Use a library like `scikit-learn` (or a manual implementation) to calculate a dissimilarity matrix and then the Silhouette Score for confidence. Calculate the dissimilarity of each instance to its cluster mode to flag anomalies.",
-      "verificationCriteria": "The processor can output a complete `ProcessingResult` object containing classified equipment instances with confidence scores and a list of suggested templates.",
-      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
-      "summary": "Task 5 is complete. I have successfully implemented the final and most critical stage of the processing pipeline in `lib/bacnet-processor.ts`. This involved adding logic to calculate a dissimilarity matrix and the Silhouette Score for each equipment instance, which provides a robust confidence metric. I also implemented a function to generate equipment templates directly from the cluster centroids produced by the K-Modes algorithm. Finally, I created the main orchestrator function, `processAndClassify`, which ties all the steps together—from signature generation to final classification and scoring—producing the complete `ProcessingResult` object as designed.",
-      "completedAt": "2025-06-11T11:39:14.415Z"
-    },
-    {
-      "id": "a1bad38a-81cb-44bd-a268-08a0fc819e76",
-      "name": "Task 6: Integrate Pipeline into API and State Management",
-      "description": "Update the API endpoint and Zustand store to use the new processing pipeline. The API will now call the pipeline and return the full result. The store will have a new action to load this processed data.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "d7b6fd8a-88ac-40bb-b5a8-ac11518e461e"
-        }
-      ],
-      "createdAt": "2025-06-11T11:20:15.708Z",
-      "updatedAt": "2025-06-11T11:40:59.465Z",
-      "relatedFiles": [
-        {
-          "path": "app/api/upload/route.ts",
-          "type": "TO_MODIFY",
-          "description": "Integrate the new processing pipeline."
+          "description": "Add anomaly detection to clustering",
+          "lineStart": 104,
+          "lineEnd": 212
         },
         {
           "path": "lib/store.ts",
           "type": "TO_MODIFY",
-          "description": "Update Zustand store with new state and actions."
+          "description": "Add anomaly handling actions",
+          "lineStart": 30,
+          "lineEnd": 100
         },
         {
-          "path": "components/FileUpload.tsx",
+          "path": "components/MainPanel.tsx",
           "type": "TO_MODIFY",
-          "description": "Update the client to handle the new API response and call the new store action."
+          "description": "Add anomaly indicators to UI",
+          "lineStart": 252,
+          "lineEnd": 416
         }
       ],
-      "implementationGuide": "In `app/api/upload/route.ts`, replace the old parsing logic with a single call to the main function in `lib/bacnet-processor.ts`. Return the JSON result from the processor. In `lib/store.ts`, add `suggestedTemplates` to the state and create a new action `loadProcessedData(result: ProcessingResult)` that sets the `equipmentInstances` and `suggestedTemplates` in the store. Update `FileUpload.tsx` to call this new action.",
-      "verificationCriteria": "Uploading files through the UI successfully triggers the entire processing pipeline, and the resulting classified equipment and templates are correctly loaded into the application's state, ready for display.",
-      "analysisResult": "The core of this implementation is to create a new, centralized module, `lib/bacnet-processor.ts`, which will encapsulate the entire data processing pipeline. This pipeline includes parsing connector and point data files, generating feature vectors (equipment signatures) using a Project Haystack tag dictionary, clustering these signatures with the K-Modes algorithm to identify equipment types, and calculating confidence scores. Existing file parsing logic will be refactored from `app/api/upload/route.ts` into this new module. The API route will become a lean controller that invokes the processor. The results will be loaded into the central Zustand store via new actions, requiring updates to `lib/store.ts` and `lib/types.ts`. The UI will then consume this processed data.",
-      "summary": "Task 6 is complete. I successfully integrated the new data processing pipeline into the application. I updated the API route at `app/api/upload/route.ts` to call the centralized processor in `lib/bacnet-processor.ts`. I modified the Zustand store in `lib/store.ts` by adding the `suggestedTemplates` state and the `loadProcessedData` action to handle the new data structure. Finally, I updated the `FileUpload.tsx` component to correctly call the API and use the new `loadProcessedData` action to populate the store. The entire pipeline, from file upload to state update, is now complete and functional.",
-      "completedAt": "2025-06-11T11:40:59.465Z"
+      "implementationGuide": "1. Create lib/anomaly-detection.ts module with anomaly detection algorithms\\n2. Implement dissimilarity-based outlier scoring using cluster centroid distances\\n3. Add statistical threshold management with adaptive adjustment\\n4. Extend EquipmentInstance interface to include anomaly status\\n5. Create anomaly flagging workflow in Python clustering script\\n6. Add anomaly review queue in UI components\\n7. Implement new equipment type creation from grouped anomalies\\n8. Update Zustand store to handle anomaly status and workflows\\n9. Add anomaly statistics to ProcessingStats interface\\n10. Create user validation workflow for confirming new equipment types",
+      "verificationCriteria": "Anomalous equipment is correctly identified and flagged, user can review anomalies in dedicated queue, new equipment types can be created from anomaly groups, anomaly statistics are tracked and displayed",
+      "analysisResult": "Comprehensive refactoring of Next.js BACnet equipment classification system to implement advanced research methodology including enhanced Project Haystack dictionary (200+ tags), ensemble confidence scoring with calibration, anomaly detection for new equipment discovery, proactive auto-assignment with verified signature pools, and enhanced human-in-the-loop learning. The refactoring leverages existing architectural patterns while implementing production-ready automated BACnet point grouping and equipment classification capabilities."
+    },
+    {
+      "id": "6436ef02-8b60-4331-88f2-c13bc8c11477",
+      "name": "Verified Signature Pool and Auto-Assignment System",
+      "description": "Implement verified signature pool storage and proactive auto-assignment workflow. When users confirm equipment, their signatures are stored in pools for automatic assignment of future exact matches with high confidence.",
+      "notes": "This implements the core learning system from the research report. Focus on exact signature matching for high-confidence auto-assignment.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "48e03032-a22b-427d-a6b1-e51202ec393c"
+        }
+      ],
+      "createdAt": "2025-06-13T01:32:15.325Z",
+      "updatedAt": "2025-06-13T01:32:15.325Z",
+      "relatedFiles": [
+        {
+          "path": "lib/signature-pools.ts",
+          "type": "CREATE",
+          "description": "New module for signature pool management"
+        },
+        {
+          "path": "lib/store.ts",
+          "type": "TO_MODIFY",
+          "description": "Extend confirmEquipment action",
+          "lineStart": 180,
+          "lineEnd": 190
+        },
+        {
+          "path": "lib/store.ts",
+          "type": "TO_MODIFY",
+          "description": "Modify loadProcessedData action",
+          "lineStart": 50,
+          "lineEnd": 100
+        },
+        {
+          "path": "lib/types.ts",
+          "type": "TO_MODIFY",
+          "description": "Add signature pool interfaces",
+          "lineStart": 95,
+          "lineEnd": 135
+        },
+        {
+          "path": "components/RightRail.tsx",
+          "type": "TO_MODIFY",
+          "description": "Add auto-assignment statistics",
+          "lineStart": 142,
+          "lineEnd": 183
+        }
+      ],
+      "implementationGuide": "1. Create lib/signature-pools.ts module for signature pool management\\n2. Design VerifiedSignaturePool interface and storage structure\\n3. Implement addVerifiedSignature() function triggered by equipment confirmation\\n4. Create findExactMatches() function for signature comparison\\n5. Add autoAssignHighConfidence() function for 95%+ confidence matches\\n6. Extend confirmEquipment() action in store to update signature pools\\n7. Modify loadProcessedData() to check for auto-assignments\\n8. Add signature pool statistics to UI dashboard\\n9. Implement signature pool persistence (localStorage or API)\\n10. Create learning feedback loop for continuous improvement\\n11. Add auto-assignment notifications and user feedback",
+      "verificationCriteria": "Confirmed equipment signatures are stored in pools, exact matches are automatically assigned with 95%+ confidence, auto-assignments are clearly indicated in UI, signature pool statistics show learning progress",
+      "analysisResult": "Comprehensive refactoring of Next.js BACnet equipment classification system to implement advanced research methodology including enhanced Project Haystack dictionary (200+ tags), ensemble confidence scoring with calibration, anomaly detection for new equipment discovery, proactive auto-assignment with verified signature pools, and enhanced human-in-the-loop learning. The refactoring leverages existing architectural patterns while implementing production-ready automated BACnet point grouping and equipment classification capabilities."
+    },
+    {
+      "id": "797b3228-db50-4f00-a748-905220b9bd45",
+      "name": "Enhanced Python Clustering Pipeline Integration",
+      "description": "Enhance the existing Python clustering pipeline to support ensemble methods, anomaly detection, and signature pool integration. This involves extending the current kmodes_clustering.py script with new capabilities while maintaining backward compatibility.",
+      "notes": "This coordinates all Python-side enhancements. Maintain existing temporary file communication pattern to avoid E2BIG errors.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "6436ef02-8b60-4331-88f2-c13bc8c11477"
+        }
+      ],
+      "createdAt": "2025-06-13T01:32:15.325Z",
+      "updatedAt": "2025-06-13T01:32:15.325Z",
+      "relatedFiles": [
+        {
+          "path": "scripts/enhanced_clustering.py",
+          "type": "CREATE",
+          "description": "Enhanced Python clustering script"
+        },
+        {
+          "path": "scripts/kmodes_clustering.py",
+          "type": "REFERENCE",
+          "description": "Existing script to enhance",
+          "lineStart": 1,
+          "lineEnd": 265
+        },
+        {
+          "path": "lib/bacnet-processor.ts",
+          "type": "TO_MODIFY",
+          "description": "Update Python script integration",
+          "lineStart": 154,
+          "lineEnd": 250
+        },
+        {
+          "path": "requirements.txt",
+          "type": "TO_MODIFY",
+          "description": "Add new Python dependencies"
+        }
+      ],
+      "implementationGuide": "1. Create scripts/enhanced_clustering.py as enhanced version of existing script\\n2. Implement ensemble K-modes clustering with multiple runs\\n3. Add confidence calibration using CalibratedClassifierCV\\n4. Integrate anomaly detection algorithms\\n5. Add signature pool matching capabilities\\n6. Implement statistical validation and error handling\\n7. Update lib/bacnet-processor.ts to use enhanced Python script\\n8. Add comprehensive logging and debug output\\n9. Ensure backward compatibility with existing data formats\\n10. Add performance optimization for large datasets\\n11. Implement process pooling for ensemble methods",
+      "verificationCriteria": "Enhanced Python script supports all new features, maintains backward compatibility, handles large datasets efficiently, provides comprehensive error handling and logging",
+      "analysisResult": "Comprehensive refactoring of Next.js BACnet equipment classification system to implement advanced research methodology including enhanced Project Haystack dictionary (200+ tags), ensemble confidence scoring with calibration, anomaly detection for new equipment discovery, proactive auto-assignment with verified signature pools, and enhanced human-in-the-loop learning. The refactoring leverages existing architectural patterns while implementing production-ready automated BACnet point grouping and equipment classification capabilities."
+    },
+    {
+      "id": "4fdd3d80-4cfb-422f-92fc-85a8dfc9f993",
+      "name": "UI Integration and Human-in-the-Loop Enhancements",
+      "description": "Update UI components to support new confidence scoring, anomaly detection, auto-assignment feedback, and signature pool management. This includes enhancing existing components and adding new UI elements for the advanced workflows.",
+      "notes": "Focus on seamless integration with existing UI patterns. Ensure all new features have clear visual indicators and user feedback.",
+      "status": "pending",
+      "dependencies": [
+        {
+          "taskId": "797b3228-db50-4f00-a748-905220b9bd45"
+        }
+      ],
+      "createdAt": "2025-06-13T01:32:15.325Z",
+      "updatedAt": "2025-06-13T01:32:15.325Z",
+      "relatedFiles": [
+        {
+          "path": "components/MainPanel.tsx",
+          "type": "TO_MODIFY",
+          "description": "Add enhanced confidence and anomaly displays",
+          "lineStart": 111,
+          "lineEnd": 416
+        },
+        {
+          "path": "components/RightRail.tsx",
+          "type": "TO_MODIFY",
+          "description": "Add signature pool and auto-assignment stats",
+          "lineStart": 142,
+          "lineEnd": 183
+        },
+        {
+          "path": "components/LeftRail.tsx",
+          "type": "TO_MODIFY",
+          "description": "Add anomaly review queue"
+        },
+        {
+          "path": "lib/store.ts",
+          "type": "TO_MODIFY",
+          "description": "Add UI state for new features",
+          "lineStart": 565,
+          "lineEnd": 635
+        }
+      ],
+      "implementationGuide": "1. Update components/MainPanel.tsx to display enhanced confidence scores\\n2. Add anomaly indicators and review workflow to equipment cards\\n3. Create auto-assignment notifications and feedback system\\n4. Enhance components/RightRail.tsx with signature pool statistics\\n5. Add anomaly review queue to left drawer or new component\\n6. Update confidence score displays with calibrated values\\n7. Add uncertainty indicators for confidence intervals\\n8. Create new equipment type creation workflow from anomalies\\n9. Add signature pool management interface\\n10. Update success celebration to include auto-assignment metrics\\n11. Enhance console messages for new workflow events",
+      "verificationCriteria": "All new features have clear UI representation, anomaly review workflow is intuitive, auto-assignment feedback is visible, signature pool progress is tracked, enhanced confidence scores are properly displayed",
+      "analysisResult": "Comprehensive refactoring of Next.js BACnet equipment classification system to implement advanced research methodology including enhanced Project Haystack dictionary (200+ tags), ensemble confidence scoring with calibration, anomaly detection for new equipment discovery, proactive auto-assignment with verified signature pools, and enhanced human-in-the-loop learning. The refactoring leverages existing architectural patterns while implementing production-ready automated BACnet point grouping and equipment classification capabilities."
     }
   ]
 }
