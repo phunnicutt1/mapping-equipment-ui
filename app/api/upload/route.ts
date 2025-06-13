@@ -7,7 +7,8 @@ export async function POST(request: NextRequest) {
     const files: File[] = [];
     
     // Extract all uploaded files from the FormData
-    for (const [key, value] of formData.entries()) {
+    const entries = Array.from(formData.entries());
+    for (const [key, value] of entries) {
       if (key.startsWith('file_') && value instanceof File) {
         files.push(value);
       }

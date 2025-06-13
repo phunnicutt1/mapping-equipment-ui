@@ -219,19 +219,19 @@ Links `RTU-1` to an external maintenance system and becomes queryable.
 
 This work was performed by and for the State of Utah which has graciously offered to contribute it back to the Haystack Community for educational purposes. It provides a detailed tagging model covering building systems including those listed below:
 
-* AHU
-* FCU
-* VAV
-* Chiller
-* Cooling Tower
-* Boiler
-* Fan
-* Pump
-* Electric
-* Gas
-* Domestic Hot Water
+*   AHU
+*   FCU
+*   VAV
+*   Chiller
+*   Cooling Tower
+*   Boiler
+*   Fan
+*   Pump
+*   Electric
+*   Gas
+*   Domestic Hot Water
 
-**[State of Utah Haystack Tagging Reference Model Example]()**
+**State of Utah Haystack Tagging Reference Model Example**
 
 > **Note:** This is an active project and may be modified over time.
 
@@ -239,8 +239,9 @@ This work was performed by and for the State of Utah which has graciously offere
 
 This website below demonstrates visual examples of Project Haystack data models. A visual network library with a physics engine has been used to model Haystack entities and relationships. This helps to illustrate more complex models and how they relate.
 
-**[Project Haystack Visual Examples]()**
+**Project Haystack Visual Examples**
 
 > **Note:**
-> * This website and example models are not representations of commercial Project-Haystack implementations. They are to simply illustrate complex structures for training purposes.
-> * Sections of these examples contain non-standard haystack tags
+> 
+> *   This website and example models are not representations of commercial Project-Haystack implementations. They are to simply illustrate complex structures for training purposes.
+> *   Sections of these examples contain non-standard haystack tags

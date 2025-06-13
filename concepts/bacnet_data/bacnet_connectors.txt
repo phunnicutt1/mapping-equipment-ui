@@ -1,4 +1,5 @@
 Equip/Connector Name	Local  IP	OTTO  IP	BACnet ID	Network Number	MAC (decimal)	OTTO Notes	Description From Vendor
+
 RTR_1	172.16.10.2	10.92.26.2	1011002	-	-		Network BACnet Router
 RTU_2	172.16.10.50	10.92.26.50	1011003	-	-		RTU Controller.
 RTU_8	172.16.10.51	10.92.26.51	1011004	-	-		RTU Controller.

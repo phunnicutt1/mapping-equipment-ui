@@ -6,7 +6,7 @@ import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { useGroupingStore } from '../lib/store';
 import { getEquipmentDisplayName, getEquipmentTypeBorderColor } from '../lib/utils';
-import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronRightIcon, CubeIcon, BeakerIcon } from '@heroicons/react/24/outline';
 import PointPropertiesTags from './PointPropertiesTags';
 
 export function MainPanel() {
@@ -15,6 +15,7 @@ export function MainPanel() {
     equipmentInstances, 
     equipmentTypes,
     templates,
+    suggestedTemplates, // ML-generated templates
     confirmEquipment, 
     flagEquipment,
     confirmPoint,
@@ -31,6 +32,7 @@ export function MainPanel() {
   const [expandedEquipmentTypes, setExpandedEquipmentTypes] = useState<Set<string>>(new Set());
   const [expandedEquipment, setExpandedEquipment] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
+  const [showClusterInfo, setShowClusterInfo] = useState(false);
 
   const toggleEquipmentType = (typeId: string) => {
     const newExpanded = new Set(expandedEquipmentTypes);
@@ -104,15 +106,39 @@ export function MainPanel() {
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 1.0) return 'text-green-700 bg-green-100 font-semibold'; // Extra emphasis for 100%
-    if (confidence >= 0.8) return 'text-green-600 bg-green-50';
-    if (confidence >= 0.6) return 'text-yellow-600 bg-yellow-50';
-    return 'text-red-600 bg-red-50';
+    if (confidence >= 1.0) return 'text-green-700 bg-green-100 font-semibold border-green-300'; // Extra emphasis for 100%
+    if (confidence >= 0.8) return 'text-green-600 bg-green-50 border-green-200';
+    if (confidence >= 0.6) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    return 'text-red-600 bg-red-50 border-red-200';
   };
 
   const formatConfidence = (confidence: number) => {
     const percentage = Math.round(confidence * 100);
     return confidence >= 1.0 ? `${percentage}% ✓` : `${percentage}%`;
+  };
+
+  const getClusterInfo = (equipment: any) => {
+    if (!equipment.cluster) return null;
+    
+    return {
+      id: equipment.cluster,
+      size: equipmentInstances.filter(eq => eq.cluster === equipment.cluster).length,
+      avgConfidence: equipmentInstances
+        .filter(eq => eq.cluster === equipment.cluster)
+        .reduce((sum, eq) => sum + eq.confidence, 0) / 
+        equipmentInstances.filter(eq => eq.cluster === equipment.cluster).length
+    };
+  };
+
+  const getMLTemplateInfo = (equipment: any) => {
+    if (!equipment.templateId) return null;
+    
+    const template = suggestedTemplates.find(t => t.id === equipment.templateId);
+    return template ? {
+      name: template.name,
+      confidence: template.confidence || 0,
+      isMLGenerated: true
+    } : null;
   };
 
   const getEquipmentLabel = (equipment: any) => {
@@ -207,11 +233,28 @@ export function MainPanel() {
       {/* Equipment List - Now Hierarchical */}
       <Card>
         <Card.Header className="bg-slate-600 text-white">
-          <Card.Title className="flex items-center space-x-2">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            <span className="text-white">Equipment</span>
+          <Card.Title className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              <span className="text-white">Equipment</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {/* ML Pipeline Indicator */}
+              <div className="flex items-center space-x-1 text-xs bg-purple-600 px-2 py-1 rounded">
+                <BeakerIcon className="w-3 h-3" />
+                <span>ML Clustered</span>
+              </div>
+              {/* Cluster Info Toggle */}
+              <button
+                onClick={() => setShowClusterInfo(!showClusterInfo)}
+                className="flex items-center space-x-1 text-xs bg-blue-600 px-2 py-1 rounded hover:bg-blue-700"
+              >
+                <CubeIcon className="w-3 h-3" />
+                <span>{showClusterInfo ? 'Hide' : 'Show'} Clusters</span>
+              </button>
+            </div>
           </Card.Title>
         </Card.Header>
         <Card.Content className="p-4">
@@ -286,6 +329,8 @@ export function MainPanel() {
                       {equipment.map(equipmentInstance => {
                         const equipmentPoints = getPointsForEquipment(equipmentInstance.id);
                         const isEquipmentExpanded = expandedEquipment.has(equipmentInstance.id);
+                        const clusterInfo = getClusterInfo(equipmentInstance);
+                        const mlTemplateInfo = getMLTemplateInfo(equipmentInstance);
                         
                         // Filter points based on search term
                         const filteredPoints = equipmentPoints.filter(point => 
@@ -300,7 +345,7 @@ export function MainPanel() {
                             case 'confirmed':
                               return <Badge className="bg-green-600 text-white hover:bg-green-700">Confirmed</Badge>;
                             case 'suggested':
-                              return <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">Pending</Badge>;
+                              return <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">ML Suggested</Badge>;
                             case 'needs-review':
                               return <Badge className="bg-red-600 text-white hover:bg-red-700">Needs Review</Badge>;
                             default:
@@ -364,50 +409,68 @@ export function MainPanel() {
                                         </span>
                                       );
                                     })()}
+                                    
+                                    {/* Cluster Information */}
+                                    {showClusterInfo && clusterInfo && (
+                                      <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-200 ml-2">
+                                        <CubeIcon className="w-3 h-3 inline mr-1" />
+                                        Cluster {clusterInfo.id} ({clusterInfo.size} items, {Math.round(clusterInfo.avgConfidence * 100)}% avg)
+                                      </span>
+                                    )}
+                                    
+                                    {/* ML Template Information */}
+                                    {mlTemplateInfo && (
+                                      <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-200 ml-2">
+                                        <BeakerIcon className="w-3 h-3 inline mr-1" />
+                                        ML Template: {mlTemplateInfo.name}
+                                      </span>
+                                    )}
                                   </button>
                                 </div>
 
-                                                                 {/* Right side - Actions and status */}
-                                 <div className="flex flex-col items-end space-y-2">
-                                   <div className="flex items-center space-x-3">
-                                     {equipmentInstance.status !== 'confirmed' && (
-                                       <>
-                                         <Button
-                                           size="sm"
-                                           className="bg-blue-600 text-white hover:bg-blue-700"
-                                           onClick={(e) => {
-                                             e.stopPropagation();
-                                             confirmAllEquipmentPoints(equipmentInstance.id);
-                                           }}
-                                         >
-                                           Confirm All Points
-                                         </Button>
-                                         
-                                         {getConfirmedPointsForEquipment(equipmentInstance.id).length > 0 && (
-                                           <Button
-                                             size="sm"
-                                             className="bg-purple-600 text-white hover:bg-purple-700"
-                                             onClick={(e) => {
-                                               e.stopPropagation();
-                                               handleCreateTemplate(equipmentInstance.id, getEquipmentDisplayName(equipmentInstance.name));
-                                             }}
-                                           >
-                                             Save as Template
-                                           </Button>
-                                         )}
-                                       </>
-                                     )}
-                                     {getStatusBadge(equipmentInstance.status)}
-                                   </div>
-                                   
-                                   {/* Confidence Badge below actions */}
-                                   <Badge 
-                                     variant="outline" 
-                                     className={`${getConfidenceColor(equipmentInstance.confidence)} border-0 text-xs font-medium`}
-                                   >
-                                     {formatConfidence(equipmentInstance.confidence)} confidence
-                                   </Badge>
-                                 </div>
+                                {/* Right side - Actions and status */}
+                                <div className="flex flex-col items-end space-y-2">
+                                  <div className="flex items-center space-x-3">
+                                    {equipmentInstance.status !== 'confirmed' && (
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          className="bg-blue-600 text-white hover:bg-blue-700"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            confirmAllEquipmentPoints(equipmentInstance.id);
+                                          }}
+                                        >
+                                          Confirm All Points
+                                        </Button>
+                                        
+                                        {getConfirmedPointsForEquipment(equipmentInstance.id).length > 0 && (
+                                          <Button
+                                            size="sm"
+                                            className="bg-purple-600 text-white hover:bg-purple-700"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleCreateTemplate(equipmentInstance.id, getEquipmentDisplayName(equipmentInstance.name));
+                                            }}
+                                          >
+                                            Save as Template
+                                          </Button>
+                                        )}
+                                      </>
+                                    )}
+                                    {getStatusBadge(equipmentInstance.status)}
+                                  </div>
+                                  
+                                  {/* Enhanced Confidence Badge */}
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`${getConfidenceColor(equipmentInstance.confidence)} border text-xs font-medium`}
+                                  >
+                                    {formatConfidence(equipmentInstance.confidence)} confidence
+                                    {equipmentInstance.confidence >= 0.8 && <span className="ml-1">🎯</span>}
+                                    {equipmentInstance.confidence < 0.6 && <span className="ml-1">⚠️</span>}
+                                  </Badge>
+                                </div>
                               </div>
                             </div>
 
@@ -434,21 +497,30 @@ export function MainPanel() {
                                   };
 
                                   return (
-                                                                         <div key={point.id} className="bg-white border rounded-lg p-6 relative">
-                                       {/* Point Header */}
-                                       <div className="flex items-start justify-between mb-4">
-                                         <div className="flex-1">
-                                           <h3 className="text-xl font-bold mb-1 font-detail" style={{ color: '#2c3e50' }}>
-                                             {getDisplayName(point)}
-                                           </h3>
-                                           <div className="flex items-center space-x-2">
-                                                                                          {equipmentInstance.equipTypeName && (
-                                                <span className="text-base text-gray-600 font-medium">
-                                                  {equipmentInstance.equipTypeName} → {getEquipmentDisplayName(equipmentInstance.name)}
-                                                </span>
-                                             )}
-                                           </div>
-                                         </div>
+                                    <div key={point.id} className="bg-white border rounded-lg p-6 relative">
+                                      {/* Point Header */}
+                                      <div className="flex items-start justify-between mb-4">
+                                        <div className="flex-1">
+                                          <h3 className="text-xl font-bold mb-1 font-detail" style={{ color: '#2c3e50' }}>
+                                            {getDisplayName(point)}
+                                          </h3>
+                                          <div className="flex items-center space-x-2">
+                                            {equipmentInstance.equipTypeName && (
+                                              <span className="text-base text-gray-600 font-medium">
+                                                {equipmentInstance.equipTypeName} → {getEquipmentDisplayName(equipmentInstance.name)}
+                                              </span>
+                                            )}
+                                            {/* Point Confidence Score */}
+                                            {point.confidence && (
+                                              <Badge 
+                                                variant="outline" 
+                                                className={`${getConfidenceColor(point.confidence)} border text-xs`}
+                                              >
+                                                {formatConfidence(point.confidence)}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                        </div>
                                         {point.status === 'confirmed' ? (
                                           <span className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded">
                                             Confirmed
@@ -477,67 +549,67 @@ export function MainPanel() {
                                         )}
                                       </div>
 
-                                                                             {/* Point Details Grid */}
-                                       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 font-detail">
-                                         <div>
-                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>BACnet ID</dt>
-                                           <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.bacnetCur}</dd>
-                                         </div>
-                                         
-                                         <div>
-                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Description</dt>
-                                           <dd className="font-medium" style={{ color: '#2c3e50' }}>{getDescription(point)}</dd>
-                                         </div>
-                                         
-                                         <div>
-                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Device Location</dt>
-                                           <dd className="font-medium text-blue-600">
-                                             {point.bacnetDeviceName ? `📍 ${point.bacnetDeviceName}` : '-'}
-                                           </dd>
-                                         </div>
-                                         
-                                         <div>
-                                           <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Unit</dt>
-                                           <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.unit || '-'}</dd>
-                                         </div>
-                                         
-                                         <div></div>
+                                      {/* Point Details Grid */}
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 font-detail">
+                                        <div>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>BACnet ID</dt>
+                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.bacnetCur}</dd>
+                                        </div>
                                         
-                                                                                 {/* Show Vendor and Model when available (typically from bacnetConn) */}
-                                         {point.vendor && (
-                                           <div>
-                                             <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Vendor</dt>
-                                             <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.vendor}</dd>
-                                           </div>
-                                         )}
-                                         
-                                         {point.model && (
-                                           <div>
-                                             <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Model</dt>
-                                             <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.model}</dd>
-                                           </div>
-                                         )}
-                                       </div>
+                                        <div>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Description</dt>
+                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{getDescription(point)}</dd>
+                                        </div>
+                                        
+                                        <div>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Device Location</dt>
+                                          <dd className="font-medium text-blue-600">
+                                            {point.bacnetDeviceName ? `📍 ${point.bacnetDeviceName}` : '-'}
+                                          </dd>
+                                        </div>
+                                        
+                                        <div>
+                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Unit</dt>
+                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.unit || '-'}</dd>
+                                        </div>
+                                        
+                                        <div></div>
+                                       
+                                        {/* Show Vendor and Model when available (typically from bacnetConn) */}
+                                        {point.vendor && (
+                                          <div>
+                                            <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Vendor</dt>
+                                            <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.vendor}</dd>
+                                          </div>
+                                        )}
+                                        
+                                        {point.model && (
+                                          <div>
+                                            <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Model</dt>
+                                            <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.model}</dd>
+                                          </div>
+                                        )}
+                                      </div>
 
-                                       {/* Bottom Line - Properties on left, Source File and Data Type on right */}
-                                       <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                                         {/* Properties - Left Side */}
-                                         <div>
-                                           <div className="text-xs font-medium mb-1" style={{ color: '#7f8c8d' }}>Properties</div>
-                                           <PointPropertiesTags point={point} />
-                                         </div>
+                                      {/* Bottom Line - Properties on left, Source File and Data Type on right */}
+                                      <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                                        {/* Properties - Left Side */}
+                                        <div>
+                                          <div className="text-xs font-medium mb-1" style={{ color: '#7f8c8d' }}>Properties</div>
+                                          <PointPropertiesTags point={point} />
+                                        </div>
 
-                                         {/* Source File and Data Type - Right Side */}
-                                         <div className="flex items-end space-x-3">
-                                           <div className="text-right">
-                                             <span className="text-xs font-medium" style={{ color: '#7f8c8d' }}>Source File: </span>
-                                             <span className="font-medium text-xs" style={{ color: '#2c3e50' }}>{getSource(point)}</span>
-                                           </div>
-                                           <Badge className="bg-blue-100 text-blue-800 text-sm font-medium">
-                                             {point.kind}
-                                           </Badge>
-                                         </div>
-                                       </div>
+                                        {/* Source File and Data Type - Right Side */}
+                                        <div className="flex items-end space-x-3">
+                                          <div className="text-right">
+                                            <span className="text-xs font-medium" style={{ color: '#7f8c8d' }}>Source File: </span>
+                                            <span className="font-medium text-xs" style={{ color: '#2c3e50' }}>{getSource(point)}</span>
+                                          </div>
+                                          <Badge className="bg-blue-100 text-blue-800 text-sm font-medium">
+                                            {point.kind}
+                                          </Badge>
+                                        </div>
+                                      </div>
                                     </div>
                                   );
                                 })}

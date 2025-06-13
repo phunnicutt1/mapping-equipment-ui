@@ -1,5 +1,8 @@
 import { BACnetPoint, EquipmentType, EquipmentInstance, ProcessingStats } from './types';
 
+// DEPRECATED: Hard-coded equipment types are being deprecated in favor of ML-generated clusters
+// This array is maintained for backward compatibility only
+// New equipment types are generated dynamically by K-Modes clustering
 export const equipmentTypes: EquipmentType[] = [
   {
     id: 'ahus',
@@ -253,16 +256,26 @@ export function normalizePointName(pointName: string): string {
     .trim();
 }
 
+// DEPRECATED: detectEquipmentFromFilename has been deprecated
+// Equipment detection is now handled by K-Modes clustering and Project Haystack semantic tagging
+// This function is kept for backward compatibility only
 export function detectEquipmentFromFilename(fileName: string): { typeId: string; confidence: number } | null {
+  console.warn('DEPRECATED: detectEquipmentFromFilename is deprecated. Use ML pipeline for equipment detection.');
+  
   for (const type of equipmentTypes) {
-    if (type.pattern.test(fileName)) {
-      return { typeId: type.id, confidence: type.confidence };
+    if (type.pattern?.test(fileName)) {
+      return { typeId: type.id, confidence: type.confidence || 0.5 };
     }
   }
   return null;
 }
 
+// DEPRECATED: groupPointsByEquipment has been deprecated
+// Point grouping is now handled by the ML pipeline using K-Modes clustering
+// This function is kept for backward compatibility only
 export function groupPointsByEquipment(points: BACnetPoint[]): Map<string, BACnetPoint[]> {
+  console.warn('DEPRECATED: groupPointsByEquipment is deprecated. Use ML pipeline for point grouping.');
+  
   const groups = new Map<string, BACnetPoint[]>();
   
   points.forEach(point => {
@@ -281,158 +294,13 @@ export function groupPointsByEquipment(points: BACnetPoint[]): Map<string, BACne
   return groups;
 }
 
-export function processEquipmentGrouping(points: BACnetPoint[]) {
-  const equipmentInstances: EquipmentInstance[] = [];
-  const updatedPoints = [...points];
-  
-  // Group points by equipRef (if available) or by detected equipment patterns
-  const equipmentGroups = new Map<string, BACnetPoint[]>();
-  
-  points.forEach(point => {
-    let groupKey = null;
-    
-    if (point.equipRef) {
-      // Primary method: Use SkySpark equipRef if available
-      groupKey = point.equipRef;
-    } else {
-      // Fallback method: Group by filename detection (for early project stages)
-      const detection = detectEquipmentFromFilename(point.fileName || '');
-      if (detection) {
-        groupKey = `${point.fileName}-${detection.typeId}`;
-      }
-    }
-    
-    if (groupKey) {
-      if (!equipmentGroups.has(groupKey)) {
-        equipmentGroups.set(groupKey, []);
-      }
-      equipmentGroups.get(groupKey)!.push(point);
-    }
-  });
-  
-  // Create equipment instances from grouped points
-  equipmentGroups.forEach((groupPoints, groupKey) => {
-    // Determine if this is a SkySpark equipRef group or filename-based group
-    const isEquipRefGroup = groupPoints[0]?.equipRef === groupKey;
-    
-    let equipmentName: string;
-    let typeId: string;
-    let confidence: number;
-    let fileName: string | undefined;
-    
-    if (isEquipRefGroup) {
-      // Use SkySpark equipment data
-      equipmentName = groupPoints[0]?.equipName || groupKey;
-      typeId = determineEquipmentTypeFromName(equipmentName);
-      confidence = groupPoints[0]?.confidence || 0.9;
-      fileName = groupPoints[0]?.fileName;
-    } else {
-      // Use filename-based detection
-      const [fileNamePart, detectedTypeId] = groupKey.split('-');
-      equipmentName = fileNamePart.replace(/\.(trio|txt)$/, '');
-      typeId = detectedTypeId;
-      confidence = 0.7; // Lower confidence for filename-based detection
-      fileName = fileNamePart;
-    }
-    
-    const equipment: EquipmentInstance = {
-      id: isEquipRefGroup ? groupKey : `${typeId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: equipmentName,
-      typeId,
-      confidence: Math.min(0.95, confidence + (groupPoints.length * 0.02)), // Slightly higher confidence with more points
-      status: 'suggested',
-      pointIds: groupPoints.map(p => p.id),
-      fileName
-    };
-    
-    equipmentInstances.push(equipment);
-    
-    // Update points with equipment reference (if they don't already have one)
-    groupPoints.forEach(point => {
-      const pointIndex = updatedPoints.findIndex(p => p.id === point.id);
-      if (pointIndex !== -1 && !updatedPoints[pointIndex].equipRef) {
-        updatedPoints[pointIndex] = {
-          ...updatedPoints[pointIndex],
-          equipRef: equipment.id,
-          status: 'suggested'
-        };
-      }
-    });
-  });
-  
-  // Calculate stats
-  const assignedPoints = updatedPoints.filter(p => p.equipRef).length;
-  const stats: ProcessingStats = {
-    totalPoints: points.length,
-    assignedPoints,
-    equipmentGroups: equipmentInstances.length,
-    confidenceDistribution: {
-      high: equipmentInstances.filter(e => e.confidence >= 0.8).length,
-      medium: equipmentInstances.filter(e => e.confidence >= 0.6 && e.confidence < 0.8).length,
-      low: equipmentInstances.filter(e => e.confidence < 0.6).length
-    }
-  };
-  
-  return {
-    points: updatedPoints,
-    equipmentTypes: equipmentTypes.map(type => ({
-      ...type,
-      color: type.color || generateRandomTemplateColor() // Assign random color if not already set
-    })),
-    equipmentInstances,
-    stats
-  };
-}
+// DEPRECATED: processEquipmentGrouping has been removed
+// This function has been replaced by the ML-based clustering pipeline in lib/bacnet-processor.ts
+// Use the upload workflow and processUploadedFiles function for new equipment processing
 
-function determineEquipmentTypeFromName(equipmentName: string): string {
-  const name = equipmentName.toUpperCase();
-  
-  // Meters
-  if (name.includes('METER') || name.includes('BTU') || name.includes('KWH')) return 'meters';
-  
-  // AHUs
-  if (name.includes('AHU') || name.includes('AIR_HAND') || name.includes('ERV') || name.includes('MAU') || name.includes('RTU')) return 'ahus';
-  
-  // VAVs
-  if (name.includes('VAV') || name.includes('VARIABLE_AIR') || name.includes('VVT') || name.includes('TERMINAL_BOX')) return 'vavs';
-  
-  // Zones
-  if (name.includes('ZONE') || name.includes('ROOM') || name.includes('SPACE') || name.includes('OCCUPANCY') || name.includes('LIGHTING')) return 'zones';
-  
-  // Plants
-  if (name.includes('PLANT') || name.includes('BOILER') || name.includes('CHILLER') || name.includes('HX-') || 
-      name.includes('HEAT_EXCHANGER') || name.includes('HP-') || name.includes('HEAT_PUMP') || name.includes('TOWER')) return 'plants';
-  
-  // Motors
-  if (name.includes('MOTOR') || name.includes('FAN') || name.includes('PUMP') || name.includes('HWP') || 
-      name.includes('CWP') || name.includes('EF-') || name.includes('SF-') || name.includes('RF-') || name.includes('VFD')) return 'motors';
-  
-  // Electrical Panels
-  if (name.includes('PANEL') || name.includes('MDP') || name.includes('DP') || name.includes('CIRCUIT') || 
-      name.includes('BREAKER') || name.includes('ELECTRICAL')) return 'elec-panels';
-  
-  // EVSE
-  if (name.includes('EVSE') || name.includes('EV_CHARGER') || name.includes('CHARGING_STATION')) return 'evse';
-  
-  // VRF
-  if (name.includes('VRF') || name.includes('VARIABLE_REFRIGERANT') || name.includes('VRV')) return 'vrf';
-  
-  // ATES
-  if (name.includes('ATES') || name.includes('AQUIFER') || name.includes('THERMAL_STORAGE') || name.includes('GROUND_SOURCE')) return 'ates';
-  
-  // Data Centers
-  if (name.includes('DATA_CENTER') || name.includes('SERVER_ROOM') || name.includes('IT_ROOM') || 
-      name.includes('UPS') || name.includes('PDU') || name.includes('CRAC') || name.includes('CRAH')) return 'data-centers';
-  
-  // Default fallback - try to match against equipment patterns
-  for (const type of equipmentTypes) {
-    if (type.pattern.test(equipmentName)) {
-      return type.id;
-    }
-  }
-  
-  return 'equipment';
-}
+// DEPRECATED: determineEquipmentTypeFromName has been removed
+// Equipment type determination is now handled by K-Modes clustering and Project Haystack semantic tagging
+// in the ML pipeline (lib/bacnet-processor.ts)
 
 export function getEquipmentDisplayName(fullName: string): string {
   // Split by spaces and take the last segment

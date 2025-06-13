@@ -40,7 +40,7 @@ export function UnassignedPointsDrawer() {
     
     return displayName.toLowerCase().includes(searchLower) ||
            description.toLowerCase().includes(searchLower) ||
-           point.bacnetCur.toLowerCase().includes(searchLower) ||
+           (point.bacnetCur && point.bacnetCur.toLowerCase().includes(searchLower)) ||
            properties.toLowerCase().includes(searchLower) ||
            vendor.toLowerCase().includes(searchLower) ||
            model.toLowerCase().includes(searchLower) ||

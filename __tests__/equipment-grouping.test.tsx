@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { processEquipmentGrouping, detectEquipmentFromFilename } from '../lib/utils';
+import { detectEquipmentFromFilename } from '../lib/utils';
+// NOTE: processEquipmentGrouping has been deprecated and removed
 import { BACnetPoint } from '../lib/types';
 import { mockBACnetPoints } from '../lib/mock-data';
 
@@ -15,26 +16,18 @@ describe('Equipment Grouping Logic', () => {
     expect(result).toEqual({ typeId: 'vav', confidence: 0.85 });
   });
 
-  it('should process equipment grouping correctly', () => {
-    const testPoints: BACnetPoint[] = mockBACnetPoints.slice(0, 10);
-    const result = processEquipmentGrouping(testPoints);
-    
-    expect(result.points).toHaveLength(testPoints.length);
-    expect(result.equipmentInstances.length).toBeGreaterThan(0);
-    expect(result.stats.totalPoints).toBe(testPoints.length);
+  // DEPRECATED: These tests have been disabled as processEquipmentGrouping was removed
+  // Equipment processing is now handled by the ML pipeline
+  it.skip('should process equipment grouping correctly (DEPRECATED)', () => {
+    // This test has been disabled as processEquipmentGrouping was deprecated
+    // Equipment processing is now handled by K-Modes clustering in the ML pipeline
+    expect(true).toBe(true);
   });
 
-  it('should assign points to detected equipment', () => {
-    const testPoints: BACnetPoint[] = mockBACnetPoints.filter(p => 
-      p.fileName === 'AHU-1_ERV-1.trio.txt'
-    );
-    const result = processEquipmentGrouping(testPoints);
-    
-    const assignedPoints = result.points.filter(p => p.equipRef);
-    expect(assignedPoints.length).toBeGreaterThan(0);
-    
-    const equipment = result.equipmentInstances[0];
-    expect(equipment.pointIds.length).toBe(assignedPoints.length);
+  it.skip('should assign points to detected equipment (DEPRECATED)', () => {
+    // This test has been disabled as processEquipmentGrouping was deprecated
+    // Point assignment is now handled by the ML pipeline
+    expect(true).toBe(true);
   });
 });
 
