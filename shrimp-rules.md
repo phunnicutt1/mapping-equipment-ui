@@ -1,693 +1,237 @@
-# BACnet Point Grouping UI Development Guidelines
+# Mapping Equipment UI - Development Guidelines
 
-## Project Overview
+This document provides AI-specific development standards for the Mapping Equipment UI project. All AI agents MUST adhere to these rules to ensure consistency, quality, and maintainability.
 
-*   **Purpose**: Interactive web UI for grouping raw BACnet point data from SkySpark APIs into equipment types and instances
-*   **Technology Stack**: Next.js 14 (App Router), TypeScript, React 18, Zustand, SWR, Tailwind CSS, Vitest
-*   **Core Functions**: Data ingestion, auto-grouping, human-in-the-loop validation, draft management, equipment mapping
-*   **Integration**: SkySpark API for BACnet data, TosiBox VPN connectivity for building automation systems
+## 1\. Project Overview
 
-## Architecture Standards
+*   **Purpose**: Interactive web UI for grouping raw BACnet point data from SkySpark APIs into equipment hierarchies.
+*   **Technology Stack**: Next.js 14 (App Router), TypeScript, React 18, Zustand, SWR, Tailwind CSS, Framer Motion, Vitest.
+*   **Core Functions**: Data ingestion from SkySpark, automatic equipment detection, human-in-the-loop validation, equipment templating, and draft management.
 
-### Project Structure
+## 2\. Architecture Standards
 
-**MUST** follow Next.js 14 App Router structure:
+### 2.1. Project Structure
+
+The project follows the Next.js 14 App Router structure. **MUST** adhere to this layout:
 
 ```
-grouping-UI/
-├── app/                        # Next.js App Router pages
-│   ├── layout.tsx             # Root layout with providers
-│   ├── page.tsx               # Main grouping interface
-│   ├── api/                   # API routes
-│   │   ├── points/route.ts    # Points data endpoint
-│   │   ├── save-draft/route.ts # Draft persistence
-│   │   └── finalize/route.ts  # Final validation & publish
-│   └── globals.css            # Global Tailwind styles
-├── components/                 # Reusable UI components
-│   ├── ui/                    # Base UI components
-│   ├── grouping/              # Feature-specific components
-│   └── dialogs/               # Modal components
-├── lib/                       # Utility functions and configurations
-│   ├── utils.ts              # UI utilities (existing)
-│   ├── types.ts              # TypeScript interfaces
-│   ├── mock-data.ts          # Development mock data
-│   └── equipment-grouping.ts # Core grouping algorithms
-├── store/                     # Zustand state management
-│   └── grouping-store.ts     # Main application state
-├── hooks/                     # Custom React hooks
-└── __tests__/                 # Test files with Vitest
+mapping-equipment-ui/
+├── app/                        # Next.js App Router pages and APIs
+│   ├── layout.tsx              # Root application layout
+│   ├── page.tsx                # Main UI page
+│   └── api/                    # API routes
+│       ├── points/route.ts     # Fetches and processes SkySpark data
+│       ├── saveDraft/route.ts  # Persists draft state
+│       └── finalize/route.ts   # Validates and publishes final configuration
+├── components/                 # React components
+│   ├── ui/                     # Generic, reusable UI components (e.g., Card, Button)
+│   ├── MainPanel.tsx           # Core panel for displaying equipment
+│   ├── LeftRail.tsx            # Left sidebar component
+│   ├── RightRail.tsx           # Right sidebar component
+│   └── ...                     # Other feature-specific components
+├── lib/                        # Core logic, types, and state
+│   ├── store.ts                # Zustand global state management
+│   ├── types.ts                # Core TypeScript interfaces
+│   ├── utils.ts                # Equipment grouping algorithms and helpers
+│   ├── skyspark-api.ts         # SkySpark API interaction logic
+│   └── mock-data.ts            # Mock data for development
+├── __tests__/                  # Vitest test files
+└── ...                         # Root configuration files
 ```
 
-### TypeScript Configuration
+### 2.2. TypeScript Configuration
 
-**MUST** use strict TypeScript configuration with Next.js path mapping:
+**MUST** use the strict TypeScript configuration defined in `tsconfig.json`. Note the path aliases:
 
-```typescript
-// tsconfig.json requirements
+```
+// tsconfig.json
 {
-  "extends": "next/tsconfig.json",
   "compilerOptions": {
     "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["components/*"],
-      "@/lib/*": ["lib/*"],
-      "@/store/*": ["store/*"],
-      "@/hooks/*": ["hooks/*"]
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+### 2.3. Key Dependencies
+
+**MUST** use the following dependencies. Do not introduce new libraries without a strong justification.
+
+*   `next`, `react`, `react-dom`
+*   `typescript`
+*   `zustand` (state management)
+*   `swr` (data fetching)
+*   `@heroicons/react` (icons)
+*   `framer-motion` (animations)
+*   `tailwindcss`
+*   `vitest`, `@testing-library/react` (testing)
+
+## 3\. Data Model & State Management
+
+### 3.1. Core TypeScript Interfaces
+
+All core data structures are defined in `lib/types.ts`. **MUST** use and extend these interfaces as needed.
+
+```typescript
+// lib/types.ts
+
+// Represents a single BACnet point from SkySpark
+export interface BACnetPoint {
+  id: string;
+  dis: string;
+  // ... other properties
+  status?: 'unassigned' | 'suggested' | 'confirmed' | 'flagged';
+  equipRef?: string | null;
+}
+
+// Represents a type of equipment (e.g., AHU, VAV)
+export interface EquipmentType {
+  id: string;
+  name: string;
+  // ... other properties
+}
+
+// Represents a specific instance of an equipment type
+export interface EquipmentInstance {
+  id: string;
+  name: string;
+  typeId: string;
+  confidence: number;
+  status: 'suggested' | 'confirmed' | 'needs-review';
+  pointIds: string[];
+}
+
+// Represents a reusable equipment template
+export interface EquipmentTemplate {
+  id:string;
+  name: string;
+  pointSignature: PointSignature[];
+  // ... other properties
+}
+```
+
+### 3.2. State Management with Zustand
+
+Global state **MUST** be managed in `lib/store.ts` using Zustand.
+
+*   **State Structure**: The `GroupingState` interface in `lib/types.ts` defines the store's shape.
+*   **Actions**: All state modifications **MUST** be implemented as actions within the `create` function in `lib/store.ts`. Components should not modify state directly.
+*   **Selectors**: Use selectors within components to subscribe to specific state slices, preventing unnecessary re-renders.
+
+```typescript
+// lib/store.ts
+export const useGroupingStore = create<GroupingState & GroupingActions>((set, get) => ({
+  // Initial state properties...
+  points: [],
+  equipmentInstances: [],
+  templates: [],
+  
+  // Actions...
+  loadPoints: (points) => { /* ... */ },
+  confirmEquipment: (equipmentId) => { /* ... */ },
+  createTemplate: (equipmentId) => { /* ... */ },
+  saveDraft: async () => { /* ... */ },
+  
+  // MUST include a check for completion status
+  checkCompletion: () => {
+    const { equipmentInstances } = get();
+    const allConfirmed = equipmentInstances.every(eq => eq.status === 'confirmed');
+    if (allConfirmed && equipmentInstances.length > 0) {
+      set({ showCelebration: true, isComplete: true });
     }
   }
-}
+}));
 ```
 
-### Required Dependencies
+## 4\. Component Architecture
 
-**MUST** include these exact dependencies in package.json:
+### 4.1. Component Design
 
-```
-{
-  "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "typescript": "^5.0.0",
-    "zustand": "^4.4.0",
-    "swr": "^2.2.0",
-    "@heroicons/react": "^2.0.0",
-    "tailwindcss": "^3.3.0",
-    "clsx": "^2.0.0",
-    "tailwind-merge": "^2.0.0"
-  },
-  "devDependencies": {
-    "vitest": "^1.0.0",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/jest-dom": "^6.0.0",
-    "@vitejs/plugin-react": "^4.0.0"
-  }
-}
-```
+*   **Compound Components**: **MUST** use the compound component pattern for complex UI elements like `Card`. This enhances readability and API design.
+*   **Client Components**: All interactive components **MUST** use the `'use client';` directive.
+*   **Props**: Define props interfaces clearly for every component.
 
-## Data Model Standards
+## 5\. API Integration
 
-### Core TypeScript Interfaces
+### 5.1. SkySpark API
 
-**MUST** define these interfaces in `lib/types.ts`:
+*   The primary data endpoint is `app/api/points/route.ts`.
+*   This endpoint is responsible for connecting to the SkySpark API, fetching raw data, parsing the Zinc format, transforming it into the `BACnetPoint` structure, and handling fallback to mock data.
+*   **DO NOT** add business logic to this file. Transformation logic should be in `lib/skyspark-parser.ts` or similar.
 
-```typescript
-// Primary data structures from original specification
-interface BACnetPoint {
-  id: string;                    // unique SkySpark/BACnet identifier
-  dis: string;                   // human-friendly name
-  bacnetCur: string;            // present-value object ref
-  kind: 'Number' | 'Bool' | 'Str'; // BACnet data types
-  unit: string | null;          // engineering units
-  vendor?: string;              // equipment vendor
-  model?: string;               // equipment model
-  equipRef?: string | null;     // FK to equipment instance
-  fileName?: string;            // source file for pattern matching
-  confidence?: number;          // auto-grouping confidence (0-1)
-  status: 'suggested' | 'confirmed' | 'flagged' | 'manual';
-}
+### 5.2. Data Fetching in UI
 
-interface EquipmentType {
-  id: string;                   // unique type identifier
-  name: string;                 // display name (e.g., "Air Handling Unit")
-  pattern: RegExp;              // filename pattern for detection
-  confidence: number;           // default confidence threshold
-  pointPatterns: string[];      // expected point name patterns
-  minPoints: number;            // minimum points for valid equipment
-  maxPoints: number;            // maximum expected points
-}
+*   Data fetching in the UI is initiated in `app/page.tsx`'s `useEffect` hook.
+*   It calls the `/api/points` endpoint and loads the result into the Zustand store via the `loadPoints` action.
+*   **DO NOT** call `fetch` from child components. All data should flow from the central store.
 
-interface EquipmentInstance {
-  id: string;                   // unique instance identifier
-  name: string;                 // display name (e.g., "AHU-1")
-  typeId: string;              // FK to EquipmentType
-  pointCount: number;           // assigned points count
-  confidence: number;           // grouping confidence score
-  status: 'suggested' | 'confirmed' | 'flagged' | 'manual';
-  points: BACnetPoint[];       // assigned points
-}
-```
+## 6\. Core Business Logic
 
-### State Management Schema
+### 6.1. Equipment Grouping
 
-**MUST** use Zustand store with this structure in `store/grouping-store.ts`:
+*   The core grouping algorithms are located in `lib/utils.ts`.
+*   `**processEquipmentGrouping**`: This is the main function that orchestrates the grouping process.
+*   **Detection Strategies**: The logic uses filename patterns (`detectEquipmentFromFilename`) and Jaccard similarity (`calculateJaccardSimilarity`) to group points.
+*   **MUST** update the `equipmentTypes` array in `lib/utils.ts` to add or modify equipment detection rules.
 
-```typescript
-interface GroupingStore {
-  // Data state
-  points: BACnetPoint[];
-  equipmentTypes: EquipmentType[];
-  equipmentInstances: EquipmentInstance[];
-  
-  // UI state
-  ui: {
-    selectedPoints: Set<string>;
-    filter: {
-      search: string;
-      kind: string[];
-      unit: string[];
-    };
-    loading: boolean;
-    error: string | null;
-  };
-  
-  // Statistics
-  stats: {
-    totalPoints: number;
-    assignedPoints: number;
-    suggestedGroups: number;
-    confirmedGroups: number;
-  };
-  
-  // Actions
-  loadData: () => Promise<void>;
-  confirmPoint: (pointId: string, equipmentId: string) => void;
-  flagPoint: (pointId: string) => void;
-  assignPoints: (pointIds: string[], equipmentId: string) => void;
-  createEquipment: (type: string, name: string) => string;
-  saveDraft: () => Promise<void>;
-  finalize: () => Promise<boolean>;
-}
-```
+### 6.2. Equipment Templating
 
-## Component Architecture Standards
+*   Users can create an `EquipmentTemplate` from a confirmed `EquipmentInstance`.
+*   The `createTemplate` action in `lib/store.ts` handles this.
+*   Templates are used to find and configure similar, unconfirmed equipment instances.
 
-### Component Organization
+## 7\. UI/UX Standards
 
-**MUST** organize components by feature and reusability:
+### 7.1. Styling with Tailwind CSS
+
+*   **MUST** use Tailwind CSS utility classes for all styling.
+*   **DO NOT** write custom CSS in `.css` files unless absolutely necessary.
+*   **Color System**: Colors for equipment types are generated dynamically. The `tailwind.config.js` `safelist` **MUST** be updated if new colors are added to ensure they are not purged during the build process.
+
+### 7.2. Animation & User Feedback
+
+*   Animations **MUST** be implemented using `framer-motion`.
+*   The `SuccessCelebration` component (`components/SuccessCelebration.tsx`) is a key feedback mechanism. It is triggered when `showCelebration` is set to `true` in the Zustand store.
+*   **MUST** call the `checkCompletion` action after any state change that could result in all equipment being confirmed (e.g., `confirmEquipment`, `assignPoints`).
+
+## 8\. Development Workflow
+
+### 8.1. Adding a New Equipment Type
+
+1.  **Update** `**lib/utils.ts**`: Add a new `EquipmentType` definition to the `equipmentTypes` array, including its `id`, `name`, `pattern` (RegExp), and point heuristics.
+2.  **Update** `**tailwind.config.js**`: If you introduce a new color for the equipment type, add the corresponding `border-l-` and `bg-` classes to the `safelist`.
+3.  **Test**: Verify that the new equipment type is correctly detected and displayed.
+
+### 8.2. Modifying State
+
+1.  **Update** `**lib/types.ts**`: Modify the `GroupingState` or related interfaces.
+2.  **Update** `**lib/store.ts**`: Implement a new action or update an existing one to handle the new state logic.
+3.  **Update Components**: Modify any components that consume or interact with the changed state.
+
+## 9\. Prohibited Actions
+
+*   **PROHIBITED**: Modifying state directly from a component. **MUST** use a Zustand action.
+*   **PROHIBITED**: Fetching data from any component other than the main page loader. Data must flow through the store.
+*   **PROHIBITED**: Using hardcoded colors or styles. **MUST** use Tailwind CSS utility classes and theme values.
+*   **PROHIBITED**: Introducing new global state outside of `lib/store.ts`.
+*   **PROHIBITED**: Writing business logic (e.g., grouping algorithms) inside components. This logic belongs in `lib/`.
+*   **PROHIBITED**: Using the `any` type. Define explicit types in `lib/types.ts`.
 
 ```
-components/
-├── ui/                        # Base reusable components
-│   ├── Button.tsx            # Styled button variants
-│   ├── Badge.tsx             # Status badges
-│   ├── Input.tsx             # Form inputs
-│   ├── Modal.tsx             # Base modal component
-│   └── Table.tsx             # Base table component
-├── grouping/                  # Feature-specific components
-│   ├── SuggestedGroups.tsx   # Auto-detected equipment panel
-│   ├── UnassignedPoints.tsx  # Available points panel (existing)
-│   ├── PointsTable.tsx       # Points data table
-│   └── StatsPanel.tsx        # Statistics dashboard
-└── dialogs/                   # Modal dialogs
-    ├── CreateEquipmentDialog.tsx
-    ├── AssignPointsDialog.tsx
-    └── FinalizeDialog.tsx
+<Card>
+  <Card.Header>
+    <Card.Title>My Equipment</Card.Title>
+  </Card.Header>
+  <Card.Content>Details...</Card.Content>
+</Card>
 ```
-
-### Component Standards
-
-**MUST** follow these React component patterns:
-
-*   Use TypeScript function components with explicit return types
-*   Define props interfaces separately for reusability
-*   Use forward refs for DOM elements that need ref access
-*   Implement proper error boundaries for data fetching
-*   Use React.memo for expensive list renders
-
-**Example Component Pattern**:
-
-```typescript
-interface PointsTableProps {
-  points: BACnetPoint[];
-  showEquipmentColumn?: boolean;
-  selectable?: boolean;
-  compact?: boolean;
-  onPointSelect?: (pointId: string) => void;
-  onPointConfirm?: (pointId: string, equipmentId: string) => void;
-}
-
-export const PointsTable: React.FC<PointsTableProps> = ({
-  points,
-  showEquipmentColumn = true,
-  selectable = false,
-  compact = false,
-  onPointSelect,
-  onPointConfirm,
-}) => {
-  // Component implementation
-};
-```
-
-### Missing Component Requirements
-
-**MUST** implement these components to complete the existing `UnassignedPoints.tsx`:
-
-1.  **PointsTable**: Reusable table for displaying BACnet points with sorting, selection, and actions
-2.  **CreateEquipmentDialog**: Modal for manually creating new equipment instances
-3.  **AssignPointsDialog**: Modal for bulk assignment of points to equipment
-4.  **SuggestedGroups**: Collapsible cards showing auto-detected equipment with confidence scores
-
-## API Integration Standards
-
-### SkySpark API Patterns
-
-**MUST** implement API routes with these patterns in `app/api/`:
-
-```typescript
-// app/api/points/route.ts
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const projectId = searchParams.get('projectId');
-  
-  // Fetch from SkySpark API or return mock data
-  const response = await fetch(`${process.env.SKYSPARK_API_URL}/points`, {
-    headers: {
-      'Authorization': `Bearer ${process.env.SKYSPARK_API_TOKEN}`,
-    },
-  });
-  
-  return Response.json(await response.json());
-}
-
-// app/api/save-draft/route.ts
-export async function POST(request: Request) {
-  const data = await request.json();
-  // Save current grouping state as draft
-  return Response.json({ success: true, draftId: generateId() });
-}
-```
-
-### Data Fetching Standards
-
-**MUST** use SWR for all data fetching with these patterns:
-
-```typescript
-// hooks/use-points-data.ts
-export function usePointsData(projectId: string) {
-  const { data, error, isLoading, mutate } = useSWR(
-    projectId ? `/api/points?projectId=${projectId}` : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 30000, // 30 second cache
-    }
-  );
-  
-  return {
-    points: data?.points || [],
-    equipmentTypes: data?.equipmentTypes || [],
-    equipmentInstances: data?.equipmentInstances || [],
-    isLoading,
-    error,
-    refresh: mutate,
-  };
-}
-```
-
-## Equipment Grouping Algorithm Standards
-
-### Auto-Detection Logic
-
-**MUST** implement equipment detection in `lib/equipment-grouping.ts`:
-
-```typescript
-// Pattern-based equipment type detection
-export function detectEquipmentType(points: BACnetPoint[]): EquipmentType | null {
-  for (const type of equipmentTypes) {
-    const matches = points.filter(p => 
-      p.fileName && type.pattern.test(p.fileName)
-    );
-    
-    if (matches.length >= type.minPoints) {
-      return type;
-    }
-  }
-  return null;
-}
-
-// Jaccard similarity for equipment instance grouping
-export function calculateJaccardSimilarity(pointsA: string[], pointsB: string[]): number {
-  const setA = new Set(pointsA.map(normalizePointName));
-  const setB = new Set(pointsB.map(normalizePointName));
-  const intersection = new Set([...setA].filter(x => setB.has(x)));
-  const union = new Set([...setA, ...setB]);
-  return intersection.size / union.size;
-}
-```
-
-### Confidence Scoring Rules
-
-**MUST** implement confidence scoring with these criteria:
-
-*   **Pattern Match Quality**: 0.9 for exact pattern match, 0.7 for partial, 0.5 for fuzzy
-*   **Point Count Appropriateness**: 1.0 if within expected range, linear decay outside
-*   **Vendor/Model Consistency**: 0.9 for known vendor patterns, 0.6 for unknown
-*   **Minimum Confidence Threshold**: 0.8 for auto-suggestion, 0.9 for auto-confirmation
-
-### Point Normalization Standards
-
-**MUST** normalize point names before grouping:
-
-```typescript
-export function normalizePointName(pointName: string): string {
-  return pointName
-    .toLowerCase()
-    .replace(/[-_]/g, ' ')                    // Replace separators
-    .replace(/\b(sp|stpt)\b/gi, 'setpoint')   // Expand abbreviations
-    .replace(/\b(temp|tmp)\b/gi, 'temperature')
-    .replace(/\b(cmd|ctl)\b/gi, 'command')
-    .trim();
-}
-```
-
-## UI/UX Standards
-
-### Tailwind CSS Configuration
-
-**MUST** extend Tailwind with custom design tokens:
-
-```javascript
-// tailwind.config.js
-module.exports = {
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-        },
-        success: {
-          50: '#f0f9f4',
-          500: '#10b981',
-          600: '#059669',
-        },
-        warning: {
-          50: '#fffbeb',
-          500: '#f59e0b',
-          600: '#d97706',
-        },
-        danger: {
-          50: '#fef2f2',
-          500: '#ef4444',
-          600: '#dc2626',
-        },
-      },
-    },
-  },
-};
-```
-
-### Responsive Design Requirements
-
-**MUST** implement responsive layouts with these breakpoints:
-
-*   **Desktop-first approach**: Design for 1200px+ primary use case
-*   **Tablet (768px-1199px)**: Stack panels vertically, maintain functionality
-*   **Mobile (767px and below)**: Single column layout, simplified interactions
-
-### Accessibility Standards
-
-**MUST** implement these accessibility requirements:
-
-*   Semantic HTML elements for screen readers
-*   ARIA labels for interactive elements
-*   Keyboard navigation support for all interactive elements
-*   Color contrast ratios meeting WCAG AA standards
-*   Focus management for modal dialogs
-*   Screen reader announcements for dynamic content updates
-
-### Status Indication Patterns
-
-**MUST** use consistent status indicators:
-
-```typescript
-// Status badge configurations
-const statusConfigs = {
-  suggested: { color: 'primary', icon: 'SparklesIcon' },
-  confirmed: { color: 'success', icon: 'CheckIcon' },
-  flagged: { color: 'warning', icon: 'ExclamationTriangleIcon' },
-  manual: { color: 'gray', icon: 'UserIcon' },
-};
-```
-
-## Testing Standards
-
-### Unit Testing Requirements
-
-**MUST** implement tests with Vitest and React Testing Library:
-
-```typescript
-// __tests__/components/UnassignedPoints.test.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { UnassignedPoints } from '@/components/UnassignedPoints';
-
-describe('UnassignedPoints', () => {
-  it('filters points by search term', async () => {
-    const mockPoints = createMockPoints();
-    render(<UnassignedPoints />);
-    
-    const searchInput = screen.getByPlaceholderText(/search points/i);
-    fireEvent.change(searchInput, { target: { value: 'temperature' } });
-    
-    await waitFor(() => {
-      expect(screen.getByText(/filtered points/i)).toBeInTheDocument();
-    });
-  });
-});
-```
-
-### Integration Testing Standards
-
-**MUST** test complete user workflows:
-
-*   Data loading and error states
-*   Point selection and bulk operations
-*   Equipment creation and assignment
-*   Draft saving and validation
-*   Finalization process with integrity checks
-
-### Mock Data Requirements
-
-**MUST** provide comprehensive mock data in `lib/mock-data.ts`:
-
-```typescript
-export const mockBACnetPoints: BACnetPoint[] = [
-  {
-    id: 'p1',
-    dis: 'AHU-1 Supply Air Temperature',
-    bacnetCur: '@p:project1:r:ahu1_sat',
-    kind: 'Number',
-    unit: '°F',
-    vendor: 'Johnson Controls',
-    model: 'VMA1400',
-    fileName: 'AHU-1_ERV-1.trio.txt',
-    status: 'suggested',
-    confidence: 0.85,
-  },
-  // Additional mock data for testing scenarios
-];
-```
-
-## File Organization Standards
-
-### Multi-File Coordination Rules
-
-**When modifying state management (**`**store/grouping-store.ts**`**)**:
-
-*   **MUST** update corresponding TypeScript interfaces in `lib/types.ts`
-*   **MUST** update any components using the modified state properties
-*   **MUST** update API routes that interact with the changed data structures
-
-**When adding new components**:
-
-*   **MUST** add corresponding TypeScript interfaces
-*   **MUST** export from appropriate index files for clean imports
-*   **MUST** add to Storybook if component is reusable
-
-**When modifying API routes**:
-
-*   **MUST** update corresponding hook functions in `hooks/`
-*   **MUST** update TypeScript interfaces for request/response types
-*   **MUST** update mock data to match new API structure
-
-### Import/Export Standards
-
-**MUST** use consistent import/export patterns:
-
-```typescript
-// Preferred import style
-import { BACnetPoint, EquipmentType } from '@/lib/types';
-import { useGroupingStore } from '@/store/grouping-store';
-import { cn, formatTimestamp } from '@/lib/utils';
-
-// Component exports
-export { UnassignedPoints } from './UnassignedPoints';
-export type { UnassignedPointsProps } from './UnassignedPoints';
-```
-
-### Naming Conventions
-
-**MUST** follow these naming standards:
-
-*   **Files**: PascalCase for components (`PointsTable.tsx`), kebab-case for utilities (`equipment-grouping.ts`)
-*   **Components**: PascalCase (`UnassignedPoints`)
-*   **Functions**: camelCase (`calculateJaccardSimilarity`)
-*   **Constants**: SCREAMING\_SNAKE\_CASE (`CONFIDENCE_THRESHOLD`)
-*   **Types/Interfaces**: PascalCase (`BACnetPoint`)
-
-## Development Workflow Standards
-
-### Build and Development
-
-**MUST** support these development commands:
-
-```
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "type-check": "tsc --noEmit",
-    "lint": "next lint"
-  }
-}
-```
-
-### Environment Configuration
-
-**MUST** support development with mock data and production with SkySpark:
-
-```
-# .env.local for development
-NEXT_PUBLIC_USE_MOCK_DATA=true
-
-# .env.production for SkySpark integration
-SKYSPARK_API_URL=https://your-skyspark-instance.com/api
-SKYSPARK_API_TOKEN=your-bearer-token
-NEXT_PUBLIC_USE_MOCK_DATA=false
-```
-
-### Error Handling Patterns
-
-**MUST** implement consistent error handling:
-
-```typescript
-// API error handling
-export class APIError extends Error {
-  status: number;
-  
-  constructor(message: string, status: number) {
-    super(message);
-    this.status = status;
-  }
-}
-
-// Component error boundaries
-export class ErrorBoundary extends React.Component {
-  // Handle component errors gracefully
-}
-```
-
-## Performance Standards
-
-### Optimization Requirements
-
-**MUST** implement these performance optimizations:
-
-*   Virtualization for large point lists (>1000 items)
-*   Debounced search with 300ms delay
-*   Memoization for expensive calculations (Jaccard similarity)
-*   Pagination for equipment instances
-*   Lazy loading for equipment details
-
-### Bundle Size Constraints
-
-**MUST** maintain reasonable bundle sizes:
-
-*   Main bundle: \<500KB gzipped
-*   Individual route chunks: \<200KB gzipped
-*   Use dynamic imports for large dependencies
-*   Tree-shake unused Heroicons
-
-## AI Decision-Making Standards
-
-### Component Creation Priority
-
-**When creating missing components, follow this order**:
-
-1.  **PointsTable**: Required by UnassignedPoints (highest priority)
-2.  **Base UI components**: Button, Badge, Modal (foundation)
-3.  **Zustand store**: State management (core functionality)
-4.  **Dialog components**: CreateEquipmentDialog, AssignPointsDialog
-5.  **SuggestedGroups**: Auto-detected equipment panel
-6.  **API routes**: Data fetching and persistence
-
-### Architectural Decision Guidelines
-
-**When implementing state management**:
-
-*   Use Zustand for complex state with many actions
-*   Use local useState for component-specific UI state
-*   Use SWR for server state management and caching
-
-**When designing components**:
-
-*   Prioritize composition over inheritance
-*   Create reusable base components in `components/ui/`
-*   Keep feature-specific components in `components/grouping/`
-
-**When handling data transformation**:
-
-*   Normalize data at the API boundary
-*   Keep raw SkySpark data separate from UI state
-*   Implement optimistic updates for better UX
-
-## Prohibited Actions
-
-### Architecture Violations
-
-**PROHIBITED**: Creating components that directly call SkySpark APIs  
-**PROHIBITED**: Mixing server-side and client-side data fetching patterns  
-**PROHIBITED**: Using localStorage for critical application state  
-**PROHIBITED**: Implementing state management outside of Zustand store  
-**PROHIBITED**: Creating non-TypeScript files in the components directory
-
-### Performance Anti-Patterns
-
-**PROHIBITED**: Rendering large lists without virtualization  
-**PROHIBITED**: Performing Jaccard similarity calculations in render functions  
-**PROHIBITED**: Fetching all points data without pagination  
-**PROHIBITED**: Creating new objects in render function dependencies
-
-### UI/UX Violations
-
-**PROHIBITED**: Using hardcoded colors instead of Tailwind tokens  
-**PROHIBITED**: Creating non-responsive layouts  
-**PROHIBITED**: Implementing interactions without keyboard navigation  
-**PROHIBITED**: Missing loading states for async operations
-
-### TypeScript Standards
-
-**PROHIBITED**: Using `any` type except for third-party library integrations  
-**PROHIBITED**: Creating interfaces without proper documentation  
-**PROHIBITED**: Exporting implementation details from component modules  
-**PROHIBITED**: Missing return type annotations for functions
-
-## Integration Requirements
-
-### Existing Code Compatibility
-
-**MUST** maintain compatibility with existing files:
-
-*   Extend `lib/utils.ts` without breaking existing exports
-*   Use existing utility functions in new components
-*   Follow established patterns from `components/unassigned_points.ts`
-*   Maintain consistency with existing TypeScript interfaces
-
-### Development Environment Setup
-
-**MUST** ensure development environment includes:
-
-*   Node.js 18+ for Next.js 14 compatibility
-*   pnpm for consistent dependency management
-*   VS Code with TypeScript and Tailwind extensions
-*   Git hooks for pre-commit linting and type checking
-
-This comprehensive development guide ensures consistent implementation of the BACnet Point Grouping UI while maintaining high code quality and developer experience standards.

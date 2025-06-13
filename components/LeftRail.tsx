@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from './ui/Card';
+import { FileUpload } from './FileUpload';
 import { useGroupingStore } from '../lib/store';
 
 export function LeftRail() {
@@ -16,6 +17,14 @@ export function LeftRail() {
   const confirmedEquipment = useGroupingStore(state => 
     state.equipmentInstances.filter(eq => eq.status === 'confirmed')
   );
+  
+  // Debug logging to see what's happening
+  const allEquipment = useGroupingStore(state => state.equipmentInstances);
+  console.log('🔍 LeftRail Debug:', {
+    totalEquipment: allEquipment.length,
+    confirmedEquipment: confirmedEquipment.length,
+    equipmentStatuses: allEquipment.map(eq => ({ id: eq.id, status: eq.status, name: eq.name })).slice(0, 5)
+  });
 
   return (
     <div className="space-y-6">
@@ -43,6 +52,9 @@ export function LeftRail() {
           </div>
         </Card.Content>
       </Card>
+
+      {/* File Upload */}
+      <FileUpload />
 
       {/* Grouping Method */}
       <Card>

@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { GroupingState, BACnetPoint, EquipmentInstance, EquipmentTemplate, PointSignature, ConsoleMessage } from './types';
+import { GroupingState, BACnetPoint, EquipmentInstance, EquipmentTemplate, PointSignature, ConsoleMessage, ProcessingResult, GroupingMethod } from './types';
 import { processEquipmentGrouping } from './utils';
 import { generateRandomTemplateColor } from './utils';
 
 interface GroupingActions {
   loadPoints: (points: BACnetPoint[]) => void;
-  setGroupingMethod: (method: GroupingState['selectedGroupingMethod']) => void;
+  loadProcessedData: (result: ProcessingResult) => void; // New action
+  setGroupingMethod: (method: GroupingMethod) => void;
   confirmEquipment: (equipmentId: string) => void;
   flagEquipment: (equipmentId: string) => void;
   confirmPoint: (pointId: string) => void;
@@ -34,6 +35,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   equipmentTypes: [],
   equipmentInstances: [],
   templates: [],
+  suggestedTemplates: [], // New state
   stats: {
     totalPoints: 0,
     assignedPoints: 0,
@@ -51,6 +53,57 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   isComplete: false,
 
   // Actions
+  loadProcessedData: (result) => {
+    // Debug logging to examine the raw Python data
+    console.log('🔍 RAW PYTHON DATA ANALYSIS:');
+    console.log('📊 Equipment Instances:', result.equipmentInstances.length);
+    console.log('📋 Equipment Sample:', result.equipmentInstances.slice(0, 3).map(eq => ({
+      id: eq.id,
+      name: eq.name,
+      status: eq.status,
+      confidence: eq.confidence,
+      pointCount: eq.pointIds.length,
+      cluster: eq.cluster
+    })));
+    
+    console.log('📍 Points Data:', result.allPoints.length);
+    console.log('📝 Points Sample:', result.allPoints.slice(0, 3).map(p => ({
+      id: p.id,
+      dis: p.dis,
+      equipRef: p.equipRef,
+      status: p.status,
+      fileName: p.fileName
+    })));
+    
+    // Check point-to-equipment mapping
+    const pointsWithEquipRef = result.allPoints.filter(p => p.equipRef);
+    const pointsWithoutEquipRef = result.allPoints.filter(p => !p.equipRef);
+    console.log('🔗 Point Mapping:', {
+      totalPoints: result.allPoints.length,
+      mappedToEquipment: pointsWithEquipRef.length,
+      unmapped: pointsWithoutEquipRef.length,
+      mappingPercentage: Math.round((pointsWithEquipRef.length / result.allPoints.length) * 100)
+    });
+    
+    // Check equipment status distribution
+    const statusCounts = result.equipmentInstances.reduce((acc, eq) => {
+      acc[eq.status] = (acc[eq.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    console.log('📈 Equipment Status Distribution:', statusCounts);
+    
+    set({
+      equipmentInstances: result.equipmentInstances,
+      suggestedTemplates: result.equipmentTemplates,
+      points: result.allPoints, // Load the actual points data that UI components need
+      isProcessing: false
+    });
+    get().addConsoleMessage({
+      level: 'success',
+      message: `Successfully processed file data. Loaded ${result.equipmentInstances.length} equipment instances and ${result.allPoints.length} points.`
+    });
+  },
+
   loadPoints: (points) => {
     set({ isProcessing: true });
     
@@ -78,7 +131,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       });
     }
   },
-
+  // ... (rest of the actions remain the same)
   setGroupingMethod: (method) => {
     set({ selectedGroupingMethod: method });
     
@@ -334,6 +387,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       equipmentTypeId: equipment.typeId,
       createdFrom: equipmentId,
       pointSignature,
+      featureVector: [], // featureVector is now required, but empty for manual templates
       createdAt: new Date(),
       appliedCount: 0,
       color: generateRandomTemplateColor()

@@ -42,7 +42,7 @@ export interface EquipmentInstance {
   name: string;
   typeId: string;
   confidence: number;
-  status: 'suggested' | 'confirmed' | 'needs-review';
+  status: 'suggested' | 'confirmed' | 'needs-review' | 'flagged';
   pointIds: string[];
   vendor?: string;
   model?: string;
@@ -56,6 +56,7 @@ export interface EquipmentTemplate {
   equipmentTypeId: string;
   createdFrom: string; // Equipment instance ID this was created from
   pointSignature: PointSignature[];
+  featureVector: number[];
   createdAt: Date;
   appliedCount: number; // How many times this template has been applied
   color: string; // Random color assigned when template is created (e.g., 'bg-blue-500')
@@ -89,18 +90,46 @@ export interface ConsoleMessage {
   message: string;
 }
 
+export type GroupingMethod = 'none' | 'kind' | 'unit' | 'smart';
+
 export interface GroupingState {
   points: BACnetPoint[];
   equipmentTypes: EquipmentType[];
   equipmentInstances: EquipmentInstance[];
   templates: EquipmentTemplate[]; // Global template storage
+  suggestedTemplates: EquipmentTemplate[];
   stats: ProcessingStats;
   consoleMessages: ConsoleMessage[];
-  selectedGroupingMethod: 'none' | 'kind' | 'unit' | 'smart';
+  selectedGroupingMethod: GroupingMethod;
   isProcessing: boolean;
   showUnassignedDrawer: boolean;
   showConfirmedDrawer: boolean;
   selectedPoints: Set<string>;
   showCelebration: boolean;
   isComplete: boolean;
+}
+
+export interface ProcessingResult {
+  equipmentInstances: EquipmentInstance[];
+  equipmentTemplates: EquipmentTemplate[];
+  allPoints: BACnetPoint[];
+}
+
+export interface GroupingActions {
+  loadPoints: (points: BACnetPoint[]) => void;
+  loadProcessedData: (result: ProcessingResult) => void;
+  setGroupingMethod: (method: GroupingMethod) => void;
+  addConsoleMessage: (message: Omit<ConsoleMessage, 'id' | 'timestamp'>) => void;
+  toggleUnassignedDrawer: (open?: boolean) => void;
+  toggleConfirmedDrawer: (open?: boolean) => void;
+  togglePointSelection: (pointId: string) => void;
+  clearSelection: () => void;
+  assignPointsToEquipment: (equipmentId: string, pointIds: string[]) => void;
+  confirmEquipment: (equipmentId: string) => void;
+  flagEquipment: (equipmentId: string) => void;
+  createTemplateFromEquipment: (equipmentId: string) => void;
+  applyTemplateToEquipment: (templateId: string, equipmentId: string) => void;
+  saveDraft: () => Promise<void>;
+  checkCompletion: () => void;
+  resetCelebration: () => void;
 }

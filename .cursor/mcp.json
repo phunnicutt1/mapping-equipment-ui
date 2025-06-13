@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+      "shrimp-task-manager": {
+        "command": "node",
+        "args": [
+          "/Users/Patrick/Sites/mcp-shrimp-task-manager/dist/index.js"
+        ],
+        "env": {
+          "DATA_DIR": "/Users/Patrick/Sites/mapping-equipment-ui/.tasks"
+        }
+      }
+    }
+  }
