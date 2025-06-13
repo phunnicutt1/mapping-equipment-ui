@@ -64,17 +64,44 @@ export const parseConnectorFile = async (file: File): Promise<Partial<EquipmentI
   const text = await file.text();
   const lines = text.split('\n').filter(line => line.trim() !== '');
   if (lines.length === 0) return []; // Return early if file is empty
-  const headers = lines[0].split('\t').map(h => h.trim());
-  const equipNameIndex = headers.findIndex(h => h.toLowerCase().includes('equip/connector name'));
+  
+  // Detect delimiter (CSV vs TSV)
+  const firstLine = lines[0];
+  const delimiter = firstLine.includes(',') ? ',' : '\t';
+  const headers = firstLine.split(delimiter).map(h => h.trim());
+  
+  console.log('Detected delimiter:', delimiter === ',' ? 'CSV' : 'TSV');
+  console.log('Parsed headers:', headers);
+  
+  // Look for various possible equipment name headers (more flexible matching)
+  const equipNameIndex = headers.findIndex(h => {
+    const lowerHeader = h.toLowerCase();
+    return lowerHeader.includes('equip/connector name') || 
+           lowerHeader === 'equipment' ||
+           lowerHeader === 'equip name' ||
+           lowerHeader === 'connector name' ||
+           lowerHeader === 'name' ||
+           lowerHeader === 'equip' ||
+           lowerHeader === 'devicename' ||
+           lowerHeader === 'device name' ||
+           lowerHeader.includes('device') && lowerHeader.includes('name');
+  });
   
   if (equipNameIndex === -1) {
-    throw new Error("Could not find 'Equip/Connector Name' in connector file headers.");
+    console.warn('Available headers:', headers);
+    throw new Error(`Could not find equipment name column in connector file headers. Available headers: ${headers.join(', ')}`);
   }
 
+  console.log(`Found equipment name column at index ${equipNameIndex}: "${headers[equipNameIndex]}"`);
+
   return lines.slice(1).map(line => {
-    const values = line.split('\t');
-    return { id: values[equipNameIndex], name: values[equipNameIndex] };
-  });
+    const values = line.split(delimiter);
+    const equipmentName = values[equipNameIndex]?.trim();
+    return equipmentName ? { 
+      id: equipmentName, 
+      name: equipmentName 
+    } : null;
+  }).filter(Boolean) as Partial<EquipmentInstance>[];
 };
 
 export const unifyBacnetData = (

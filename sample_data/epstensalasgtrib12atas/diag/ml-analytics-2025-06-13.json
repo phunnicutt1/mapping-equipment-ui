@@ -1,0 +1,85 @@
+{
+  "timestamp": "2025-06-13T14:47:46.936Z",
+  "version": "1.0",
+  "analytics": {
+    "tagGeneration": {
+      "totalPointsProcessed": 0,
+      "averageTagsPerPoint": 0,
+      "tagQualityDistribution": {},
+      "processingTimeMs": 0,
+      "tagValidationResults": {
+        "valid": 0,
+        "invalid": 0,
+        "warnings": 0
+      }
+    },
+    "pythonService": {
+      "totalCalls": 0,
+      "successfulCalls": 0,
+      "failedCalls": 0,
+      "averageExecutionTime": 0,
+      "lastHealthCheck": null,
+      "isHealthy": false,
+      "executionTimes": [],
+      "memoryUsage": [],
+      "clusteringQuality": {
+        "averageSilhouetteScore": 0,
+        "clusterStability": 0,
+        "anomalyDetectionAccuracy": 0
+      },
+      "errorPatterns": {},
+      "successRate": 0,
+      "isRecentlyHealthy": false
+    },
+    "userInteractions": {
+      "confirmationRate": 0,
+      "rejectionRate": 0,
+      "averageConfidenceBeforeUserAction": 0,
+      "mostCommonUserActions": {},
+      "timeToFirstInteraction": 0,
+      "sessionsCompleted": 0,
+      "averageSessionDuration": 0
+    },
+    "clusteringQuality": {
+      "silhouetteScores": [],
+      "averageSilhouetteScore": 0,
+      "clusterSeparation": 0,
+      "intraClusterDistances": [],
+      "interClusterDistances": [],
+      "stabilityScore": 0,
+      "optimalClusterCount": 0,
+      "actualClusterCount": 0
+    },
+    "summary": {
+      "overallHealthScore": 0,
+      "recommendations": [
+        "Consider optimizing Python service reliability",
+        "Clustering quality is low - review feature engineering",
+        "Low user confirmation rate - improve ML predictions"
+      ],
+      "performanceGrade": "F",
+      "keyMetrics": {
+        "Health Score": "0%",
+        "Service Success Rate": "0%",
+        "Avg Execution Time": "0ms",
+        "User Confirmation Rate": "0%",
+        "Avg Silhouette Score": "0.000",
+        "Tag Validation Rate": "0%",
+        "Total Processing Calls": 0,
+        "Points Processed": 0
+      }
+    }
+  },
+  "systemInfo": {
+    "nodeVersion": "v22.15.1",
+    "platform": "darwin",
+    "memoryUsage": {
+      "rss": 1033601024,
+      "heapTotal": 300548096,
+      "heapUsed": 266105672,
+      "external": 213033841,
+      "arrayBuffers": 208906564
+    },
+    "uptime": 193.369943667
+  }
+}

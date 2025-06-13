@@ -15,7 +15,7 @@ import {
   TemplateActivity,
   NewEquipmentTypeCandidate
 } from './types';
-import { generateRandomTemplateColor } from './utils';
+import { generateRandomTemplateColor, equipmentTypes } from './utils';
 
 interface GroupingActions {
   loadPoints: (points: BACnetPoint[]) => void; // DEPRECATED: Use loadProcessedData instead
@@ -70,7 +70,7 @@ interface GroupingActions {
 export const useGroupingStore = create<GroupingState & GroupingActions>((set, get) => ({
   // Initial state
   points: [],
-  equipmentTypes: [],
+  equipmentTypes: equipmentTypes, // Load predefined equipment types
   equipmentInstances: [],
   templates: [],
   suggestedTemplates: [], // New state
@@ -196,8 +196,39 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
         confidenceDistribution
       };
       
+      // Ensure equipment instances have valid typeIds
+      const currentEquipmentTypes = get().equipmentTypes;
+      const processedEquipmentInstances = result.equipmentInstances.map(equipment => {
+        // If the equipment has an invalid typeId, try to detect it from the name or assign a default
+        if (!currentEquipmentTypes.find(type => type.id === equipment.typeId)) {
+          // Try to detect equipment type from name
+          const detectedType = currentEquipmentTypes.find(type => 
+            type.pattern && type.pattern.test(equipment.name)
+          );
+          
+          if (detectedType) {
+            console.log(`🔧 Auto-detected type for ${equipment.name}: ${detectedType.id}`);
+            return { ...equipment, typeId: detectedType.id };
+          } else {
+            // Default to 'zones' for unclassified equipment
+            console.log(`⚠️ No type detected for ${equipment.name}, defaulting to 'zones'`);
+            return { ...equipment, typeId: 'zones' };
+          }
+        }
+        return equipment;
+      });
+      
+      console.log('🔧 Equipment Type Mapping:', {
+        originalEquipment: result.equipmentInstances.length,
+        processedEquipment: processedEquipmentInstances.length,
+        typeDistribution: processedEquipmentInstances.reduce((acc, eq) => {
+          acc[eq.typeId] = (acc[eq.typeId] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      });
+      
       set({
-        equipmentInstances: result.equipmentInstances,
+        equipmentInstances: processedEquipmentInstances,
         suggestedTemplates: result.equipmentTemplates,
         points: result.allPoints,
         stats,
