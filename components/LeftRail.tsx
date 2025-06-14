@@ -33,9 +33,17 @@ export function LeftRail() {
   const mlStats = {
     totalClusters: Array.from(new Set(allEquipment.map(eq => eq.cluster).filter(Boolean))).length,
     mlTemplatesGenerated: suggestedTemplates?.length || 0,
-    highConfidenceEquipment: allEquipment.filter(eq => eq.confidence >= 0.8).length,
+    // Handle confidence values that might be 0-100 or 0.0-1.0 scale
+    highConfidenceEquipment: allEquipment.filter(eq => {
+      const confidence = eq.confidence > 1 ? eq.confidence / 100 : eq.confidence; // Normalize to 0-1
+      return confidence >= 0.8;
+    }).length,
     avgConfidence: allEquipment.length > 0 
-      ? Math.round((allEquipment.reduce((sum, eq) => sum + eq.confidence, 0) / allEquipment.length) * 100)
+      ? Math.round(allEquipment.reduce((sum, eq) => {
+          // Normalize confidence to 0-1 scale, then convert to percentage
+          const confidence = eq.confidence > 1 ? eq.confidence / 100 : eq.confidence;
+          return sum + confidence;
+        }, 0) / allEquipment.length * 100)
       : 0
   };
   
@@ -228,16 +236,28 @@ export function LeftRail() {
               <div className="mt-4 space-y-2">
                 <div className="text-xs font-medium text-gray-700">Confidence Breakdown</div>
                 <div className="space-y-1">
-                  {confirmedEquipment.filter(eq => eq.confidence >= 0.8).length > 0 && (
+                  {confirmedEquipment.filter(eq => {
+                    const confidence = eq.confidence > 1 ? eq.confidence / 100 : eq.confidence;
+                    return confidence >= 0.8;
+                  }).length > 0 && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-green-600">High (≥80%)</span>
-                      <span className="font-medium">{confirmedEquipment.filter(eq => eq.confidence >= 0.8).length}</span>
+                      <span className="font-medium">{confirmedEquipment.filter(eq => {
+                        const confidence = eq.confidence > 1 ? eq.confidence / 100 : eq.confidence;
+                        return confidence >= 0.8;
+                      }).length}</span>
                     </div>
                   )}
-                  {confirmedEquipment.filter(eq => eq.confidence >= 0.6 && eq.confidence < 0.8).length > 0 && (
+                  {confirmedEquipment.filter(eq => {
+                    const confidence = eq.confidence > 1 ? eq.confidence / 100 : eq.confidence;
+                    return confidence >= 0.6 && confidence < 0.8;
+                  }).length > 0 && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-yellow-600">Medium (60-79%)</span>
-                      <span className="font-medium">{confirmedEquipment.filter(eq => eq.confidence >= 0.6 && eq.confidence < 0.8).length}</span>
+                      <span className="font-medium">{confirmedEquipment.filter(eq => {
+                        const confidence = eq.confidence > 1 ? eq.confidence / 100 : eq.confidence;
+                        return confidence >= 0.6 && confidence < 0.8;
+                      }).length}</span>
                     </div>
                   )}
                   {confirmedEquipment.filter(eq => eq.confidence < 0.6).length > 0 && (
@@ -326,22 +346,40 @@ export function LeftRail() {
               {/* Template Quality Distribution */}
               <div className="space-y-2">
                 <div className="text-xs font-medium text-gray-700">Template Quality</div>
-                {suggestedTemplates.filter(t => (t.confidence || 0) >= 0.8).length > 0 && (
+                {suggestedTemplates.filter(t => {
+                  const confidence = (t.confidence || 0) > 1 ? (t.confidence || 0) / 100 : (t.confidence || 0);
+                  return confidence >= 0.8;
+                }).length > 0 && (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-green-600">High Quality</span>
-                    <span className="font-medium">{suggestedTemplates.filter(t => (t.confidence || 0) >= 0.8).length}</span>
+                    <span className="font-medium">{suggestedTemplates.filter(t => {
+                      const confidence = (t.confidence || 0) > 1 ? (t.confidence || 0) / 100 : (t.confidence || 0);
+                      return confidence >= 0.8;
+                    }).length}</span>
                   </div>
                 )}
-                {suggestedTemplates.filter(t => (t.confidence || 0) >= 0.6 && (t.confidence || 0) < 0.8).length > 0 && (
+                {suggestedTemplates.filter(t => {
+                  const confidence = (t.confidence || 0) > 1 ? (t.confidence || 0) / 100 : (t.confidence || 0);
+                  return confidence >= 0.6 && confidence < 0.8;
+                }).length > 0 && (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-yellow-600">Medium Quality</span>
-                    <span className="font-medium">{suggestedTemplates.filter(t => (t.confidence || 0) >= 0.6 && (t.confidence || 0) < 0.8).length}</span>
+                    <span className="font-medium">{suggestedTemplates.filter(t => {
+                      const confidence = (t.confidence || 0) > 1 ? (t.confidence || 0) / 100 : (t.confidence || 0);
+                      return confidence >= 0.6 && confidence < 0.8;
+                    }).length}</span>
                   </div>
                 )}
-                {suggestedTemplates.filter(t => (t.confidence || 0) < 0.6).length > 0 && (
+                {suggestedTemplates.filter(t => {
+                  const confidence = (t.confidence || 0) > 1 ? (t.confidence || 0) / 100 : (t.confidence || 0);
+                  return confidence < 0.6;
+                }).length > 0 && (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-red-600">Low Quality</span>
-                    <span className="font-medium">{suggestedTemplates.filter(t => (t.confidence || 0) < 0.6).length}</span>
+                    <span className="font-medium">{suggestedTemplates.filter(t => {
+                      const confidence = (t.confidence || 0) > 1 ? (t.confidence || 0) / 100 : (t.confidence || 0);
+                      return confidence < 0.6;
+                    }).length}</span>
                   </div>
                 )}
               </div>
@@ -355,7 +393,7 @@ export function LeftRail() {
                       {template.name}
                     </div>
                     <div className="text-xs text-indigo-700 mt-1">
-                      {template.confidence && `${Math.round(template.confidence * 100)}% confidence`}
+                      {template.confidence && `${Math.round((template.confidence > 1 ? template.confidence : template.confidence * 100))}% confidence`}
                     </div>
                   </div>
                 ))}

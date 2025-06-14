@@ -32,11 +32,14 @@ export default function HomePage() {
     points,
     equipmentInstances,
     templates,
+    stats,
     addConsoleMessage
   } = useGroupingStore();
 
   const [mlProcessingStatus, setMlProcessingStatus] = useState<'idle' | 'loading' | 'processing' | 'complete' | 'error'>('idle');
   const [processingError, setProcessingError] = useState<string | null>(null);
+  const [useSkySpark, setUseSkySpark] = useState(false); // New toggle state
+  const [useTestDataset, setUseTestDataset] = useState(true); // New test dataset toggle
 
   useEffect(() => {
     // Load data using ML pipeline on mount
@@ -44,57 +47,57 @@ export default function HomePage() {
   }, []);
 
   const loadDataFromMLPipeline = async () => {
-    try {
-      setMlProcessingStatus('loading');
-      setProcessingError(null);
-      
+    if (useTestDataset) {
+      await loadTestDataset();
+      return;
+    }
+    
+    if (!useSkySpark) {
       addConsoleMessage({
         level: 'info',
-        message: 'Initializing ML pipeline data loading...'
+        message: 'SkySpark disabled. Use file upload or enable test dataset to load data.'
+      });
+      return;
+    }
+
+    setMlProcessingStatus('loading');
+    setProcessingError(null);
+    
+    try {
+      addConsoleMessage({
+        level: 'info',
+        message: 'Loading data from SkySpark API...'
       });
 
-      // First, try to get data from the SkySpark API
-      const pointsResponse = await fetch('/api/points');
-      const pointsResult = await pointsResponse.json();
+      const response = await fetch('/api/points');
+      if (!response.ok) {
+        throw new Error(`SkySpark API error: ${response.status}`);
+      }
       
-      if (!pointsResult.success) {
-        throw new Error(pointsResult.error || 'Failed to fetch points data');
+      const data = await response.json();
+      
+      if (!data.points || data.points.length === 0) {
+        throw new Error('No points data received from SkySpark API');
       }
 
-      const sourceMessage = pointsResult.source === 'skyspark' 
-        ? `Connected to SkySpark API - loaded ${pointsResult.data.length} points`
-        : pointsResult.source === 'mock_fallback'
-        ? `SkySpark connection failed (${pointsResult.error}), using mock data`
-        : `Using mock data - ${pointsResult.data.length} points loaded`;
-        
-      addConsoleMessage({
-        level: pointsResult.source === 'skyspark' ? 'success' : 'warning',
-        message: sourceMessage
-      });
-
-      // Convert the points data to a file-like structure for ML processing
       setMlProcessingStatus('processing');
+      
       addConsoleMessage({
         level: 'info',
-        message: 'Processing data through ML pipeline (K-Modes clustering + Project Haystack tagging)...'
+        message: `Processing ${data.points.length} points through ML pipeline...`
       });
 
-      const processedData = await processDataThroughMLPipeline(pointsResult.data);
+      // Process the SkySpark data through the ML pipeline
+      const processedData = await processDataThroughMLPipeline(data.points);
       
-      // Load the processed data into the store
-      loadProcessedData(processedData);
-      
+      loadProcessedData(processedData.equipment, processedData.points);
       setMlProcessingStatus('complete');
+      
       addConsoleMessage({
         level: 'success',
-        message: `ML pipeline processing complete! Generated ${processedData.equipmentInstances.length} equipment clusters with ${processedData.equipmentTemplates.length} templates.`
+        message: `ML pipeline completed: ${processedData.equipment.length} equipment instances identified.`
       });
-      
-      // Check for completion after data loads
-      setTimeout(() => {
-        checkCompletion();
-      }, 500);
-      
+
     } catch (error) {
       console.error('ML pipeline loading error:', error);
       setMlProcessingStatus('error');
@@ -185,7 +188,7 @@ export default function HomePage() {
         }))
       };
 
-      loadProcessedData(fallbackResult);
+      loadProcessedData(fallbackResult.equipmentInstances, fallbackResult.allPoints);
       setMlProcessingStatus('complete');
       
       addConsoleMessage({
@@ -235,6 +238,65 @@ export default function HomePage() {
 
   const statusDisplay = getProcessingStatusDisplay();
 
+  // New function to load the specific test dataset
+  const loadTestDataset = async () => {
+    setMlProcessingStatus('loading');
+    setProcessingError(null);
+    
+    try {
+      addConsoleMessage({
+        level: 'info',
+        message: 'Loading Intuitive Durham test dataset...'
+      });
+
+      const response = await fetch('/api/load-test-dataset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          datasetPath: '/Users/Patrick/Sites/mapping-equipment-ui/sample_data/intuitivedurham/io/setup/points'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Test dataset loading failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Test dataset loading failed');
+      }
+
+      setMlProcessingStatus('processing');
+      
+      addConsoleMessage({
+        level: 'info',
+        message: `Processing test dataset: ${result.data.allPoints.length} points from ${result.data.equipmentInstances.length} equipment files...`
+      });
+
+      loadProcessedData(result.data.equipmentInstances, result.data.allPoints);
+      setMlProcessingStatus('complete');
+      
+      addConsoleMessage({
+        level: 'success',
+        message: `Test dataset loaded successfully: ${result.data.equipmentInstances.length} equipment instances, ${result.data.allPoints.length} points.`
+      });
+
+    } catch (error) {
+      console.error('Test dataset loading error:', error);
+      setMlProcessingStatus('error');
+      setProcessingError(error instanceof Error ? error.message : 'Unknown error');
+      
+      addConsoleMessage({
+        level: 'error',
+        message: `Test dataset loading failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
+
+      // If the API call fails, log the error
+      addConsoleMessage({ level: 'warning', message: 'Failed to load test dataset from API.' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -260,6 +322,30 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Data Source Toggles */}
+              <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-md">
+                <label className="flex items-center space-x-1 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={useTestDataset}
+                    onChange={(e) => setUseTestDataset(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-gray-700">Test Dataset</span>
+                </label>
+                <span className="text-gray-400">|</span>
+                <label className="flex items-center space-x-1 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={useSkySpark}
+                    onChange={(e) => setUseSkySpark(e.target.checked)}
+                    disabled={useTestDataset}
+                    className="rounded"
+                  />
+                  <span className={useTestDataset ? "text-gray-400" : "text-gray-700"}>SkySpark API</span>
+                </label>
+              </div>
+              
               <button
                 onClick={handleRefreshData}
                 disabled={isProcessing || mlProcessingStatus === 'loading' || mlProcessingStatus === 'processing'}

@@ -19,6 +19,8 @@ import {
   calculateTagQuality,
   validateTagMapping
 } from './haystack-dictionary';
+import { parseTrioFile as parseTrio, trioToBACnetPoints } from './trio-parser';
+import {promises as fs} from 'fs';
 
 
 // =================================================================================
@@ -804,7 +806,13 @@ export const processAndClassify = async (
   
     if (vectors.length === 0) {
       console.log("No feature vectors generated, returning empty result.");
-      return { equipmentInstances: [], equipmentTemplates: [], allPoints };
+      return { 
+        equipmentInstances: [], 
+        equipmentTemplates: [], 
+        allPoints,
+        analytics: null,
+        anomalyDetectionResult: { anomalies: [] }
+      };
     }
   
     try {
@@ -813,7 +821,13 @@ export const processAndClassify = async (
       
       if (!clusteredEquipment || clusteredEquipment.length === 0) {
         console.log("Clustering resulted in no equipment, returning empty result.");
-        return { equipmentInstances: [], equipmentTemplates: [], allPoints };
+        return { 
+          equipmentInstances: [], 
+          equipmentTemplates: [], 
+          allPoints,
+          analytics: null,
+          anomalyDetectionResult: { anomalies: [] }
+        };
       }
 
       // Use templates directly from Python clustering result
@@ -836,7 +850,8 @@ export const processAndClassify = async (
         equipmentInstances: finalEquipmentInstances, 
         equipmentTemplates, 
         allPoints,
-        anomalyDetectionResult: anomalyDetection
+        anomalyDetectionResult: anomalyDetection,
+        analytics: null,
       };
 
     } catch (error) {
@@ -845,7 +860,13 @@ export const processAndClassify = async (
       console.error("Number of vectors:", vectors.length);
       console.error("Vector length:", vectors[0]?.length || 0);
       // Return a safe, empty result to prevent the API from crashing
-      return { equipmentInstances: [], equipmentTemplates: [], allPoints };
+      return { 
+        equipmentInstances: [], 
+        equipmentTemplates: [], 
+        allPoints,
+        analytics: null,
+        anomalyDetectionResult: { anomalies: [] }
+      };
     }
 };
 
@@ -853,37 +874,46 @@ export const processAndClassify = async (
 // === Final API Orchestrator
 // =================================================================================
 
+// Helper function to read file content
+async function readFileContent(file: File): Promise<string> {
+  const chunks = [];
+  // @ts-ignore
+  for await (const chunk of file.stream()) {
+    chunks.push(Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks).toString('utf-8');
+}
+
+/**
+ * Processes uploaded Trio files by parsing them and then running the classification pipeline.
+ * This function is designed to be called from an API route on the server.
+ */
 export const processUploadedFiles = async (files: File[]): Promise<ProcessingResult> => {
-    console.log(`🔍 Processing ${files.length} uploaded files:`, files.map(f => f.name));
-    
-    const connectorFile = files.find(f => f.name.endsWith('.csv') || f.name.endsWith('.txt'));
-    if (!connectorFile) throw new Error("No connector file (.csv or .txt) found.");
-    console.log(`📋 Found connector file: ${connectorFile.name}`);
+  const allPoints: BACnetPoint[] = [];
 
-    const trioFiles = files.filter(f => f.name.endsWith('.trio'));
-    if (trioFiles.length === 0) throw new Error("No .trio point data files found.");
-    console.log(`🔧 Found ${trioFiles.length} .trio files`);
-
-    console.log(`📊 Parsing connector file...`);
-    const equipmentData = await parseConnectorFile(connectorFile);
-    console.log(`📊 Parsed ${equipmentData.length} equipment entries from connector file`);
-
-    console.log(`🔍 Parsing .trio files...`);
-    const allPoints = (await Promise.all(trioFiles.map(parseTrioFile))).flat();
-    console.log(`🔍 Parsed ${allPoints.length} total points from .trio files`);
-
-    console.log(`🔗 Unifying equipment and points...`);
-    const { unifiedEquipment, allPoints: unifiedPoints } = unifyBacnetData(equipmentData, allPoints);
-    console.log(`🔗 Unified result: ${unifiedEquipment.length} equipment with points`);
-
-    if (unifiedEquipment.length === 0) {
-        console.warn("⚠️ No equipment could be unified with points. Check file name matching logic.");
-        console.log("Equipment names:", equipmentData.map(e => e.name));
-        console.log("File names:", Array.from(new Set(allPoints.map(p => p.fileName))));
+  for (const file of files) {
+    try {
+      const fileContent = await readFileContent(file);
+      const trioPoints = parseTrio(fileContent, file.name);
+      const bacnetPoints = trioToBACnetPoints(trioPoints);
+      allPoints.push(...bacnetPoints);
+      console.log(`Successfully parsed ${file.name}, found ${bacnetPoints.length} points.`);
+    } catch (error) {
+      console.error(`Error processing file ${file.name}:`, error);
+      // Decide if one failed file should stop the whole process.
+      // For now, we'll log the error and continue.
     }
+  }
 
-    console.log(`🎯 Starting classification process...`);
-    return await processAndClassify(unifiedEquipment, unifiedPoints);
+  if (allPoints.length === 0) {
+    // This case should be handled gracefully
+    return getEmptyProcessingResult();
+  }
+  
+  // After parsing, proceed with clustering and classification
+  const processingResult = await processAndClassify([], allPoints);
+
+  return processingResult;
 };
 
 // =================================================================================
@@ -1000,89 +1030,67 @@ export const getPerformanceAnalytics = (): {
     keyMetrics: { [key: string]: number | string };
   };
 } => {
-  const pythonMetrics = getPythonServiceMetrics();
-  
-  // Calculate overall health score (0-100)
-  let healthScore = 0;
-  
-  // Python service health (30%)
-  if (pythonMetrics.isHealthy) healthScore += 15;
-  if (pythonMetrics.successRate > 0.8) healthScore += 15;
-  
-  // Tag generation quality (25%)
-  const validTagsRatio = tagGenerationMetrics.tagValidationResults.valid / 
-    Math.max(1, tagGenerationMetrics.totalPointsProcessed);
-  healthScore += validTagsRatio * 25;
-  
-  // Clustering quality (25%)
-  if (clusteringQualityMetrics.averageSilhouetteScore > 0.3) healthScore += 12.5;
-  if (clusteringQualityMetrics.averageSilhouetteScore > 0.5) healthScore += 12.5;
-  
-  // User interaction patterns (20%)
-  if (userInteractionMetrics.confirmationRate > 0.7) healthScore += 10;
-  if (userInteractionMetrics.averageConfidenceBeforeUserAction > 70) healthScore += 10;
-  
-  // Generate recommendations
-  const recommendations: string[] = [];
-  
-  if (pythonMetrics.successRate < 0.9) {
-    recommendations.push('Consider optimizing Python service reliability');
+  // If no points have been processed, return a default state
+  if (tagGenerationMetrics.totalPointsProcessed === 0) {
+    return getInitialPerformanceState();
   }
-  if (clusteringQualityMetrics.averageSilhouetteScore < 0.3) {
-    recommendations.push('Clustering quality is low - review feature engineering');
-  }
-  if (userInteractionMetrics.confirmationRate < 0.6) {
-    recommendations.push('Low user confirmation rate - improve ML predictions');
-  }
-  if (tagGenerationMetrics.tagValidationResults.invalid > tagGenerationMetrics.tagValidationResults.valid * 0.1) {
-    recommendations.push('High tag validation error rate - expand dictionary coverage');
-  }
-  if (pythonMetrics.averageExecutionTime > 30000) {
-    recommendations.push('Python service execution time is high - consider optimization');
-  }
-  
-  // Performance grade
-  let performanceGrade = 'F';
-  if (healthScore >= 90) performanceGrade = 'A';
-  else if (healthScore >= 80) performanceGrade = 'B';
-  else if (healthScore >= 70) performanceGrade = 'C';
-  else if (healthScore >= 60) performanceGrade = 'D';
-  
+
+  const pythonServiceHealth = getPythonServiceMetrics();
+  const healthScore = calculateOverallHealth();
+  const performanceGrade =
+    healthScore >= 90 ? "A" :
+    healthScore >= 80 ? "B" :
+    healthScore >= 70 ? "C" :
+    healthScore >= 60 ? "D" : "F";
+
+  const recommendations = checkQualityAlerts();
+
+  // Consolidate key metrics for the summary
   const keyMetrics = {
-    'Health Score': `${Math.round(healthScore)}%`,
-    'Service Success Rate': `${Math.round(pythonMetrics.successRate * 100)}%`,
-    'Avg Execution Time': `${Math.round(pythonMetrics.averageExecutionTime)}ms`,
-    'User Confirmation Rate': `${Math.round(userInteractionMetrics.confirmationRate * 100)}%`,
-    'Avg Silhouette Score': clusteringQualityMetrics.averageSilhouetteScore.toFixed(3),
-    'Tag Validation Rate': `${Math.round(validTagsRatio * 100)}%`,
-    'Total Processing Calls': pythonMetrics.totalCalls,
-    'Points Processed': tagGenerationMetrics.totalPointsProcessed
+    "Health Score": `${Math.round(healthScore)}%`,
+    "Service Success Rate": `${Math.round(pythonServiceHealth.successRate * 100)}%`,
+    "Avg Execution Time": `${Math.round(pythonServiceHealth.averageExecutionTime)}ms`,
+    "User Confirmation Rate": `${Math.round(userInteractionMetrics.confirmationRate * 100)}%`,
+    "Avg Silhouette Score": clusteringQualityMetrics.averageSilhouetteScore.toFixed(3),
+    "Tag Validation Rate": `${Math.round(
+      (tagGenerationMetrics.tagValidationResults.valid / (tagGenerationMetrics.totalPointsProcessed || 1)) * 100
+    )}%`,
+    "Total Processing Calls": pythonServiceHealth.totalCalls,
+    "Points Processed": tagGenerationMetrics.totalPointsProcessed,
   };
-  
+
   return {
     tagGeneration: tagGenerationMetrics,
-    pythonService: pythonMetrics,
+    pythonService: pythonServiceHealth,
     userInteractions: userInteractionMetrics,
     clusteringQuality: clusteringQualityMetrics,
     summary: {
       overallHealthScore: healthScore,
       recommendations,
       performanceGrade,
-      keyMetrics
-    }
+      keyMetrics,
+    },
   };
 };
 
-// Reset analytics data
 export const resetPerformanceAnalytics = (): void => {
   tagGenerationMetrics = {
     totalPointsProcessed: 0,
     averageTagsPerPoint: 0,
     tagQualityDistribution: {},
     processingTimeMs: 0,
-    tagValidationResults: { valid: 0, invalid: 0, warnings: 0 }
+    tagValidationResults: { valid: 0, invalid: 0, warnings: 0 },
   };
-  
+  pythonServiceMetrics = {
+    ...pythonServiceMetrics,
+    totalCalls: 0,
+    successfulCalls: 0,
+    failedCalls: 0,
+    averageExecutionTime: 0,
+    executionTimes: [],
+    memoryUsage: [],
+    errorPatterns: {},
+  };
   userInteractionMetrics = {
     confirmationRate: 0,
     rejectionRate: 0,
@@ -1090,9 +1098,8 @@ export const resetPerformanceAnalytics = (): void => {
     mostCommonUserActions: {},
     timeToFirstInteraction: 0,
     sessionsCompleted: 0,
-    averageSessionDuration: 0
+    averageSessionDuration: 0,
   };
-  
   clusteringQualityMetrics = {
     silhouetteScores: [],
     averageSilhouetteScore: 0,
@@ -1101,13 +1108,79 @@ export const resetPerformanceAnalytics = (): void => {
     interClusterDistances: [],
     stabilityScore: 0,
     optimalClusterCount: 0,
-    actualClusterCount: 0
+    actualClusterCount: 0,
   };
-  
-  resetPythonServiceMetrics();
-  
-  console.log('📊 Performance analytics reset');
+  console.log("Performance analytics have been reset.");
 };
+
+/**
+ * Returns the initial state for the performance dashboard.
+ */
+const getInitialPerformanceState = () => ({
+  tagGeneration: {
+    totalPointsProcessed: 0,
+    averageTagsPerPoint: 0,
+    tagQualityDistribution: {},
+    processingTimeMs: 0,
+    tagValidationResults: { valid: 0, invalid: 0, warnings: 0 },
+  },
+  pythonService: {
+    totalCalls: 0,
+    successfulCalls: 0,
+    failedCalls: 0,
+    averageExecutionTime: 0,
+    successRate: 0,
+    isHealthy: false,
+    isRecentlyHealthy: false,
+    lastHealthCheck: null,
+    executionTimes: [],
+    memoryUsage: [],
+    clusteringQuality: {
+      averageSilhouetteScore: 0,
+      clusterStability: 0,
+      anomalyDetectionAccuracy: 0,
+    },
+    errorPatterns: {},
+  },
+  userInteractions: {
+    confirmationRate: 0,
+    rejectionRate: 0,
+    averageConfidenceBeforeUserAction: 0,
+    mostCommonUserActions: {},
+    timeToFirstInteraction: 0,
+    sessionsCompleted: 0,
+    averageSessionDuration: 0,
+  },
+  clusteringQuality: {
+    silhouetteScores: [],
+    averageSilhouetteScore: 0,
+    clusterSeparation: 0,
+    intraClusterDistances: [],
+    interClusterDistances: [],
+    stabilityScore: 0,
+    optimalClusterCount: 0,
+    actualClusterCount: 0,
+  },
+  summary: {
+    overallHealthScore: 0,
+    recommendations: ["Upload files and process data to see performance metrics."],
+    performanceGrade: "N/A",
+    keyMetrics: {
+      "Health Score": "0%",
+      "Service Success Rate": "0%",
+      "Avg Execution Time": "0ms",
+      "User Confirmation Rate": "0%",
+      "Avg Silhouette Score": "0.000",
+      "Tag Validation Rate": "0%",
+      "Total Processing Calls": 0,
+      "Points Processed": 0,
+    },
+  },
+});
+
+// =================================================================================
+// === Advanced Analytics and Reporting
+// =================================================================================
 
 // Advanced clustering metrics calculation
 export const calculateAdvancedClusteringMetrics = (
@@ -1178,65 +1251,6 @@ export const calculateAdvancedClusteringMetrics = (
   return metrics;
 };
 
-// Export current analytics state for external monitoring
-export const exportAnalyticsData = (): string => {
-  const analytics = getPerformanceAnalytics();
-  const exportData = {
-    timestamp: new Date().toISOString(),
-    version: '1.0',
-    analytics,
-    systemInfo: {
-      nodeVersion: process.version,
-      platform: process.platform,
-      memoryUsage: process.memoryUsage(),
-      uptime: process.uptime()
-    }
-  };
-  
-  return JSON.stringify(exportData, null, 2);
-};
-
-// A/B Testing framework for algorithm improvements
-interface ABTestConfig {
-  testName: string;
-  variants: { [variantName: string]: any };
-  trafficSplit: { [variantName: string]: number };
-  metrics: string[];
-  duration: number; // in milliseconds
-}
-
-let activeABTests: ABTestConfig[] = [];
-
-export const startABTest = (config: ABTestConfig): void => {
-  activeABTests.push({
-    ...config,
-    duration: Date.now() + config.duration
-  });
-  console.log(`🧪 A/B test started: ${config.testName}`);
-};
-
-export const getABTestVariant = (testName: string, defaultVariant: string = 'control'): string => {
-  const test = activeABTests.find(t => t.testName === testName && Date.now() < t.duration);
-  if (!test) return defaultVariant;
-  
-  const random = Math.random();
-  let cumulative = 0;
-  
-  for (const [variant, split] of Object.entries(test.trafficSplit)) {
-    cumulative += split;
-    if (random <= cumulative) {
-      return variant;
-    }
-  }
-  
-  return defaultVariant;
-};
-
-export const stopABTest = (testName: string): void => {
-  activeABTests = activeABTests.filter(t => t.testName !== testName);
-  console.log(`🧪 A/B test stopped: ${testName}`);
-};
-
 // Automated quality alerts
 export const checkQualityAlerts = (): string[] => {
   const alerts: string[] = [];
@@ -1273,4 +1287,41 @@ export const checkQualityAlerts = (): string[] => {
   return alerts;
 };
 
+function calculateOverallHealth(): number {
+  const pythonHealth = getPythonServiceMetrics();
+  const userMetrics = getUserInteractionMetrics();
+  const clustering = getClusteringQualityMetrics();
+  const tagHealth = getTagGenerationMetrics();
+
+  const pythonScore = pythonHealth.successRate * 50 + (pythonHealth.isHealthy ? 50 : 0);
+  const userScore = userMetrics.confirmationRate * 100;
+  const clusterScore = (clustering.averageSilhouetteScore + 1) * 50; // Scale from [-1, 1] to [0, 100]
+  const tagScore = (tagHealth.tagValidationResults.valid / (tagHealth.totalPointsProcessed || 1)) * 100;
+  
+  // Weighted average
+  const overallScore = (pythonScore * 0.4) + (userScore * 0.3) + (clusterScore * 0.2) + (tagScore * 0.1);
+  return Math.max(0, Math.min(100, overallScore)); // Clamp between 0 and 100
+}
+
 console.log('🔧 Enhanced BACnet Processor with Performance Monitoring loaded');
+
+export const exportAnalyticsData = () => {
+  return getPerformanceAnalytics();
+};
+
+// --- UTILITY ---
+function getEmptyProcessingResult(): ProcessingResult {
+    return {
+      equipmentInstances: [],
+      equipmentTemplates: [],
+      allPoints: [],
+      anomalyDetectionResult: {
+        totalProcessed: 0,
+        anomalyRate: 0,
+        detectionThreshold: 0,
+        anomalies: [],
+        clusterQualityMetrics: {}
+      },
+      analytics: null,
+    };
+}

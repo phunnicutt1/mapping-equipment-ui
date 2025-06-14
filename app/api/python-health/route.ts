@@ -66,10 +66,10 @@ async function runPythonDiagnostics(): Promise<any> {
     venvExists: false,
     venvPythonExists: false,
     systemPythonExists: false,
-    pythonVersion: null,
+    pythonVersion: null as string | null,
     packagesInstalled: false,
-    setupInstructions: [],
-    errors: []
+    setupInstructions: [] as string[],
+    errors: [] as string[]
   };
 
   // Check if virtual environment exists

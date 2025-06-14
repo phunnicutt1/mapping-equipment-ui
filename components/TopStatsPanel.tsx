@@ -5,8 +5,17 @@ import { useGroupingStore } from '../lib/store';
 export function TopStatsPanel() {
   const { points, equipmentInstances, equipmentTypes, templates, stats } = useGroupingStore();
 
+  // Guard clause to prevent rendering if essential data is not yet available
+  if (!points || !equipmentInstances) {
+    return (
+      <div className="bg-white border-b border-gray-200 shadow-sm p-6 text-center text-gray-500">
+        Loading statistics...
+      </div>
+    );
+  }
+
   // Calculate equipment type distribution (initial auto-detected types)
-  const equipmentTypeDistribution = equipmentTypes.map(type => {
+  const equipmentTypeDistribution = (equipmentTypes || []).map(type => {
     const instancesOfType = equipmentInstances.filter(eq => eq.typeId === type.id && !eq.templateId);
     return {
       id: type.id,
@@ -18,7 +27,7 @@ export function TopStatsPanel() {
   }).filter(type => type.count > 0);
 
   // Calculate template distribution (templates are also equipment types)
-  const templateDistribution = templates.map(template => {
+  const templateDistribution = (templates || []).map(template => {
     const instancesWithTemplate = equipmentInstances.filter(eq => eq.templateId === template.id);
     return {
       id: template.id,

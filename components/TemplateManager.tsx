@@ -340,8 +340,8 @@ export function TemplateManager({ isOpen, onClose }: TemplateManagerProps) {
                         
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-gray-500">Success Rate:</span>
-                          <span className={`font-medium px-2 py-1 rounded ${getEffectivenessColor(template.effectiveness.successRate)}`}>
-                            {Math.round(template.effectiveness.successRate * 100)}%
+                                                          <span className={`font-medium px-2 py-1 rounded ${getEffectivenessColor(template.effectiveness?.successRate || 0)}`}>
+                                  {Math.round((template.effectiveness?.successRate || 0) * 100)}%
                           </span>
                         </div>
 
@@ -450,7 +450,7 @@ export function TemplateManager({ isOpen, onClose }: TemplateManagerProps) {
                   <div className="space-y-3">
                     {allTemplates
                       .filter(t => t.appliedCount > 0)
-                      .sort((a, b) => b.effectiveness.successRate - a.effectiveness.successRate)
+                      .sort((a, b) => (b.effectiveness?.successRate ?? 0) - (a.effectiveness?.successRate ?? 0))
                       .slice(0, 5)
                       .map(template => (
                         <div key={template.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -460,8 +460,8 @@ export function TemplateManager({ isOpen, onClose }: TemplateManagerProps) {
                               {template.appliedCount} applications • {template.isMLGenerated ? 'ML Generated' : 'User Created'}
                             </div>
                           </div>
-                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${getEffectivenessColor(template.effectiveness.successRate)}`}>
-                            {Math.round(template.effectiveness.successRate * 100)}%
+                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${getEffectivenessColor(template.effectiveness?.successRate || 0)}`}>
+                            {Math.round((template.effectiveness?.successRate || 0) * 100)}%
                           </div>
                         </div>
                       ))}

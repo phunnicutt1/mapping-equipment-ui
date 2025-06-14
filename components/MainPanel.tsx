@@ -6,8 +6,9 @@ import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { useGroupingStore } from '../lib/store';
 import { getEquipmentDisplayName, getEquipmentTypeBorderColor } from '../lib/utils';
-import { ChevronDownIcon, ChevronRightIcon, CubeIcon, BeakerIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronRightIcon, CubeIcon, BeakerIcon, RectangleGroupIcon } from '@heroicons/react/24/outline';
 import PointPropertiesTags from './PointPropertiesTags';
+import { EquipmentVisualization } from './EquipmentVisualization';
 
 export function MainPanel() {
   const { 
@@ -33,6 +34,7 @@ export function MainPanel() {
   const [expandedEquipment, setExpandedEquipment] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [showClusterInfo, setShowClusterInfo] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'visualization'>('list');
 
   const toggleEquipmentType = (typeId: string) => {
     const newExpanded = new Set(expandedEquipmentTypes);
@@ -241,40 +243,84 @@ export function MainPanel() {
               <span className="text-white">Equipment</span>
             </div>
             <div className="flex items-center space-x-2">
+              {/* View Mode Toggle */}
+              <div className="flex items-center bg-slate-700 rounded-md p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center space-x-1 px-2 py-1 rounded text-xs ${
+                    viewMode === 'list' ? 'bg-white text-slate-600' : 'text-white hover:bg-slate-600'
+                  }`}
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  <span>List</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('visualization')}
+                  className={`flex items-center space-x-1 px-2 py-1 rounded text-xs ${
+                    viewMode === 'visualization' ? 'bg-white text-slate-600' : 'text-white hover:bg-slate-600'
+                  }`}
+                >
+                  <RectangleGroupIcon className="w-3 h-3" />
+                  <span>Visual</span>
+                </button>
+              </div>
               {/* ML Pipeline Indicator */}
               <div className="flex items-center space-x-1 text-xs bg-purple-600 px-2 py-1 rounded">
                 <BeakerIcon className="w-3 h-3" />
                 <span>ML Clustered</span>
               </div>
               {/* Cluster Info Toggle */}
-              <button
-                onClick={() => setShowClusterInfo(!showClusterInfo)}
-                className="flex items-center space-x-1 text-xs bg-blue-600 px-2 py-1 rounded hover:bg-blue-700"
-              >
-                <CubeIcon className="w-3 h-3" />
-                <span>{showClusterInfo ? 'Hide' : 'Show'} Clusters</span>
-              </button>
+              {viewMode === 'list' && (
+                <button
+                  onClick={() => setShowClusterInfo(!showClusterInfo)}
+                  className="flex items-center space-x-1 text-xs bg-blue-600 px-2 py-1 rounded hover:bg-blue-700"
+                >
+                  <CubeIcon className="w-3 h-3" />
+                  <span>{showClusterInfo ? 'Hide' : 'Show'} Clusters</span>
+                </button>
+              )}
             </div>
           </Card.Title>
         </Card.Header>
         <Card.Content className="p-4">
-          {/* Search Bar */}
-          <div className="mb-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+          {viewMode === 'visualization' ? (
+            /* Equipment Visualization View */
+            <EquipmentVisualization
+              equipment={equipmentInstances.filter(eq => eq.status !== 'confirmed')}
+              points={points}
+              onEquipmentClick={(equipment) => {
+                console.log('Equipment clicked:', equipment);
+                // Auto-expand this equipment in list view
+                setExpandedEquipment(prev => new Set([...Array.from(prev), equipment.id]));
+                // Switch to list view to show details
+                setViewMode('list');
+              }}
+              onPointClick={(point) => {
+                console.log('Point clicked:', point);
+              }}
+            />
+          ) : (
+            /* List View */
+            <>
+              {/* Search Bar */}
+              <div className="mb-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search points by name, description, BACnet ID, or device location..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
               </div>
-              <input
-                type="text"
-                placeholder="Search points by name, description, BACnet ID, or device location..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-            </div>
-          </div>
 
           {/* Equipment Types - Top Level */}
           <div className="space-y-3">
@@ -497,7 +543,7 @@ export function MainPanel() {
                                   };
 
                                   return (
-                                    <div key={point.id} className="bg-white border rounded-lg p-6 relative">
+                                    <div key={`${equipmentInstance.id}-${point.id}`} className="bg-white border rounded-lg p-6 relative">
                                       {/* Point Header */}
                                       <div className="flex items-start justify-between mb-4">
                                         <div className="flex-1">
@@ -624,6 +670,8 @@ export function MainPanel() {
               );
             })}
           </div>
+            </>
+          )}
         </Card.Content>
       </Card>
     </div>

@@ -8,7 +8,7 @@ export function FileUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const { loadProcessedData, addConsoleMessage } = useGroupingStore(); // Updated to use loadProcessedData
+  const { loadProcessedData, addConsoleMessage, stats } = useGroupingStore(); // Updated to use loadProcessedData
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -45,16 +45,8 @@ export function FileUpload() {
       const result = await response.json();
 
       if (result.success) {
-        // The API now returns a ProcessingResult object
-        const { equipmentInstances, equipmentTemplates } = result.data;
-        
-        addConsoleMessage({
-          level: 'success',
-          message: `Successfully processed files. Found ${equipmentInstances.length} equipment and ${equipmentTemplates.length} suggested templates.`
-        });
-        
-        // Use the new action to load the processed data into the store
-        loadProcessedData(result.data);
+        addConsoleMessage({ level: 'success', message: 'File uploaded and processed successfully!' });
+        loadProcessedData(result.data.equipmentInstances, result.data.allPoints);
         
         // Clear the file input
         if (fileInputRef.current) {
@@ -112,6 +104,15 @@ export function FileUpload() {
           <div className="text-sm text-gray-600 text-center">
             Upload a connector file (.csv/.txt) and one or more point files (.trio).
           </div>
+          
+          {/* Current Data Status */}
+          {stats.totalPoints > 0 && (
+            <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded border">
+              <div className="font-medium">Current Dataset:</div>
+              <div>{stats.equipmentGroups} equipment instances, {stats.totalPoints} points loaded</div>
+              <div className="text-gray-500">Upload new files to replace current data</div>
+            </div>
+          )}
 
           {/* Upload Button */}
           {selectedFiles && selectedFiles.length > 0 && (
