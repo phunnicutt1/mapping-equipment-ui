@@ -257,13 +257,13 @@ export function RightRail() {
         </Card.Content>
       </Card>
 
-      {/* ML Templates */}
+      {/* Filename-Based Templates */}
       {suggestedTemplates && suggestedTemplates.length > 0 && (
         <Card>
           <Card.Header>
             <Card.Title className="flex items-center space-x-2">
               <BeakerIcon className="w-5 h-5 text-indigo-600" />
-              <span>ML-Generated Templates</span>
+              <span>Auto-Generated Templates</span>
             </Card.Title>
           </Card.Header>
           <Card.Content>
@@ -281,7 +281,7 @@ export function RightRail() {
                       </div>
                     </div>
                     <Badge variant="outline" className="text-indigo-600 border-indigo-300 text-xs">
-                      ML
+                      Auto
                     </Badge>
                   </div>
                 </div>
@@ -350,7 +350,7 @@ export function RightRail() {
 
             {stats.equipmentGroups === 0 && (
               <div className="text-center py-4 text-gray-500 text-sm">
-                No equipment detected yet. Upload files to start ML clustering.
+                No equipment detected yet. Upload trio files to start filename-based classification.
               </div>
             )}
           </div>

@@ -9,6 +9,7 @@ import { getEquipmentDisplayName, getEquipmentTypeBorderColor } from '../lib/uti
 import { ChevronDownIcon, ChevronRightIcon, CubeIcon, BeakerIcon, RectangleGroupIcon } from '@heroicons/react/24/outline';
 import PointPropertiesTags from './PointPropertiesTags';
 import { EquipmentVisualization } from './EquipmentVisualization';
+import { PointCard } from './PointCard';
 
 export function MainPanel() {
   const { 
@@ -21,6 +22,7 @@ export function MainPanel() {
     flagEquipment,
     confirmPoint,
     flagPoint,
+    unassignPoint,
     confirmAllEquipmentPoints,
     toggleUnassignedDrawer,
     toggleConfirmedDrawer,
@@ -61,7 +63,8 @@ export function MainPanel() {
   };
 
   const getEquipmentForType = (typeId: string) => {
-    // Filter out confirmed equipment from the main panel
+    // Show only unconfirmed equipment in the main panel for user review
+    // Confirmed equipment is shown in the confirmed drawer
     return equipmentInstances.filter(equipment => 
       equipment.typeId === typeId && equipment.status !== 'confirmed'
     );
@@ -178,7 +181,7 @@ export function MainPanel() {
   const confirmedCount = equipmentInstances.filter(eq => eq.status === 'confirmed').length;
 
   // Group equipment instances by type (excluding confirmed equipment)
-  const equipmentByType = equipmentTypes.reduce((acc, type) => {
+  const equipmentByType = (equipmentTypes || []).reduce((acc, type) => {
     const equipmentForType = getEquipmentForType(type.id);
     if (equipmentForType.length > 0) {
       acc[type.id] = {
@@ -193,27 +196,80 @@ export function MainPanel() {
   const hasUnconfirmedEquipment = Object.keys(equipmentByType).length > 0;
   const totalEquipment = equipmentInstances.length;
   
+  // Better celebration logic: trigger when all equipment are confirmed AND all points are assigned
+  const allEquipmentConfirmed = equipmentInstances.length > 0 && equipmentInstances.every(eq => eq.status === 'confirmed');
+  const allPointsAssigned = points.length > 0 && points.every(p => p.equipRef);
+  const shouldCelebrate = allEquipmentConfirmed && allPointsAssigned;
+  
   useEffect(() => {
-    console.log('🔍 MainPanel useEffect triggered:', {
-      hasUnconfirmedEquipment,
+    console.log('🔍 MainPanel Debug:', {
       totalEquipment,
+      hasUnconfirmedEquipment,
+      allEquipmentConfirmed,
+      allPointsAssigned,
+      shouldCelebrate,
+      statusBreakdown: equipmentInstances.reduce((acc, eq) => {
+        acc[eq.status] = (acc[eq.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>),
       equipmentByTypeKeys: Object.keys(equipmentByType),
-      equipmentByTypeLength: Object.keys(equipmentByType).length
+      equipmentTypes: equipmentTypes?.map(et => ({ id: et.id, name: et.name })),
+      // CRITICAL: Check suggested equipment specifically
+      suggestedEquipment: equipmentInstances.filter(eq => eq.status === 'suggested').map(eq => ({
+        id: eq.id,
+        name: eq.name,
+        typeId: eq.typeId,
+        status: eq.status
+      })),
+      // CRITICAL: Check if equipment types exist for suggested equipment
+      suggestedEquipmentTypeCheck: equipmentInstances
+        .filter(eq => eq.status === 'suggested')
+        .map(eq => ({
+          equipmentId: eq.id,
+          typeId: eq.typeId,
+          typeExists: equipmentTypes?.some(et => et.id === eq.typeId) || false,
+          getEquipmentForTypeResult: getEquipmentForType(eq.typeId).length
+        })),
+      equipmentByTypeDetailed: Object.fromEntries(
+        Object.entries(equipmentByType).map(([typeId, data]) => [
+          typeId, 
+          { 
+            typeName: data.type.name, 
+            equipmentCount: data.equipment.length,
+            equipmentStatuses: data.equipment.map(eq => ({ id: eq.id, status: eq.status }))
+          }
+        ])
+      ),
+      // NEW: Additional debug info
+      allEquipmentInstances: equipmentInstances.map(eq => ({
+        id: eq.id,
+        name: eq.name,
+        typeId: eq.typeId,
+        status: eq.status
+      })),
+      equipmentTypesAvailable: equipmentTypes?.map(et => et.id) || [],
+      getEquipmentForTypeDebug: equipmentTypes?.map(et => ({
+        typeId: et.id,
+        equipmentCount: getEquipmentForType(et.id).length,
+        equipmentList: getEquipmentForType(et.id).map(eq => ({ id: eq.id, status: eq.status }))
+      })) || []
     });
     
-    // When panel becomes empty but we have equipment (all confirmed), trigger completion check
-    if (!hasUnconfirmedEquipment && totalEquipment > 0) {
-      console.log('🏆 Equipment panel is now empty - all equipment confirmed! Calling checkCompletion...');
+    // Trigger completion check when all equipment are confirmed and all points are assigned
+    if (shouldCelebrate) {
+      console.log('🏆 All equipment confirmed and all points assigned! Calling checkCompletion...');
       
       // Slight delay to ensure state is stable, then check completion
       setTimeout(() => {
         checkCompletion();
       }, 100);
     }
-  }, [hasUnconfirmedEquipment, totalEquipment, checkCompletion]);
+  }, [shouldCelebrate, checkCompletion, equipmentInstances, equipmentTypes, points]);
 
   return (
     <div className="space-y-6">
+
+      
       {/* Confirmed and Unassigned Points Buttons */}
       <div className="flex justify-between">
         <Button 
@@ -288,7 +344,7 @@ export function MainPanel() {
           {viewMode === 'visualization' ? (
             /* Equipment Visualization View */
             <EquipmentVisualization
-              equipment={equipmentInstances.filter(eq => eq.status !== 'confirmed')}
+              equipment={equipmentInstances}
               points={points}
               onEquipmentClick={(equipment) => {
                 console.log('Equipment clicked:', equipment);
@@ -324,19 +380,6 @@ export function MainPanel() {
 
           {/* Equipment Types - Top Level */}
           <div className="space-y-3">
-            {Object.keys(equipmentByType).length === 0 && totalEquipment > 0 ? (
-              <div className="text-center py-12 bg-green-50 border-2 border-green-200 rounded-lg">
-                <div className="text-6xl mb-4">🎉</div>
-                <h3 className="text-lg font-semibold text-green-800 mb-2">All Equipment Confirmed!</h3>
-                <p className="text-green-600 mb-4">All {totalEquipment} equipment instances have been successfully mapped and confirmed.</p>
-                <Button
-                  onClick={triggerCelebration}
-                  className="bg-green-600 text-white hover:bg-green-700 px-6 py-3 text-lg font-semibold"
-                >
-                  🎉 Celebrate Success!
-                </Button>
-              </div>
-            ) : null}
             
             {Object.entries(equipmentByType).map(([typeId, { type, equipment }]) => {
               const isTypeExpanded = expandedEquipmentTypes.has(typeId);
@@ -523,142 +566,19 @@ export function MainPanel() {
                             {/* Equipment Points - Third Level */}
                             {isEquipmentExpanded && (
                               <div className="px-4 pb-4 space-y-4">
-                                {(searchTerm ? filteredPoints : equipmentPoints).map((point, idx) => {
-                                  // Dynamic strategies for fields
-                                  const getDescription = (point: any) => {
-                                    return point.bacnetDesc || point.bacnetDis || point.dis || point.bacnetCur;
-                                  };
-                                  
-                                  const getDisplayName = (point: any) => {
-                                    return point.navName || point.bacnetDis || point.bacnetCur;
-                                  };
-                                  
-                                  const getProperties = (point: any) => {
-                                    const markers = point.markers || [];
-                                    return markers.length > 0 ? markers.join(', ') : 'Point';
-                                  };
-                                  
-                                  const getSource = (point: any) => {
-                                    return point.source || 'read(point)';
-                                  };
-
-                                  return (
-                                    <div key={`${equipmentInstance.id}-${point.id}`} className="bg-white border rounded-lg p-6 relative">
-                                      {/* Point Header */}
-                                      <div className="flex items-start justify-between mb-4">
-                                        <div className="flex-1">
-                                          <h3 className="text-xl font-bold mb-1 font-detail" style={{ color: '#2c3e50' }}>
-                                            {getDisplayName(point)}
-                                          </h3>
-                                          <div className="flex items-center space-x-2">
-                                            {equipmentInstance.equipTypeName && (
-                                              <span className="text-base text-gray-600 font-medium">
-                                                {equipmentInstance.equipTypeName} → {getEquipmentDisplayName(equipmentInstance.name)}
-                                              </span>
-                                            )}
-                                            {/* Point Confidence Score */}
-                                            {point.confidence && (
-                                              <Badge 
-                                                variant="outline" 
-                                                className={`${getConfidenceColor(point.confidence)} border text-xs`}
-                                              >
-                                                {formatConfidence(point.confidence)}
-                                              </Badge>
-                                            )}
-                                          </div>
-                                        </div>
-                                        {point.status === 'confirmed' ? (
-                                          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded">
-                                            Confirmed
-                                          </span>
-                                        ) : point.status === 'flagged' ? (
-                                          <span className="text-sm text-white bg-orange-500 px-3 py-2 rounded">
-                                            Flagged
-                                          </span>
-                                        ) : (
-                                          <div className="flex space-x-2">
-                                            <Button
-                                              size="sm"
-                                              className="bg-green-600 text-white hover:bg-green-700"
-                                              onClick={() => confirmPoint(point.id)}
-                                            >
-                                              Confirm Equipment
-                                            </Button>
-                                            <Button
-                                              size="sm"
-                                              className="bg-orange-500 text-white hover:bg-orange-600"
-                                              onClick={() => flagPoint(point.id)}
-                                            >
-                                              Flag for Review
-                                            </Button>
-                                          </div>
-                                        )}
-                                      </div>
-
-                                      {/* Point Details Grid */}
-                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 font-detail">
-                                        <div>
-                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>BACnet ID</dt>
-                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.bacnetCur}</dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Description</dt>
-                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{getDescription(point)}</dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Device Location</dt>
-                                          <dd className="font-medium text-blue-600">
-                                            {point.bacnetDeviceName ? `📍 ${point.bacnetDeviceName}` : '-'}
-                                          </dd>
-                                        </div>
-                                        
-                                        <div>
-                                          <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Unit</dt>
-                                          <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.unit || '-'}</dd>
-                                        </div>
-                                        
-                                        <div></div>
-                                       
-                                        {/* Show Vendor and Model when available (typically from bacnetConn) */}
-                                        {point.vendor && (
-                                          <div>
-                                            <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Vendor</dt>
-                                            <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.vendor}</dd>
-                                          </div>
-                                        )}
-                                        
-                                        {point.model && (
-                                          <div>
-                                            <dt className="text-xs font-medium mb-0.5" style={{ color: '#7f8c8d' }}>Model</dt>
-                                            <dd className="font-medium" style={{ color: '#2c3e50' }}>{point.model}</dd>
-                                          </div>
-                                        )}
-                                      </div>
-
-                                      {/* Bottom Line - Properties on left, Source File and Data Type on right */}
-                                      <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                                        {/* Properties - Left Side */}
-                                        <div>
-                                          <div className="text-xs font-medium mb-1" style={{ color: '#7f8c8d' }}>Properties</div>
-                                          <PointPropertiesTags point={point} />
-                                        </div>
-
-                                        {/* Source File and Data Type - Right Side */}
-                                        <div className="flex items-end space-x-3">
-                                          <div className="text-right">
-                                            <span className="text-xs font-medium" style={{ color: '#7f8c8d' }}>Source File: </span>
-                                            <span className="font-medium text-xs" style={{ color: '#2c3e50' }}>{getSource(point)}</span>
-                                          </div>
-                                          <Badge className="bg-blue-100 text-blue-800 text-sm font-medium">
-                                            {point.kind}
-                                          </Badge>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                                {(searchTerm ? filteredPoints : equipmentPoints).map((point, idx) => (
+                                  <PointCard
+                                    key={`${equipmentInstance.id}-${point.id}`}
+                                    point={point}
+                                    equipmentName={getEquipmentDisplayName(equipmentInstance.name)}
+                                    equipmentType={equipmentInstance.equipTypeName}
+                                    onConfirm={confirmPoint}
+                                    onUnassign={unassignPoint}
+                                    onFlag={flagPoint}
+                                    showActions={true}
+                                    compact={false}
+                                  />
+                                ))}
                               </div>
                             )}
                           </div>

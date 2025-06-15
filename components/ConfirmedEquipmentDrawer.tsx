@@ -7,13 +7,18 @@ import { Badge } from './ui/Badge';
 import { useGroupingStore } from '../lib/store';
 import { XMarkIcon, MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 import PointPropertiesTags from './PointPropertiesTags';
+import { PointCard } from './PointCard';
 
 export function ConfirmedEquipmentDrawer() {
   const { 
     points, 
     equipmentInstances,
     equipmentTypes,
-    toggleConfirmedDrawer
+    toggleConfirmedDrawer,
+    confirmPoint,
+    unassignPoint,
+    unassignEquipment,
+    flagPoint
   } = useGroupingStore();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -130,7 +135,7 @@ export function ConfirmedEquipmentDrawer() {
                               Confirmed
                             </Badge>
                             <Badge variant="outline" className="text-green-700 border-green-300">
-                              {Math.round(equipment.confidence * 100)}% confidence
+                              {Math.round(equipment.confidence > 1 ? equipment.confidence : equipment.confidence * 100)}% confidence
                             </Badge>
                           </div>
                           <div className="flex items-center space-x-4 mt-2">
@@ -142,6 +147,18 @@ export function ConfirmedEquipmentDrawer() {
                             </span>
                           </div>
                         </div>
+                        
+                        {/* Unlink Equipment Button */}
+                        <div className="ml-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => unassignEquipment(equipment.id)}
+                            className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400"
+                          >
+                            Unlink Equipment
+                          </Button>
+                        </div>
                       </div>
 
                       {/* Equipment Points */}
@@ -151,51 +168,17 @@ export function ConfirmedEquipmentDrawer() {
                         </h4>
                         <div className="space-y-2 max-h-64 overflow-y-auto">
                           {equipmentPoints.map(point => (
-                            <div
+                            <PointCard
                               key={point.id}
-                              className="bg-white border border-gray-200 rounded-md p-3"
-                            >
-                              <div className="flex items-start justify-between">
-                                {/* Point Info */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <span className="text-sm font-medium text-gray-900 truncate">
-                                      {point.navName || point.dis || point.bacnetDis || 'Unnamed Point'}
-                                    </span>
-                                    <Badge variant="secondary" size="sm">
-                                      {point.bacnetCur}
-                                    </Badge>
-                                    {point.unit && (
-                                      <Badge variant="outline" size="sm">
-                                        {point.unit}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  
-                                  {/* Point Description */}
-                                  {(point.bacnetDesc || point.bacnetDis) && (
-                                    <div className="text-xs text-gray-600 mb-2">
-                                      {point.bacnetDesc || point.bacnetDis}
-                                    </div>
-                                  )}
-
-                                  {/* Point Properties */}
-                                  <div className="flex items-center justify-between">
-                                    <PointPropertiesTags point={point} />
-                                    <div className="text-xs text-gray-500">
-                                      File: {point.fileName || 'Unknown'}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Status Badge */}
-                                <div className="ml-3">
-                                  <Badge className="bg-green-600 text-white" size="sm">
-                                    Confirmed
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
+                              point={point}
+                              equipmentName={equipment.name}
+                              equipmentType={equipmentType?.name}
+                              onConfirm={confirmPoint}
+                              onUnassign={unassignPoint}
+                              onFlag={flagPoint}
+                              showActions={true}
+                              compact={true}
+                            />
                           ))}
                         </div>
                       </div>

@@ -133,6 +133,9 @@ export interface GroupingState {
   selectedPoints: Set<string>;
   showCelebration: boolean;
   isComplete: boolean;
+  // UI state for equipment expansion/collapse (human review process)
+  expandedEquipmentTypes: Set<string>; // Which equipment type containers are expanded
+  expandedEquipment: Set<string>; // Which individual equipment are expanded to show points
   // Advanced template management state
   templateSimilarityMatches: TemplateSimilarityMatch[]; // Pending similarity matches
   templateAnalytics: TemplateAnalytics; // Template performance analytics
@@ -144,6 +147,8 @@ export interface GroupingState {
   anomalyDetectionResults?: AnomalyDetectionResult; // Last detection results
   // Performance monitoring state
   showPerformanceDashboard: boolean; // Whether performance dashboard is open
+  // Analytics data
+  analytics?: any; // Processing analytics data
 }
 
 export interface ProcessingResult {
@@ -151,6 +156,9 @@ export interface ProcessingResult {
   equipmentTemplates: EquipmentTemplate[];
   allPoints: BACnetPoint[];
   anomalyDetectionResult?: AnomalyDetectionResult; // Optional anomaly detection results
+  equipmentTypes?: EquipmentType[]; // Equipment types from processing
+  templates?: EquipmentTemplate[]; // Alternative name for equipmentTemplates for backward compatibility
+  analytics?: any; // Analytics data from processing
 }
 
 export interface GroupingActions {

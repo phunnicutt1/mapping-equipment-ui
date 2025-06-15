@@ -1,0 +1,106 @@
+dis:flow_input_1
+bacnetCur:AI1
+bacnetDesc:Actual Flow
+bacnetHis:TL3
+kind:Number
+point
+unit:cfm
+---
+dis:flow_1
+bacnetCur:AV9
+bacnetDesc:Airflow
+kind:Number
+point
+unit:cfm
+---
+dis:flow_sp_1
+bacnetCur:AV10
+bacnetDesc:Airflow Setpoint
+kind:Number
+point
+unit:cfm
+---
+dis:All Programs Stopped Alarm
+bacnetCur:BV4000001
+bacnetDesc:"See modstat. Fix programs/properties and download."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:Control Program Alarm
+bacnetCur:BV4000004
+bacnetDesc:"See modstat for details."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:Duplicate Address Alarm
+bacnetCur:BV4000002
+bacnetDesc:"See modstat for duplicate address information."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:Excessive COV Alarm
+bacnetCur:BV4000006
+bacnetDesc:"Excessive COV Subscription updates detected."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:Flow Control Alarm
+bacnetCur:BV4001000
+bacnetDesc:"Flow control devices have errors."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:"Locked I/O Alarm"
+bacnetCur:BV4000003
+bacnetDesc:"Points locked in this module's program_x, where x="
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:Module Halted Alarm
+bacnetCur:BV4000000
+bacnetDesc:"See modstat. Restart control module then download."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:Program Stopped Alarm
+bacnetCur:BV4000005
+bacnetDesc:"See modstat. Fix program/properties then download."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:Reheat Valve Alarm
+bacnetCur:BV4001001
+bacnetDesc:"Reheat valves have errors."
+enum:"inactive,active"
+kind:Bool
+point
+---
+dis:dmpr_pos_tn_1
+bacnetHis:TL2
+point
+---
+dis:flow_input_trend_log_1
+bacnetHis:TL3
+kind:Number
+point
+---
+dis:flow_stpt_tn_1
+bacnetHis:TL14
+point
+---
+dis:flow_tn_1
+bacnetHis:TL13
+point
+---
+dis:zn_damper_trend_log_1
+bacnetHis:TL1
+kind:Number
+point

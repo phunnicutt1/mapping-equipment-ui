@@ -195,6 +195,17 @@ export const equipmentTypes: EquipmentType[] = [
     maxPoints: 30
   },
   {
+    id: 'unclassified',
+    name: 'Unclassified Equipment',
+    description: 'Equipment that has not yet been classified by the ML pipeline.',
+    pattern: /UNCLASSIFIED|Unknown|TBD/i,
+    confidence: 0.3,
+    pointPatterns: [],
+    minPoints: 1,
+    maxPoints: 1000,
+    color: 'bg-gray-500'
+  },
+  {
     id: 'vrf',
     name: 'VRF (variable refrigerant flow systems)',
     description: 'Variable refrigerant flow air conditioning systems.',

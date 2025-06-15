@@ -1,0 +1,448 @@
+dis:"AI4 (Expan)"
+bacnetCur:AI6
+kind:Number
+point
+unit:V
+---
+dis:"AI5 (Expan)"
+bacnetCur:AI7
+kind:Number
+point
+unit:V
+---
+dis:"AI6 (Expan)"
+bacnetCur:AI8
+kind:Number
+point
+unit:V
+---
+dis:Airflow
+bacnetCur:AI2
+kind:Number
+point
+unit:cfm
+---
+dis:Room Temperature
+bacnetCur:AI1
+kind:Number
+point
+unit:°F
+---
+dis:Supply Air Temperature
+bacnetCur:AI3
+kind:Number
+point
+unit:°F
+---
+dis:"Thermistor (Expan)"
+bacnetCur:AI9
+kind:Number
+point
+unit:°F
+---
+dis:"Analog Output 1 (ECM)"
+bacnetCur:AO1
+bacnetWrite:AO1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:"Analog Output 2 (Heat)"
+bacnetCur:AO2
+bacnetWrite:AO2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:"Analog Output 3 (Cool)"
+bacnetCur:AO3
+bacnetWrite:AO3
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:"Analog Output 4 (Aux)"
+bacnetCur:AO4
+bacnetWrite:AO4
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:Damper Position
+bacnetCur:AO5
+bacnetWrite:AO5
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Air Handler Inactive Position
+bacnetCur:AV25
+kind:Number
+point
+unit:"%"
+---
+dis:Airflow Target
+bacnetCur:AV1
+kind:Number
+point
+unit:cfm
+---
+dis:Commissioned
+bacnetCur:AV17
+kind:Number
+point
+---
+dis:Controller Status
+bacnetCur:AV14
+kind:Number
+point
+unit:"%"
+---
+dis:Cool Max Airflow Setpoint
+bacnetCur:AV10
+kind:Number
+point
+unit:cfm
+---
+dis:Cool Min Airflow Setpoint
+bacnetCur:AV9
+kind:Number
+point
+unit:cfm
+---
+dis:Damper Runtime
+bacnetCur:AV24
+kind:Number
+point
+unit:s
+---
+dis:Day Differential
+bacnetCur:AV16
+kind:Number
+point
+unit:°F
+---
+dis:Device Instance
+bacnetCur:AV37
+kind:Number
+point
+---
+dis:Exhaust Airflow Target
+bacnetCur:AV19
+kind:Number
+point
+unit:cfm
+---
+dis:Exhaust Offset Target
+bacnetCur:AV18
+kind:Number
+point
+unit:cfm
+---
+dis:Heat Max Airflow Setpoint
+bacnetCur:AV12
+kind:Number
+point
+unit:cfm
+---
+dis:Heat Min Airflow Setpoint
+bacnetCur:AV11
+kind:Number
+point
+unit:cfm
+---
+dis:K Factor
+bacnetCur:AV39
+kind:Number
+point
+---
+dis:MAC
+bacnetCur:AV38
+kind:Number
+point
+---
+dis:Max Step
+bacnetCur:AV23
+kind:Number
+point
+unit:"%"
+---
+dis:Neutral Duct Temp Airflow Target
+bacnetCur:AV8
+kind:Number
+point
+unit:cfm
+---
+dis:Night Cool Setpoint
+bacnetCur:AV5
+kind:Number
+point
+unit:°F
+---
+dis:Night Heat Setpoint
+bacnetCur:AV4
+kind:Number
+point
+unit:°F
+---
+dis:Ping
+bacnetCur:AV13
+kind:Number
+point
+---
+dis:Pressure
+bacnetCur:AV28
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:Pressure Deadband
+bacnetCur:AV22
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:Pressure Setpoint
+bacnetCur:AV21
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:Proportional Band
+bacnetCur:AV15
+kind:Number
+point
+unit:°F
+---
+dis:Room Setpoint
+bacnetCur:AV6
+kind:Number
+point
+unit:°F
+---
+dis:Room Setpoint - High Limit
+bacnetCur:AV2
+kind:Number
+point
+unit:°F
+---
+dis:Room Setpoint - Low Limit
+bacnetCur:AV3
+kind:Number
+point
+unit:°F
+---
+dis:Room Temperature Offset
+bacnetCur:AV40
+kind:Number
+point
+unit:°F
+---
+dis:"Unoccupied (Night) Damper Position"
+bacnetCur:AV7
+kind:Number
+point
+unit:"%"
+---
+dis:Contact Closure
+bacnetCur:BI1
+enum:"Open,Closed"
+kind:Bool
+point
+---
+dis:"Binary Output 1 (ECM)"
+bacnetCur:BO1
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:"Binary Output 2 (Heat 1)"
+bacnetCur:BO2
+bacnetWrite:BO2
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:"Binary Output 3 (Heat 2)"
+bacnetCur:BO3
+bacnetWrite:BO3
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:"Binary Output 4 (Heat 3)"
+bacnetCur:BO4
+bacnetWrite:BO4
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:"Binary Output 5 (Cool)"
+bacnetCur:BO5
+bacnetWrite:BO5
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:"Binary Output 8 (Aux 1)"
+bacnetCur:BO6
+bacnetWrite:BO6
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:"Binary Output 9 (Aux 2)"
+bacnetCur:BO7
+bacnetWrite:BO7
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Air Handler Status
+bacnetCur:MSV10
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Inactive,Active"
+kind:Str
+point
+---
+dis:Application
+bacnetCur:MSV8
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Air Terminal,Fan Coil (4-pipe),Fan Coil (2-pipe),Dual Duct,Exhaust Box,Supply/Exhaust Tracking,Mixing Box D.A.T.,CO2 Tracking,Pressure Controller,Hydronic"
+kind:Str
+point
+---
+dis:Binary Fan Type
+bacnetCur:MSV6
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No Fan,Day Heat/Night Heat,Day Constant/Night Heat,Constant,Day Constant/Night Demand,Day Demand/Night Demand"
+kind:Str
+point
+---
+dis:Binary Reheat Type
+bacnetCur:MSV7
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Binary,Hot Water/Binary,Binary/PWM,Hot Water/PWM,Binary (dis. with hot air),Hot Water/Binary (dis. with hot air),Binary/PWM (dis. with hot air),Hot Water/PWM (dis. with hot air),Disabled"
+kind:Str
+point
+---
+dis:Control Mode
+bacnetCur:MSV12
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Automatic,Cooling Only,Heating Only"
+kind:Str
+point
+---
+dis:Controller State
+bacnetCur:MSV13
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Cooling,Heating,Deadband"
+kind:Str
+point
+---
+dis:Damper Override
+bacnetCur:MSV2
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled (No Override),Go to Full Open,Go to Full Closed"
+kind:Str
+point
+---
+dis:Duct Size
+bacnetCur:MSV17
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"4 inches,5 inches,6 inches,7 inches,8 inches,9 inches,10 inches,12 inches,14 inches,16 inches,24x16 inches,9 inch low profile,10 inch low profile,12 inch low profile,14 inch low profile,16 inch low profile"
+kind:Str
+point
+---
+dis:"MAC/DI Link"
+bacnetCur:MSV20
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Unlinked,Linked"
+kind:Str
+point
+---
+dis:Occupancy
+bacnetCur:MSV3
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Unoccupied,Occupied"
+kind:Str
+point
+---
+dis:Occupancy Override
+bacnetCur:MSV5
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No Override,Force Unoccupied,Force Occupied"
+kind:Str
+point
+---
+dis:Occupancy Source
+bacnetCur:MSV4
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Default Mode (Occupied),Airflow (Occupied),Contact Closure (Occupied),T-Stat Button (Occupied),Motion Sensor (Occupied),Network Override (Occupied),Local Override (Occupied),Airflow (Unoccupied),Contact Closure (Unoccupied),T-Stat Button (Unoccupied),Motion Sensor (Unoccupied),Network Override (Unoccupied),Local Override (Unoccupied)"
+kind:Str
+point
+---
+dis:Pressure Control Type
+bacnetCur:MSV9
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Bypass,Downstream"
+kind:Str
+point
+---
+dis:Temperature Units
+bacnetCur:MSV18
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Fahrenheit,Celsius"
+kind:Str
+point
+---
+dis:Unoccupied Alarms
+bacnetCur:MSV19
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+---
+dis:Use Airflow Night Setback
+bacnetCur:MSV11
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"False,True"
+kind:Str
+point

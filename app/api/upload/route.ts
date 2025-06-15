@@ -18,12 +18,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No files uploaded' }, { status: 400 });
     }
 
-    console.log(`📁 Received ${files.length} files for processing.`);
+    // Filter for trio files only and provide helpful feedback
+    const trioFiles = files.filter(f => f.name.endsWith('.trio'));
+    const nonTrioFiles = files.filter(f => !f.name.endsWith('.trio'));
+    
+    if (nonTrioFiles.length > 0) {
+      console.log(`⚠️ Ignoring ${nonTrioFiles.length} non-trio files: ${nonTrioFiles.map(f => f.name).join(', ')}`);
+    }
+    
+    if (trioFiles.length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'No trio files found. Please upload files with .trio extension only.' 
+      }, { status: 400 });
+    }
 
-    // Call the centralized processing pipeline
-    const result = await processUploadedFiles(files);
+    console.log(`📁 Processing ${trioFiles.length} trio files: ${trioFiles.map(f => f.name).join(', ')}`);
 
-    console.log(`🎯 Successfully processed data. Found ${result.equipmentInstances.length} equipment instances and ${result.equipmentTemplates.length} suggested templates.`);
+    // Call the centralized processing pipeline with trio files only
+    const result = await processUploadedFiles(trioFiles);
+
+    console.log(`🎯 Successfully processed trio files. Found ${result.equipmentInstances.length} equipment instances and ${result.equipmentTemplates.length} suggested templates.`);
     
     // Debug: Log raw data structure for inspection
     console.log('🔍 API DEBUG - Equipment Sample:');
@@ -31,9 +46,9 @@ export async function POST(request: NextRequest) {
       console.log(`Equipment ${i + 1}:`, {
         id: eq.id,
         name: eq.name,
+        typeId: eq.typeId,
         status: eq.status,
         confidence: eq.confidence,
-        cluster: eq.cluster,
         pointIds: eq.pointIds.slice(0, 3) // First 3 point IDs
       });
     });

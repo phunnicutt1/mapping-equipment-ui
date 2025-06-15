@@ -4,6 +4,9 @@ import { useGroupingStore } from '../lib/store';
 
 export function TopStatsPanel() {
   const { points, equipmentInstances, equipmentTypes, templates, stats } = useGroupingStore();
+  
+  // Force re-render when data changes by creating a dependency key
+  const dataKey = `${points?.length || 0}-${equipmentInstances?.length || 0}-${templates?.length || 0}`;
 
   // Guard clause to prevent rendering if essential data is not yet available
   if (!points || !equipmentInstances) {
@@ -48,7 +51,7 @@ export function TopStatsPanel() {
   const templatedEquipment = equipmentInstances.filter(eq => eq.templateId).length;
 
   return (
-    <div className="bg-white border-b border-gray-200 shadow-sm">
+    <div key={dataKey} className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           {/* Total Points */}
@@ -91,13 +94,13 @@ export function TopStatsPanel() {
             </div>
           </div>
 
-          {/* Template Usage */}
+          {/* Templates Available */}
           <div className="text-center">
             <div className="text-3xl font-bold text-indigo-600">
-              {templatedEquipment}
+              {templates.length}
             </div>
             <div className="text-sm font-medium text-gray-600 mt-1">
-             Auto Assigned Using Template
+              Templates Available
             </div>
           </div>
         </div>

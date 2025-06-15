@@ -16,7 +16,7 @@ import { mockBACnetPoints } from '../lib/mock-data';
 
 export default function HomePage() {
   const { 
-    loadProcessedData, // Use ML pipeline data loading method
+    setProcessedData, // Direct data setter to avoid duplicate processing
     showUnassignedDrawer, 
     showConfirmedDrawer,
     showCelebration,
@@ -38,179 +38,15 @@ export default function HomePage() {
 
   const [mlProcessingStatus, setMlProcessingStatus] = useState<'idle' | 'loading' | 'processing' | 'complete' | 'error'>('idle');
   const [processingError, setProcessingError] = useState<string | null>(null);
-  const [useSkySpark, setUseSkySpark] = useState(false); // New toggle state
-  const [useTestDataset, setUseTestDataset] = useState(true); // New test dataset toggle
 
-  useEffect(() => {
-    // Load data using ML pipeline on mount
-    loadDataFromMLPipeline();
-  }, []);
+  // Removed automatic data loading - interface now waits for user file uploads
+  // useEffect(() => {
+  //   loadDataFromMLPipeline();
+  // }, []);
 
-  const loadDataFromMLPipeline = async () => {
-    if (useTestDataset) {
-      await loadTestDataset();
-      return;
-    }
-    
-    if (!useSkySpark) {
-      addConsoleMessage({
-        level: 'info',
-        message: 'SkySpark disabled. Use file upload or enable test dataset to load data.'
-      });
-      return;
-    }
+  // Removed automatic data loading functions - interface now waits for user file uploads
 
-    setMlProcessingStatus('loading');
-    setProcessingError(null);
-    
-    try {
-      addConsoleMessage({
-        level: 'info',
-        message: 'Loading data from SkySpark API...'
-      });
-
-      const response = await fetch('/api/points');
-      if (!response.ok) {
-        throw new Error(`SkySpark API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!data.points || data.points.length === 0) {
-        throw new Error('No points data received from SkySpark API');
-      }
-
-      setMlProcessingStatus('processing');
-      
-      addConsoleMessage({
-        level: 'info',
-        message: `Processing ${data.points.length} points through ML pipeline...`
-      });
-
-      // Process the SkySpark data through the ML pipeline
-      const processedData = await processDataThroughMLPipeline(data.points);
-      
-      loadProcessedData(processedData.equipment, processedData.points);
-      setMlProcessingStatus('complete');
-      
-      addConsoleMessage({
-        level: 'success',
-        message: `ML pipeline completed: ${processedData.equipment.length} equipment instances identified.`
-      });
-
-    } catch (error) {
-      console.error('ML pipeline loading error:', error);
-      setMlProcessingStatus('error');
-      setProcessingError(error instanceof Error ? error.message : 'Unknown error');
-      
-      addConsoleMessage({
-        level: 'error',
-        message: `ML pipeline failed: ${error instanceof Error ? error.message : 'Unknown error'}. Using fallback data.`
-      });
-      
-      // Fallback to mock data with basic processing
-      await loadFallbackData();
-    }
-  };
-
-  const processDataThroughMLPipeline = async (pointsData: any[]) => {
-    // Create a mock file structure to simulate file upload for the ML pipeline
-    const mockTrioContent = pointsData.map(point => {
-      // Convert point data back to trio format for ML processing
-      const tags = [];
-      if (point.unit) tags.push(`unit:${point.unit}`);
-      if (point.kind) tags.push(`kind:${point.kind}`);
-      if (point.equipRef) tags.push(`equipRef:${point.equipRef}`);
-      if (point.point) tags.push('point');
-      if (point.sensor) tags.push('sensor');
-      if (point.cmd) tags.push('cmd');
-      if (point.writable) tags.push('writable');
-      
-      return `${point.dis} ${tags.join(' ')}`;
-    }).join('\n');
-
-    const mockFile = new File([mockTrioContent], 'api-data.trio', {
-      type: 'text/plain'
-    });
-
-    // Process through the upload endpoint (ML pipeline)
-    const formData = new FormData();
-    formData.append('file_0', mockFile);
-
-    const uploadResponse = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    });
-
-    const uploadResult = await uploadResponse.json();
-    
-    if (!uploadResult.success) {
-      throw new Error(uploadResult.error || 'ML pipeline processing failed');
-    }
-
-    return uploadResult.data;
-  };
-
-  const loadFallbackData = async () => {
-    try {
-      addConsoleMessage({
-        level: 'warning',
-        message: 'Loading fallback data with basic processing...'
-      });
-
-      // Create a basic processed result structure for fallback
-      const fallbackResult = {
-        equipmentInstances: mockBACnetPoints
-          .filter(point => point.equipRef)
-          .reduce((acc, point) => {
-            const existingEquip = acc.find(eq => eq.id === point.equipRef);
-            if (existingEquip) {
-              existingEquip.pointIds.push(point.id);
-            } else {
-              acc.push({
-                id: point.equipRef!,
-                name: point.equipRef!,
-                typeId: 'fallback-type',
-                confidence: 30, // Low confidence for fallback
-                status: 'needs-review' as const,
-                pointIds: [point.id],
-                vendor: point.vendor,
-                model: point.model,
-                bacnetDeviceName: point.bacnetDeviceName
-              });
-            }
-            return acc;
-          }, [] as any[]),
-        equipmentTemplates: [],
-        allPoints: mockBACnetPoints.map(point => ({
-          ...point,
-          status: point.equipRef ? 'suggested' as const : 'unassigned' as const
-        }))
-      };
-
-      loadProcessedData(fallbackResult.equipmentInstances, fallbackResult.allPoints);
-      setMlProcessingStatus('complete');
-      
-      addConsoleMessage({
-        level: 'warning',
-        message: `Fallback data loaded: ${fallbackResult.equipmentInstances.length} equipment instances from ${fallbackResult.allPoints.length} points.`
-      });
-      
-    } catch (fallbackError) {
-      console.error('Fallback loading also failed:', fallbackError);
-      setMlProcessingStatus('error');
-      setProcessingError('Both ML pipeline and fallback data loading failed');
-      
-      addConsoleMessage({
-        level: 'error',
-        message: 'Critical error: Unable to load any data. Please refresh the page.'
-      });
-    }
-  };
-
-  const handleRefreshData = async () => {
-    await loadDataFromMLPipeline();
-  };
+  // All data loading functions removed - interface waits for user file uploads
 
   // Auto-save drafts periodically
   useEffect(() => {
@@ -222,80 +58,31 @@ export default function HomePage() {
   }, [saveDraft]);
 
   const getProcessingStatusDisplay = () => {
+    // Show "Awaiting trio files upload" when no data is loaded
+    if (points.length === 0 && equipmentInstances.length === 0) {
+      return {
+        text: 'Awaiting trio files upload',
+        color: 'text-gray-500'
+      };
+    }
+
     switch (mlProcessingStatus) {
       case 'loading':
         return { text: 'Loading data...', color: 'text-blue-600' };
       case 'processing':
-        return { text: 'ML Pipeline Processing...', color: 'text-purple-600' };
+        return { text: 'Processing through ML pipeline...', color: 'text-purple-600' };
       case 'complete':
-        return { text: 'Ready', color: 'text-green-600' };
+        return { text: 'Ready for mapping', color: 'text-green-600' };
       case 'error':
-        return { text: 'Error', color: 'text-red-600' };
+        return { text: 'Error occurred', color: 'text-red-600' };
       default:
-        return { text: 'Initializing...', color: 'text-gray-600' };
+        return { text: 'Ready for file upload', color: 'text-gray-600' };
     }
   };
 
   const statusDisplay = getProcessingStatusDisplay();
 
-  // New function to load the specific test dataset
-  const loadTestDataset = async () => {
-    setMlProcessingStatus('loading');
-    setProcessingError(null);
-    
-    try {
-      addConsoleMessage({
-        level: 'info',
-        message: 'Loading Intuitive Durham test dataset...'
-      });
-
-      const response = await fetch('/api/load-test-dataset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          datasetPath: '/Users/Patrick/Sites/mapping-equipment-ui/sample_data/intuitivedurham/io/setup/points'
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Test dataset loading failed: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Test dataset loading failed');
-      }
-
-      setMlProcessingStatus('processing');
-      
-      addConsoleMessage({
-        level: 'info',
-        message: `Processing test dataset: ${result.data.allPoints.length} points from ${result.data.equipmentInstances.length} equipment files...`
-      });
-
-      loadProcessedData(result.data.equipmentInstances, result.data.allPoints);
-      setMlProcessingStatus('complete');
-      
-      addConsoleMessage({
-        level: 'success',
-        message: `Test dataset loaded successfully: ${result.data.equipmentInstances.length} equipment instances, ${result.data.allPoints.length} points.`
-      });
-
-    } catch (error) {
-      console.error('Test dataset loading error:', error);
-      setMlProcessingStatus('error');
-      setProcessingError(error instanceof Error ? error.message : 'Unknown error');
-      
-      addConsoleMessage({
-        level: 'error',
-        message: `Test dataset loading failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      });
-
-      // If the API call fails, log the error
-      addConsoleMessage({ level: 'warning', message: 'Failed to load test dataset from API.' });
-    }
-  };
+  // Test dataset loading removed - interface waits for user file uploads
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -322,37 +109,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {/* Data Source Toggles */}
-              <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-md">
-                <label className="flex items-center space-x-1 text-xs">
-                  <input
-                    type="checkbox"
-                    checked={useTestDataset}
-                    onChange={(e) => setUseTestDataset(e.target.checked)}
-                    className="rounded"
-                  />
-                  <span className="text-gray-700">Test Dataset</span>
-                </label>
-                <span className="text-gray-400">|</span>
-                <label className="flex items-center space-x-1 text-xs">
-                  <input
-                    type="checkbox"
-                    checked={useSkySpark}
-                    onChange={(e) => setUseSkySpark(e.target.checked)}
-                    disabled={useTestDataset}
-                    className="rounded"
-                  />
-                  <span className={useTestDataset ? "text-gray-400" : "text-gray-700"}>SkySpark API</span>
-                </label>
-              </div>
-              
-              <button
-                onClick={handleRefreshData}
-                disabled={isProcessing || mlProcessingStatus === 'loading' || mlProcessingStatus === 'processing'}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
-              >
-                {(isProcessing || mlProcessingStatus === 'loading' || mlProcessingStatus === 'processing') ? 'Processing...' : 'Refresh Data'}
-              </button>
+              {/* Removed data source toggles and refresh button - interface waits for file uploads */}
               <button
                 onClick={() => useGroupingStore.getState().saveDraft()}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
