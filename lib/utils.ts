@@ -1,4 +1,10 @@
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
 import { BACnetPoint, EquipmentType, EquipmentInstance, ProcessingStats } from './types';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 // DEPRECATED: Hard-coded equipment types are being deprecated in favor of ML-generated clusters
 // This array is maintained for backward compatibility only
@@ -313,8 +319,26 @@ export function groupPointsByEquipment(points: BACnetPoint[]): Map<string, BACne
 // Equipment type determination is now handled by K-Modes clustering and Project Haystack semantic tagging
 // in the ML pipeline (lib/bacnet-processor.ts)
 
-export function getEquipmentDisplayName(fullName: string): string {
-  // Split by spaces and take the last segment
+export function getEquipmentDisplayName(fullName: any): string {
+  // If an equipment instance object is passed, pull useful fields
+  if (typeof fullName === 'object' && fullName !== null) {
+    const equip = fullName as any;
+    if (typeof equip.name === 'string' && equip.name.trim()) {
+      fullName = equip.name;
+    } else if (typeof equip.id === 'string') {
+      // Use ID as a last-resort display name
+      fullName = equip.id;
+    } else if (typeof equip.typeId === 'string') {
+      fullName = equip.typeId;
+    } else {
+      return 'Unnamed Equipment';
+    }
+  }
+
+  if (typeof fullName !== 'string' || !fullName.trim()) {
+    return 'Unnamed Equipment';
+  }
+  // Split by whitespace and take the last segment
   const segments = fullName.trim().split(/\s+/);
   return segments[segments.length - 1];
 }

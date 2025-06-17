@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface PointPropertiesTagsProps {
-  point: any;
+  tags?: string[];
   className?: string;
 }
 
@@ -83,9 +83,8 @@ function extractMarkers(point: any): string[] {
   return markers;
 }
 
-export function PointPropertiesTags({ point, className = '' }: PointPropertiesTagsProps) {
-  const rawMarkers = extractMarkers(point);
-  const { valid: validMarkers } = validateTags(rawMarkers);
+export function PointPropertiesTags({ tags = [], className = '' }: PointPropertiesTagsProps) {
+  const { valid: validMarkers } = validateTags(tags);
   
   if (validMarkers.length === 0) {
     return (

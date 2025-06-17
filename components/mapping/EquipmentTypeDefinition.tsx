@@ -113,7 +113,9 @@ function componentReducer(state: ComponentState, action: ComponentAction): Compo
       } else {
         newSelected.add(action.instanceId);
       }
-      return { ...state, selectedInstances: newSelected };    case 'AUTO_GROUP_SIMILAR':
+      return { ...state, selectedInstances: newSelected };
+
+    case 'AUTO_GROUP_SIMILAR':
       const autoTypes = createAutoTypes(state.confirmedInstances, state.equipmentTypes);
       return {
         ...state,
@@ -124,8 +126,6 @@ function componentReducer(state: ComponentState, action: ComponentAction): Compo
       return state;
   }
 }
-
-
 
 // Auto-group similar instances into types
 function createAutoTypes(confirmedInstances: ConfirmedInstance[], existingTypes: EquipmentType[]): EquipmentType[] {
@@ -145,7 +145,83 @@ function createAutoTypes(confirmedInstances: ConfirmedInstance[], existingTypes:
   }
   
   return [];
-}export function EquipmentTypeDefinition({ 
+}
+
+function EquipmentTypeCard({
+  type,
+  onEdit,
+  onDelete,
+  onRemoveInstance,
+}: {
+  type: EquipmentType;
+  onEdit: (name: string, description: string) => void;
+  onDelete: () => void;
+  onRemoveInstance: (instanceId: string) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(type.name);
+
+  const handleSave = () => {
+    onEdit(editName, '');
+    setIsEditing(false);
+  };
+
+  const getTypeColor = () => {
+    // Simple hash function for consistent colors
+    let hash = 0;
+    for (let i = 0; i < type.classId.length; i++) {
+      hash = type.classId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return "00000".substring(0, 6 - color.length) + color;
+  };
+  
+  const borderColor = getTypeColor();
+
+  return (
+    <div className="bg-white rounded-lg shadow-md border-l-4" style={{ borderColor: `#${borderColor}`}}>
+      <div className="p-4">
+        {isEditing ? (
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded-md"
+            />
+            <div className="flex space-x-2">
+              <button onClick={handleSave} className="text-green-500"><CheckIcon className="h-5 w-5" /></button>
+              <button onClick={() => setIsEditing(false)} className="text-red-500"><XMarkIcon className="h-5 w-5" /></button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">{type.name}</h3>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">{type.instances.length} instances</span>
+              <button onClick={() => setIsEditing(true)} className="text-gray-400 hover:text-blue-500"><PencilIcon className="h-4 w-4" /></button>
+              <button onClick={onDelete} className="text-gray-400 hover:text-red-500"><TrashIcon className="h-4 w-4" /></button>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="px-4 pb-4">
+        <ul className="space-y-2">
+          {type.instances.map(instance => (
+            <li key={instance.id} className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded-md">
+              <span>{instance.name}</span>
+              <button onClick={() => onRemoveInstance(instance.id)} className="text-gray-400 hover:text-red-500">
+                <XMarkIcon className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export function EquipmentTypeDefinition({ 
   confirmedInstances, 
   onComplete 
 }: EquipmentTypeDefinitionProps) {
@@ -296,46 +372,26 @@ function createAutoTypes(confirmedInstances: ConfirmedInstance[], existingTypes:
                 </button>
               </div>
             )}
-          </div>          {/* Middle Panel: Equipment Types */}
-          <div className="bg-white rounded-lg border border-gray-200 flex flex-col">
-            <div className="border-b border-gray-200 px-4 py-3">
-              <h3 className="text-lg font-medium text-gray-900">
-                Equipment Types ({state.equipmentTypes.length})
-              </h3>
-              <p className="text-sm text-gray-500">
-                Defined equipment type templates
-              </p>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {state.equipmentTypes.map((type: EquipmentType) => (
+          </div>          {/* Middle Panel: Defined Equipment Types */}
+          <div className="col-span-1 bg-gray-100 rounded-lg p-4 overflow-y-auto space-y-4">
+            <h2 className="text-xl font-semibold">Defined Types</h2>
+            {state.equipmentTypes.length > 0 ? (
+              state.equipmentTypes.map(type => (
                 <EquipmentTypeCard
                   key={type.id}
                   type={type}
-                  instances={type.instances}
-                  onEdit={(name, description) => dispatch({ 
-                    type: 'EDIT_TYPE', 
-                    typeId: type.id, 
-                    name, 
-                    description 
-                  })}
+                  onEdit={(name, description) => dispatch({ type: 'EDIT_TYPE', typeId: type.id, name, description })}
                   onDelete={() => dispatch({ type: 'DELETE_TYPE', typeId: type.id })}
-                  onRemoveInstance={(instanceId) => dispatch({ 
-                    type: 'REMOVE_INSTANCE_FROM_TYPE', 
-                    typeId: type.id, 
-                    instanceId 
-                  })}
+                  onRemoveInstance={(instanceId) => dispatch({ type: 'REMOVE_INSTANCE_FROM_TYPE', typeId: type.id, instanceId })}
                 />
-              ))}
-
-              {state.equipmentTypes.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <TagIcon className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p>No equipment types created yet</p>
-                  <p className="text-sm">Select instances and create types to get started</p>
-                </div>
-              )}
-            </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500 pt-10">
+                <FolderPlusIcon className="h-12 w-12 mx-auto text-gray-400" />
+                <p className="mt-2">No types created yet.</p>
+                <p className="text-sm">Select instances and create a new type.</p>
+              </div>
+            )}
           </div>          {/* Right Panel: Type Preview & Actions */}
           <div className="bg-white rounded-lg border border-gray-200 flex flex-col">
             <div className="border-b border-gray-200 px-4 py-3">
@@ -475,117 +531,6 @@ function createAutoTypes(confirmedInstances: ConfirmedInstance[], existingTypes:
           </div>
         </div>
       )}
-    </div>
-  );
-}// Equipment Type Card Component
-interface EquipmentTypeCardProps {
-  type: EquipmentType;
-  instances: ConfirmedInstance[];
-  onEdit: (name: string, description: string) => void;
-  onDelete: () => void;
-  onRemoveInstance: (instanceId: string) => void;
-}
-
-function EquipmentTypeCard({ 
-  type, 
-  instances, 
-  onEdit, 
-  onDelete, 
-  onRemoveInstance 
-}: EquipmentTypeCardProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState(type.name);
-  const [editDescription, setEditDescription] = useState('');
-
-  const handleSave = () => {
-    onEdit(editName, editDescription);
-    setIsEditing(false);
-  };
-
-  const getTypeColor = () => {
-    return 'text-blue-600 bg-blue-100';
-  };
-
-  return (
-    <div className="border border-gray-200 rounded-lg p-4">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          {isEditing ? (
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="font-medium text-gray-900 border-b border-gray-300 focus:outline-none focus:border-blue-500 w-full"
-            />
-          ) : (
-            <h4 className="font-medium text-gray-900">{type.name}</h4>
-          )}
-          <div className="text-sm text-gray-500">{type.classId}</div>
-        </div>        
-        <div className="flex items-center space-x-2">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor()}`}>
-            {type.instances.length} instances
-          </span>
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <PencilIcon className="h-4 w-4" />
-          </button>
-          <button
-            onClick={onDelete}
-            className="text-gray-400 hover:text-red-600"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {isEditing ? (
-        <div className="space-y-2 mb-3">
-          <textarea
-            value={editDescription}
-            onChange={(e) => setEditDescription(e.target.value)}
-            placeholder="Description..."
-            className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-blue-500"
-            rows={2}
-          />
-          <div className="flex justify-end space-x-2">
-            <button
-              onClick={() => setIsEditing(false)}
-              className="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      ) : null}
-
-      <div className="space-y-1">
-        <div className="text-xs font-medium text-gray-700">
-          Instances ({instances.length}):
-        </div>
-        {instances.map(instance => (
-          <div
-            key={instance.id}
-            className="flex items-center justify-between text-xs bg-gray-50 rounded px-2 py-1"
-          >
-            <span className="truncate">{instance.name}</span>
-            <button
-              onClick={() => onRemoveInstance(instance.id)}
-              className="text-gray-400 hover:text-red-600 ml-1"
-            >
-              <XMarkIcon className="h-3 w-3" />
-            </button>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

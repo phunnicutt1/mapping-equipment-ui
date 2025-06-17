@@ -133,6 +133,7 @@ export interface GroupingState {
   selectedPoints: Set<string>;
   showCelebration: boolean;
   isComplete: boolean;
+  templateToInspect: EquipmentTemplate | null;
   // UI state for equipment expansion/collapse (human review process)
   expandedEquipmentTypes: Set<string>; // Which equipment type containers are expanded
   expandedEquipment: Set<string>; // Which individual equipment are expanded to show points

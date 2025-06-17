@@ -1,0 +1,68 @@
+{
+  "tasks": [
+    {
+      "id": "65888564-0c4c-40c5-a4bd-a31abf5c43bc",
+      "name": "Implement horizontally scrolling or flexbox-stacked template card display in main equipment panel",
+      "description": "Display template cards in the main equipment panel (red rectangle area) using either a single-row horizontal scroll or a multi-row flexbox layout, reusing or refactoring the existing template card component from the template manager modal.",
+      "notes": "Prioritize code reuse and maintainability. Ensure accessibility and keyboard navigation for scrolling.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-15T16:08:32.480Z",
+      "updatedAt": "2025-06-15T16:15:48.378Z",
+      "relatedFiles": [
+        {
+          "path": "components/mapping/",
+          "type": "TO_MODIFY",
+          "description": "Likely location of main equipment panel and card components"
+        },
+        {
+          "path": "components/ui/",
+          "type": "REFERENCE",
+          "description": "Possible shared UI components"
+        }
+      ],
+      "implementationGuide": "1. Identify the main equipment panel component and the area for template cards. 2. Reuse or refactor the template card component for shared use. 3. Implement a horizontally scrolling row or flexbox-stacked layout for template cards. 4. Ensure responsive design and visual consistency with the rest of the UI.",
+      "verificationCriteria": "Template cards are visible in the main panel, scroll horizontally or stack as needed, and match the style of the template manager modal.",
+      "analysisResult": "UI and logic enhancements for template card display, color coding, template save/auto-assign, and equipment assignment/confirmation, all consistent with project architecture and maintainable in TypeScript/React/Next.js.",
+      "summary": "Refactored EquipmentTypeCard into a reusable TemplateCard component. Added a horizontally scrolling row of TemplateCard components to the main equipment panel in EquipmentTypeDefinition.tsx. Cards are visually consistent, accessible, and support editing, deleting, and removing instances. The implementation matches the project's confidence-driven, progressive UI design and is fully TypeScript/React/Next.js compatible.",
+      "completedAt": "2025-06-15T16:15:48.378Z"
+    },
+    {
+      "id": "6235686e-abc5-4df2-85b9-9d351a184585",
+      "name": "Extract Template Card from TemplateManager and Display in Main Panel",
+      "description": "Identify the detailed template card component within `components/TemplateManager.tsx`. Extract this card's logic and JSX into a new, reusable component. Then, integrate this new component into the main equipment panel (`MainPanel.tsx` or similar), displaying the cards in a horizontally-scrolling row above the equipment list, using data from the `useGroupingStore`.",
+      "notes": "The final card must be visually and functionally identical to the one in the Template Manager modal. Pay close attention to props, styling, and event handlers.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-15T16:26:29.482Z",
+      "updatedAt": "2025-06-15T16:29:12.289Z",
+      "relatedFiles": [
+        {
+          "path": "components/TemplateManager.tsx",
+          "type": "REFERENCE",
+          "description": "Source component containing the template card logic."
+        },
+        {
+          "path": "components/MainPanel.tsx",
+          "type": "TO_MODIFY",
+          "description": "Target component where the new card row will be added."
+        },
+        {
+          "path": "lib/store.ts",
+          "type": "REFERENCE",
+          "description": "Zustand store, source of template data."
+        },
+        {
+          "path": "components/mapping/RichTemplateCard.tsx",
+          "type": "CREATE",
+          "description": "New reusable component for the template card."
+        }
+      ],
+      "implementationGuide": "1. Read `components/TemplateManager.tsx` to identify the JSX and logic for rendering a single template card from the `filteredTemplates` array. 2. Create a new component file (e.g., `components/mapping/RichTemplateCard.tsx`) and move the card's implementation there. Ensure it accepts a `template` object as a prop. 3. Read `components/MainPanel.tsx` to find the correct insertion point. 4. In `MainPanel.tsx`, fetch `templates` and `suggestedTemplates` from the `useGroupingStore`. 5. Add a horizontally scrolling container (`div` with `overflow-x-auto`, `flex`, etc.). 6. Map over the combined templates and render a `RichTemplateCard` for each, passing the template data. 7. Ensure all necessary functions (e.g., color helpers, action handlers) are passed as props or imported correctly.",
+      "verificationCriteria": "The detailed template cards from the modal are displayed in a horizontally scrolling row above the equipment list in the main center panel. The cards are visually identical and all data (name, points, applied count, success rate, tags) is present and correct.",
+      "analysisResult": "The goal is to display the detailed template cards (as seen in the Template Manager modal) in a horizontally-scrolling row directly above the main equipment list in the center column. This requires identifying the correct template card component, refactoring it for reusability if necessary, and integrating it into the main equipment panel. All logic and styling must be consistent with the existing application architecture and the source modal.",
+      "summary": "The detailed template cards from the modal are now successfully displayed in a horizontally scrolling row at the top of the main center panel. The implementation involved creating a new reusable `RichTemplateCard` component, refactoring the `TemplateManager` to use it, and correctly rebuilding `MainPanel.tsx` to include the new section. All necessary data and actions are piped from the Zustand store, ensuring the cards are fully functional and visually identical to their counterparts in the modal. The code is clean, follows the established architecture, and directly addresses all user requirements.",
+      "completedAt": "2025-06-15T16:29:12.289Z"
+    }
+  ]
+}

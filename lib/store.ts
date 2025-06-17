@@ -19,7 +19,7 @@ import {
   PointSignature,
   GroupingState,
 } from './types';
-import { generateRandomTemplateColor } from './utils';
+import { generateRandomTemplateColor, normalizePointName, calculateJaccardSimilarity } from './utils';
 import { processUploadedFiles } from './bacnet-processor';
 
 // All server-side processing has been moved to API routes.
@@ -56,11 +56,11 @@ interface GroupingActions {
   refineTemplate: (templateId: string, refinements: Partial<EquipmentTemplate>) => Promise<{ success: boolean; newTemplateId?: string }>;
   findSimilarEquipment: (templateId: string, threshold?: number) => Promise<TemplateSimilarityMatch[]>;
   applyTemplateMatch: (matchId: string, confirmed: boolean) => void;
-  addTemplateFeedback: (templateId: string, feedback: Omit<TemplateUserFeedback, 'id' | 'timestamp'>) => void;
+  addTemplateFeedback: (templateId: string, feedback: { rating: number; comment: string }) => Promise<void>;
   updateTemplateEffectiveness: (templateId: string, success: boolean, confidence?: number) => void;
   deactivateTemplate: (templateId: string) => void;
   activateTemplate: (templateId: string) => void;
-  exportTemplate: (templateId: string) => Promise<{ success: boolean; data?: string }>;
+  exportTemplate: (templateId: string) => Promise<void>;
   importTemplate: (templateData: string) => Promise<{ success: boolean; templateId?: string }>;
   calculateTemplateAnalytics: () => void;
   mergeTemplates: (templateIds: string[], newName: string) => Promise<{ success: boolean; newTemplateId?: string }>;
@@ -73,6 +73,10 @@ interface GroupingActions {
   approveNewEquipmentType: (candidateId: string) => Promise<{ success: boolean, typeId?: string }>;
   rejectNewEquipmentType: (candidateId: string, reason: string) => void;
   togglePerformanceDashboard: () => void;
+  findSimilarTemplates: (templateId: string) => Promise<void>;
+  inspectTemplatePoints: (template: EquipmentTemplate | null) => void;
+  deleteTemplate: (templateId: string) => void;
+  runTemplateAutoAssignment: () => void;
 }
 
 export const useGroupingStore = create<GroupingState & GroupingActions>((set, get) => ({
@@ -118,6 +122,7 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   anomalyDetectionResults: undefined,
   showPerformanceDashboard: false,
   analytics: null,
+  templateToInspect: null,
 
   // Actions
   loadProcessedData: async (equipment, points) => {
@@ -213,6 +218,9 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
       level: 'success',
       message: `Data loaded: ${result.equipmentInstances.length} equipment instances, ${result.allPoints.length} points.`
     });
+
+    // Run auto-assignment after data is set
+    get().runTemplateAutoAssignment();
   },
 
   uploadFiles: async (files) => {
@@ -686,11 +694,39 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
     // Recalculate analytics
     get().calculateTemplateAnalytics();
   },
-  addTemplateFeedback: (templateId, feedback) => {},
+  addTemplateFeedback: async (templateId, feedback) => {
+    // Placeholder for API call
+    console.log(`Adding feedback for template ${templateId}`, feedback);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  },
   updateTemplateEffectiveness: (templateId, success, confidence) => {},
-  deactivateTemplate: (templateId) => {},
-  activateTemplate: (templateId) => {},
-  exportTemplate: async (templateId) => { return { success: false }; },
+  deactivateTemplate: (templateId) => set(state => {
+    const allTemplates = [...state.templates, ...state.suggestedTemplates];
+    const template = allTemplates.find(t => t.id === templateId);
+    if (template) template.isActive = false;
+    return { ...state };
+  }),
+  activateTemplate: (templateId) => set(state => {
+    const allTemplates = [...state.templates, ...state.suggestedTemplates];
+    const template = allTemplates.find(t => t.id === templateId);
+    if (template) template.isActive = true;
+    return { ...state };
+  }),
+  exportTemplate: async (templateId) => {
+    // Placeholder for API call
+    console.log(`Exporting template ${templateId}`);
+    // This would trigger a file download
+    const template = [...get().templates, ...get().suggestedTemplates].find(t => t.id === templateId);
+    if (template) {
+      const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${template.name}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  },
   importTemplate: async (templateData) => { return { success: false }; },
   calculateTemplateAnalytics: () => {
     const state = get();
@@ -752,5 +788,60 @@ export const useGroupingStore = create<GroupingState & GroupingActions>((set, ge
   runAnomalyDetection: async (threshold) => { return {}; },
   approveNewEquipmentType: async (candidateId) => { return { success: false }; },
   rejectNewEquipmentType: (candidateId, reason) => {},
+  findSimilarTemplates: async (templateId) => {
+    // Placeholder for API call
+    console.log(`Finding similar templates for ${templateId}`);
+    // This would typically trigger a backend process
+    await new Promise(resolve => setTimeout(resolve, 500));
+    // The results would likely appear in the Template Manager or as notifications
+  },
+  inspectTemplatePoints: (template) => set({ templateToInspect: template }),
+  deleteTemplate: (templateId) => set(state => {
+    const updatedInstances = state.equipmentInstances.map(instance => {
+      if (instance.templateId === templateId) {
+        return { ...instance, status: 'suggested' as const, templateId: undefined };
+      }
+      return instance;
+    });
 
+    const updatedTemplates = state.templates.filter(t => t.id !== templateId);
+    const updatedSuggestedTemplates = state.suggestedTemplates.filter(t => t.id !== templateId);
+
+    return { 
+      equipmentInstances: updatedInstances,
+      templates: updatedTemplates,
+      suggestedTemplates: updatedSuggestedTemplates,
+    };
+  }),
+  runTemplateAutoAssignment: () => set(state => {
+    const activeTemplates = [...state.templates, ...state.suggestedTemplates]
+      .filter(t => t.isActive);
+    if (activeTemplates.length === 0) return {};
+
+    const updatedInstances = state.equipmentInstances.map(instance => {
+      if (instance.status !== 'suggested') return instance;
+
+      // Build a normalised signature for this equipment
+      const instancePoints = state.points.filter(p => instance.pointIds.includes(p.id));
+      const instanceSig = instancePoints
+        .map(p => normalizePointName(p.navName || p.dis || ''));
+
+      for (const template of activeTemplates) {
+        const templateSig = template.pointSignature
+          .map(ps => normalizePointName(ps.navName));
+
+        const score = calculateJaccardSimilarity(instanceSig, templateSig);
+        if (score >= template.similarityThreshold) {
+          return {
+            ...instance,
+            status: 'confirmed' as const,
+            templateId: template.id,
+          };
+        }
+      }
+      return instance;
+    });
+
+    return { equipmentInstances: updatedInstances };
+  }),
 }));

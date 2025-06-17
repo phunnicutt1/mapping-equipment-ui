@@ -5,6 +5,42 @@ import { CheckIcon, LinkSlashIcon, FlagIcon } from '@heroicons/react/24/outline'
 import { BACnetPoint } from '../lib/types';
 import PointPropertiesTags from './PointPropertiesTags';
 
+// Copied from PointPropertiesTags.tsx
+const ALLOWED_MARKERS = [
+  'bacnetPoint',
+  'cmd',
+  'cur', 
+  'his',
+  'point',
+  'writable'
+] as const;
+
+type AllowedMarker = typeof ALLOWED_MARKERS[number];
+
+function extractMarkers(point: any): string[] {
+  const markers: string[] = [];
+  
+  if (point.markers && Array.isArray(point.markers)) {
+    const allowedFromArray = point.markers.filter((marker: string) => 
+      ALLOWED_MARKERS.includes(marker as AllowedMarker)
+    );
+    markers.push(...allowedFromArray);
+  } else {
+    if (point.point === 'M' || point.point === true) markers.push('point');
+    if (point.cmd === 'M' || point.cmd === true) markers.push('cmd');
+    if (point.cur === 'M' || point.cur === true) markers.push('cur');
+    if (point.his === 'M' || point.his === true) markers.push('his');
+    if (point.writable === 'M' || point.writable === true) markers.push('writable');
+    if (point.bacnetPoint === 'M' || point.bacnetPoint === true) markers.push('bacnetPoint');
+  }
+  
+  if (!markers.includes('point')) {
+    markers.unshift('point');
+  }
+  
+  return markers;
+}
+
 interface PointCardProps {
   point: BACnetPoint;
   equipmentName?: string;
@@ -38,7 +74,7 @@ export function PointCard({
 
   const formatConfidence = (confidence: number) => {
     const percentage = confidence > 1 ? confidence : confidence * 100;
-    return `${Math.round(percentage)}% confidence`;
+    return `${Math.round(percentage)}%`;
   };
 
   const getStatusBadge = (status: string | undefined) => {
@@ -82,7 +118,7 @@ export function PointCard({
             )}
 
             <div className="flex items-center justify-between">
-              <PointPropertiesTags point={point} />
+              <PointPropertiesTags tags={extractMarkers(point)} />
               <div className="text-xs text-gray-500">
                 File: {point.fileName || 'Unknown'}
               </div>
@@ -221,7 +257,7 @@ export function PointCard({
 
       {/* Point Properties */}
       <div className="flex items-center justify-between">
-        <PointPropertiesTags point={point} />
+        <PointPropertiesTags tags={extractMarkers(point)} />
         <div className="text-sm text-gray-500">
           Source File: {point.fileName || 'Unknown'}
         </div>

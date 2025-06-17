@@ -23,6 +23,7 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 import { EquipmentTemplate, TemplateSimilarityMatch } from '../lib/types';
+import { RichTemplateCard } from './mapping/RichTemplateCard';
 
 interface TemplateManagerProps {
   isOpen: boolean;
@@ -46,7 +47,9 @@ export function TemplateManager({ isOpen, onClose }: TemplateManagerProps) {
     exportTemplate,
     importTemplate,
     calculateTemplateAnalytics,
-    mergeTemplates
+    mergeTemplates,
+    inspectTemplatePoints,
+    deleteTemplate,
   } = useGroupingStore();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'analytics' | 'matches'>('overview');
@@ -103,12 +106,17 @@ export function TemplateManager({ isOpen, onClose }: TemplateManagerProps) {
   const handleAddFeedback = async () => {
     if (selectedTemplate && feedbackText.trim()) {
       await addTemplateFeedback(selectedTemplate.id, {
-        feedbackType,
-        message: feedbackText,
-        equipmentInstanceId: undefined
+        rating: 5, // Default to a positive rating for now
+        comment: feedbackText,
       });
       setFeedbackText('');
       setShowFeedbackModal(false);
+    }
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    if (window.confirm('Are you sure you want to delete this template? This will release any assigned equipment.')) {
+      deleteTemplate(templateId);
     }
   };
 
@@ -293,119 +301,18 @@ export function TemplateManager({ isOpen, onClose }: TemplateManagerProps) {
               </div>
 
               {/* Templates Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                 {filteredTemplates.map(template => (
-                  <Card key={template.id} className="hover:shadow-lg transition-shadow">
-                    <Card.Header>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <Card.Title className="text-sm font-medium truncate">
-                            {template.name}
-                          </Card.Title>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge 
-                              variant={template.isMLGenerated ? "primary" : "outline"}
-                              size="sm"
-                            >
-                              {template.isMLGenerated ? 'ML' : 'User'}
-                            </Badge>
-                            <Badge 
-                              variant={template.isActive ? "success" : "secondary"}
-                              size="sm"
-                            >
-                              {template.isActive ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="text-lg">
-                          {getConfidenceEmoji(template.confidence)}
-                        </div>
-                      </div>
-                    </Card.Header>
-                    <Card.Content>
-                      <div className="space-y-3">
-                        <div className="text-xs text-gray-600">
-                          {template.description || 'No description'}
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500">Points:</span>
-                          <span className="font-medium">{template.pointSignature.length}</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500">Applied:</span>
-                          <span className="font-medium">{template.appliedCount}x</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500">Success Rate:</span>
-                                                          <span className={`font-medium px-2 py-1 rounded ${getEffectivenessColor(template.effectiveness?.successRate || 0)}`}>
-                                  {Math.round((template.effectiveness?.successRate || 0) * 100)}%
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap gap-1">
-                          {template.tags.slice(0, 3).map(tag => (
-                            <Badge key={tag} variant="outline" size="sm" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {template.tags.length > 3 && (
-                            <Badge variant="outline" size="sm" className="text-xs">
-                              +{template.tags.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="flex items-center space-x-2 pt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleFindSimilar(template.id)}
-                            className="flex-1"
-                          >
-                            <MagnifyingGlassIcon className="w-3 h-3 mr-1" />
-                            Find Similar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleExportTemplate(template.id)}
-                          >
-                            <DocumentArrowDownIcon className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedTemplate(template);
-                              setShowFeedbackModal(true);
-                            }}
-                          >
-                            <StarIcon className="w-3 h-3" />
-                          </Button>
-                          {template.isActive ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => deactivateTemplate(template.id)}
-                            >
-                              <XMarkIcon className="w-3 h-3" />
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => activateTemplate(template.id)}
-                            >
-                              <CheckIcon className="w-3 h-3" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </Card.Content>
-                  </Card>
+                  <RichTemplateCard
+                    key={template.id}
+                    template={template}
+                    onFindSimilar={handleFindSimilar}
+                    onExport={handleExportTemplate}
+                    onInspect={inspectTemplatePoints}
+                    onActivate={activateTemplate}
+                    onDeactivate={deactivateTemplate}
+                    onDelete={handleDeleteTemplate}
+                  />
                 ))}
               </div>
             </div>
@@ -587,4 +494,4 @@ export function TemplateManager({ isOpen, onClose }: TemplateManagerProps) {
       </div>
     </div>
   );
-} 
+}
