@@ -62,3 +62,4 @@ __pycache__/
 .Python
 
 sample_data/kordafranklinmhacc/*
+sample_data/.DS_Store
