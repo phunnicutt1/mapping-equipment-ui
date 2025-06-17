@@ -1,4 +1,4 @@
-device,DeviceId,Network,MAC
+equipment,DeviceId,Network,MAC
 AC-1,740306,7403,6
 AC-14N,740313,7403,13
 AC-14S,740305,7403,5

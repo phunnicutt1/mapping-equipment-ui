@@ -2,15 +2,41 @@
 
 echo "Setting up Python environment for BACnet clustering..."
 
-# Check if Python 3 is installed
-if ! command -v python3 &> /dev/null; then
-    echo "❌ Python 3 is not installed. Please install Python 3.8 or higher."
-    exit 1
+# -----------------------------------------------------------------------------
+# Locate a suitable Python interpreter (prefer stable 3.12 / 3.11 with ensurepip)
+# -----------------------------------------------------------------------------
+
+# Helper that returns the first interpreter found in the provided list
+find_python() {
+  for candidate in "$@"; do
+    if command -v "$candidate" &> /dev/null; then
+      echo "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Ordered preference list
+PYTHON_BIN=$(find_python python3.12 python3.11 python3)
+
+if [ -z "$PYTHON_BIN" ]; then
+  echo "❌ No suitable Python 3 interpreter found. Please install Python 3.11+ (with ensurepip)."
+  exit 1
 fi
 
-# Check Python version
-python_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-echo "✅ Found Python $python_version"
+# Verify that ensurepip works for the chosen interpreter
+if ! "$PYTHON_BIN" -m ensurepip --version &> /dev/null; then
+  echo "⚠️  $PYTHON_BIN does not have 'ensurepip'. Trying next candidate..."
+  PYTHON_BIN=$(find_python python3 python3.11 python3.12)  # fallback order
+  if [ -z "$PYTHON_BIN" ] || ! "$PYTHON_BIN" -m ensurepip --version &> /dev/null; then
+    echo "❌ Could not find a Python interpreter with working 'ensurepip'."
+    exit 1
+  fi
+fi
+
+python_version=$("$PYTHON_BIN" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+echo "✅ Using $PYTHON_BIN (Python $python_version)"
 
 # Remove existing venv if it exists but is broken
 if [ -d "venv" ] && [ ! -f "venv/bin/activate" ]; then
@@ -21,7 +47,7 @@ fi
 # Create virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
     echo "🔧 Creating Python virtual environment..."
-    python3 -m venv venv
+    "$PYTHON_BIN" -m venv venv
     
     # Check if creation was successful
     if [ ! -f "venv/bin/activate" ]; then
@@ -66,4 +92,15 @@ echo "To activate the virtual environment manually:"
 echo "  source venv/bin/activate"
 echo ""
 echo "To deactivate the virtual environment:"
-echo "  deactivate" 
+echo "  deactivate"
+
+# Verify ensurepip
+echo "🧪 Verifying ensurepip..."
+/opt/homebrew/bin/python3 -m ensurepip --version 
+
+# 1. Make sure the edited script is executable
+chmod +x scripts/setup_python.sh
+
+# 2. Start fresh
+rm -rf venv            # remove any half-built env
+./scripts/setup_python.sh

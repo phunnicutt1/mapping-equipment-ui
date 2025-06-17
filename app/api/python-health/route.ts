@@ -3,6 +3,20 @@ import { spawn } from 'child_process';
 import { join } from 'path';
 import { existsSync } from 'fs';
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface Diagnostics {
+  venvExists: boolean;
+  venvPythonExists: boolean;
+  systemPythonExists: boolean;
+  pythonVersion: string | null;
+  packagesInstalled: boolean;
+  setupInstructions: string[];
+  errors: string[];
+}
+
 // Server-side Python health check
 async function checkPythonServiceHealth(): Promise<{ isHealthy: boolean; details: string; duration: number }> {
   const startTime = Date.now();
@@ -61,8 +75,8 @@ async function checkPythonServiceHealth(): Promise<{ isHealthy: boolean; details
 }
 
 // Diagnostic function to check Python environment setup
-async function runPythonDiagnostics(): Promise<any> {
-  const diagnostics = {
+async function runPythonDiagnostics(): Promise<Diagnostics> {
+  const diagnostics: Diagnostics = {
     venvExists: false,
     venvPythonExists: false,
     systemPythonExists: false,

@@ -10,8 +10,12 @@ import json
 import numpy as np
 import time
 import traceback
-import psutil
+# Attempt to import psutil for resource monitoring; fall back gracefully if unavailable
 import os
+try:
+    import psutil  # type: ignore
+except ImportError:  # pragma: no cover
+    psutil = None
 from kmodes.kmodes import KModes
 from sklearn.metrics import silhouette_score
 import argparse
@@ -20,18 +24,30 @@ import argparse
 class PerformanceMonitor:
     def __init__(self):
         self.start_time = time.time()
-        self.process = psutil.Process(os.getpid())
-        self.initial_memory = self.process.memory_info().rss
+        if psutil is not None:
+            self.process = psutil.Process(os.getpid())
+            self.initial_memory = self.process.memory_info().rss
+        else:
+            # Fallback values when psutil is not available
+            self.process = None  # type: ignore
+            self.initial_memory = 0
         
     def get_metrics(self):
         current_time = time.time()
-        current_memory = self.process.memory_info().rss
+        if self.process is not None:
+            current_memory = self.process.memory_info().rss
+            cpu_percent = round(self.process.cpu_percent(), 2)
+            memory_delta = round((current_memory - self.initial_memory) / 1024 / 1024, 2)
+        else:
+            current_memory = 0
+            cpu_percent = 0.0
+            memory_delta = 0.0
         
         return {
             "execution_time_seconds": round(current_time - self.start_time, 3),
             "memory_usage_mb": round(current_memory / 1024 / 1024, 2),
-            "memory_delta_mb": round((current_memory - self.initial_memory) / 1024 / 1024, 2),
-            "cpu_percent": round(self.process.cpu_percent(), 2)
+            "memory_delta_mb": memory_delta,
+            "cpu_percent": cpu_percent
         }
 
 def log_debug(message, file=sys.stderr):
