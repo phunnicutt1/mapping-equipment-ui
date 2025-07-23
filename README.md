@@ -14,17 +14,19 @@ This system processes BACnet point data using a three-layer approach:
 
 ## 🚀 Quick Start
 
-# 1. Make sure the edited script is executable
-chmod +x scripts/setup_python.sh
+# 1\. Make sure the edited script is executable
 
-# 2. Start fresh
-rm -rf venv            # remove any half-built env
-./scripts/setup_python.sh
+chmod +x scripts/setup\_python.sh
+
+# 2\. Start fresh
+
+rm -rf venv # remove any half-built env  
+./scripts/setup\_python.sh
 
 You should now see the virtual environment created, pip upgraded, and all Python requirements—including psutil—installed cleanly. After that:
 
-source venv/bin/activate   # activate env whenever you work here
-npm run dev                # or your normal workflow
+source venv/bin/activate # activate env whenever you work here  
+npm run dev # or your normal workflow
 
 ### Prerequisites
 
