@@ -85,6 +85,12 @@ python -c "import kmodes, numpy, sklearn; print('✅ All dependencies working!')
     exit 1
 }
 
+# Verify ensurepip
+echo "🧪 Verifying ensurepip..."
+/opt/homebrew/bin/python3 -m ensurepip --version 
+
+
+
 echo "✅ Python environment setup complete!"
 echo "🐍 Virtual environment is ready in ./venv"
 echo ""
@@ -94,13 +100,11 @@ echo ""
 echo "To deactivate the virtual environment:"
 echo "  deactivate"
 
-# Verify ensurepip
-echo "🧪 Verifying ensurepip..."
-/opt/homebrew/bin/python3 -m ensurepip --version 
+
 
 # 1. Make sure the edited script is executable
-chmod +x scripts/setup_python.sh
+#chmod +x scripts/setup_python.sh
 
 # 2. Start fresh
-rm -rf venv            # remove any half-built env
-./scripts/setup_python.sh
+#rm -rf venv            # remove any half-built env
+#./scripts/setup_python.sh

@@ -163,6 +163,9 @@ let tagGenerationMetrics: TagGenerationMetrics = {
   tagValidationResults: { valid: 0, invalid: 0, warnings: 0 }
 };
 
+// Track total tags generated for proper average calculation
+let totalTagsGenerated = 0;
+
 const getTagsForPoint = (point: BACnetPoint): Set<string> => {
   const startTime = performance.now();
   
@@ -181,6 +184,7 @@ const getTagsForPoint = (point: BACnetPoint): Set<string> => {
   
   // Update metrics
   tagGenerationMetrics.totalPointsProcessed++;
+  totalTagsGenerated += tags.size;
   tagGenerationMetrics.processingTimeMs += performance.now() - startTime;
   
   // Update quality distribution
@@ -212,14 +216,17 @@ export const generateSignatures = (
 ): (EquipmentInstance & { featureVector: number[] })[] => {
   const startTime = performance.now();
   
-  // Reset metrics for this operation
-  tagGenerationMetrics = {
-    totalPointsProcessed: 0,
-    averageTagsPerPoint: 0,
-    tagQualityDistribution: {},
-    processingTimeMs: 0,
-    tagValidationResults: { valid: 0, invalid: 0, warnings: 0 }
-  };
+  // Initialize metrics if not already done (don't reset existing metrics)
+  if (tagGenerationMetrics.totalPointsProcessed === 0) {
+    tagGenerationMetrics = {
+      totalPointsProcessed: 0,
+      averageTagsPerPoint: 0,
+      tagQualityDistribution: {},
+      processingTimeMs: 0,
+      tagValidationResults: { valid: 0, invalid: 0, warnings: 0 }
+    };
+    totalTagsGenerated = 0;
+  }
   
   const pointsById = new Map(allPoints.map(p => [p.id, p]));
   const results = equipmentList.map(equipment => {
@@ -243,7 +250,7 @@ export const generateSignatures = (
   tagGenerationMetrics.processingTimeMs = endTime - startTime;
   tagGenerationMetrics.averageTagsPerPoint = 
     tagGenerationMetrics.totalPointsProcessed > 0 
-      ? Object.values(tagGenerationMetrics.tagQualityDistribution).reduce((a, b) => a + b, 0) / tagGenerationMetrics.totalPointsProcessed 
+      ? totalTagsGenerated / tagGenerationMetrics.totalPointsProcessed 
       : 0;
   
   console.log('🏷️ Tag Generation Metrics:', tagGenerationMetrics);
@@ -896,7 +903,7 @@ export const getPythonServiceMetrics = (): PythonServiceMetrics & {
   isRecentlyHealthy: boolean;
 } => {
   const successRate = serviceMetrics.totalCalls > 0 
-    ? (serviceMetrics.successfulCalls / serviceMetrics.totalCalls) * 100 
+    ? (serviceMetrics.successfulCalls / serviceMetrics.totalCalls) 
     : 0;
   
   const isRecentlyHealthy = serviceMetrics.lastHealthCheck 
@@ -1082,6 +1089,8 @@ export const resetPerformanceAnalytics = (): void => {
     processingTimeMs: 0,
     tagValidationResults: { valid: 0, invalid: 0, warnings: 0 }
   };
+  
+  totalTagsGenerated = 0;
   
   userInteractionMetrics = {
     confirmationRate: 0,

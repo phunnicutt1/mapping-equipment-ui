@@ -261,7 +261,11 @@ def detect_anomalies(X, cluster_labels, centroids, data, threshold_percentile=95
         dissimilarity = dissimilarity_scores[idx]
         
         # Determine confidence based on how much it exceeds threshold
-        confidence = min(100, int(((dissimilarity - threshold) / threshold) * 100 + 50))
+        if threshold > 0:
+            confidence = min(100, max(50, int(((dissimilarity - threshold) / threshold) * 100 + 50)))
+        else:
+            # If threshold is 0, base confidence on relative dissimilarity
+            confidence = min(100, max(50, int(dissimilarity * 100 + 50)))
         
         # Find similar anomalies
         similar_anomalies = []
@@ -274,11 +278,11 @@ def detect_anomalies(X, cluster_labels, centroids, data, threshold_percentile=95
         suggested_actions = generate_anomaly_suggestions(equipment, dissimilarity, threshold, similar_anomalies)
         
         anomaly = {
-            "id": equipment['id'],
-            "name": equipment['name'],
+            "id": str(equipment['id']),
+            "name": str(equipment['name']),
             "pointIds": equipment.get('pointIds', []),
             "dissimilarityScore": float(dissimilarity),
-            "confidence": confidence,
+            "confidence": int(confidence),
             "status": "detected",
             "detectionMethod": "dissimilarity-threshold",
             "detectedAt": time.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
@@ -354,14 +358,18 @@ def generate_anomaly_suggestions(equipment, dissimilarity, threshold, similar_an
     suggestions = []
     
     # Calculate how anomalous this equipment is
-    anomaly_strength = (dissimilarity - threshold) / threshold
+    if threshold > 0:
+        anomaly_strength = (dissimilarity - threshold) / threshold
+    else:
+        # If threshold is 0, use dissimilarity directly as strength
+        anomaly_strength = dissimilarity
     
     if len(similar_anomalies) >= 2:
         # High confidence suggestion to create new type
         suggestions.append({
             "type": "create-new-type",
             "description": f"Group with {len(similar_anomalies)} similar anomalies to create new equipment type",
-            "confidence": min(90, int(70 + anomaly_strength * 20)),
+            "confidence": int(min(90, max(70, 70 + float(anomaly_strength) * 20))),
             "similarAnomalyIds": similar_anomalies
         })
         
@@ -383,7 +391,7 @@ def generate_anomaly_suggestions(equipment, dissimilarity, threshold, similar_an
             suggestions.append({
                 "type": "assign-to-existing",
                 "description": "Consider assigning to most similar existing equipment type",
-                "confidence": int(60 - anomaly_strength * 30)
+                "confidence": int(max(10, 60 - float(anomaly_strength) * 30))
             })
     
     return suggestions
@@ -481,12 +489,12 @@ def cluster_equipment(data):
         # Prepare results
         clustered_equipment = []
         for i, equipment in enumerate(data):
-            score = silhouette_scores[i]
+            score = float(silhouette_scores[i])
             confidence = int(((score + 1) / 2) * 100)  # Convert to 0-100 scale
             
             result_equipment = equipment.copy()
             result_equipment['cluster'] = int(cluster_labels[i])
-            result_equipment['confidence'] = max(0, min(100, confidence))
+            result_equipment['confidence'] = int(max(0, min(100, confidence)))
             result_equipment['status'] = 'needs-review' if confidence < 50 else 'suggested'
             
             clustered_equipment.append(result_equipment)
