@@ -73,6 +73,18 @@ const getPointColor = (pointName: string) => {
   return '#a8a8a8'; // Gray for unknown
 };
 
+// Check if a point is a known type (not generic/unknown)
+const isKnownPointType = (pointName: string) => {
+  const name = pointName.toLowerCase();
+  return name.includes('temp') || name.includes('temperature') ||
+         name.includes('pressure') || name.includes('press') ||
+         name.includes('flow') || name.includes('cfm') || name.includes('gpm') ||
+         name.includes('status') || name.includes('state') || name.includes('enable') ||
+         name.includes('setpoint') || name.includes('set') ||
+         name.includes('command') || name.includes('cmd') ||
+         name.includes('alarm') || name.includes('alert');
+};
+
 // Equipment SVG symbols
 const EquipmentSymbol: React.FC<{ 
   type: string; 
@@ -231,30 +243,43 @@ export const EquipmentVisualization: React.FC<EquipmentVisualizationProps> = ({
 }) => {
   const [hoveredEquipment, setHoveredEquipment] = useState<string | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
+  const [showUnknownPoints, setShowUnknownPoints] = useState<boolean>(false);
 
   // Process data into visualization nodes
-  const { equipmentNodes, pointNodes, connections } = useMemo(() => {
+  const { equipmentNodes, pointNodes, connections, calculatedHeight, calculatedWidth } = useMemo(() => {
     const equipmentNodes: EquipmentNode[] = [];
     const pointNodes: PointNode[] = [];
     const connections: Array<{ equipmentId: string; pointId: string }> = [];
 
-    // Create equipment nodes in a grid layout
-    const cols = Math.ceil(Math.sqrt(equipment.length));
-    const equipmentSpacing = Math.min(width / (cols + 1), 150);
+    // Create equipment nodes in a grid layout with better spacing
+    const cols = Math.min(Math.ceil(Math.sqrt(equipment.length)), 8); // Max 8 columns for better layout
+    const rows = Math.ceil(equipment.length / cols);
+    const horizontalSpacing = 250; // Reduced for more compact layout
+    const verticalSpacing = 220; // Reduced vertical spacing
+    
+    // Calculate dynamic dimensions
+    const calculatedWidth = Math.max(width, (cols + 1) * horizontalSpacing);
+    const calculatedHeight = Math.max(height, (rows + 1) * verticalSpacing);
     
     equipment.forEach((eq, index) => {
       const row = Math.floor(index / cols);
       const col = index % cols;
-      const x = (col + 1) * equipmentSpacing + (width - cols * equipmentSpacing) / 2;
-      const y = (row + 1) * 120 + 80;
+      const x = (col + 1) * horizontalSpacing;
+      const y = (row + 1) * verticalSpacing;
 
       // Get points for this equipment
-      const equipmentPoints = points.filter(point => 
+      const allEquipmentPoints = points.filter(point => 
         point.equipRef === eq.id || 
         point.equipRef === eq.name ||
         (point.navName && point.navName.includes(eq.name)) ||
         (point.dis && point.dis.includes(eq.name))
       );
+
+      // Filter points based on showUnknownPoints setting
+      const equipmentPoints = showUnknownPoints 
+        ? allEquipmentPoints
+        : allEquipmentPoints.filter(point => 
+            isKnownPointType(point.navName || point.dis || ''));
 
       equipmentNodes.push({
         id: eq.id,
@@ -262,14 +287,14 @@ export const EquipmentVisualization: React.FC<EquipmentVisualizationProps> = ({
         type: eq.typeId || 'generic',
         x,
         y,
-        points: equipmentPoints,
+        points: allEquipmentPoints, // Keep all points for reference
         confidence: eq.confidence || 0
       });
 
-      // Create point nodes around equipment
+      // Create point nodes around equipment with smaller radius
       equipmentPoints.forEach((point, pointIndex) => {
         const angle = (pointIndex / equipmentPoints.length) * 2 * Math.PI;
-        const radius = 80;
+        const radius = 80; // Decreased radius for more compact visualization
         const pointX = x + Math.cos(angle) * radius;
         const pointY = y + Math.sin(angle) * radius;
 
@@ -291,37 +316,49 @@ export const EquipmentVisualization: React.FC<EquipmentVisualizationProps> = ({
       });
     });
 
-    return { equipmentNodes, pointNodes, connections };
-  }, [equipment, points, width, height]);
+    return { equipmentNodes, pointNodes, connections, calculatedHeight, calculatedWidth };
+  }, [equipment, points, width, height, showUnknownPoints]);
 
   return (
     <div className="equipment-visualization">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800">Equipment Visualization</h3>
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-            <span>Temperature</span>
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+              <span>Temperature</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+              <span>Flow</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-teal-400 rounded-full"></div>
+              <span>Pressure</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+              <span>Status</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-            <span>Flow</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-teal-400 rounded-full"></div>
-            <span>Pressure</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-            <span>Status</span>
-          </div>
+          <button
+            onClick={() => setShowUnknownPoints(!showUnknownPoints)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              showUnknownPoints 
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            {showUnknownPoints ? 'Hide Unknown Points' : 'Show Unknown Points'}
+          </button>
         </div>
       </div>
 
-      <div className="border rounded-lg bg-white shadow-sm overflow-hidden">
-        <svg width={width} height={height} className="w-full h-auto">
+      <div className="border rounded-lg bg-white shadow-sm overflow-auto">
+        <svg width={calculatedWidth} height={calculatedHeight} className="min-w-full">
           {/* Background */}
-          <rect width={width} height={height} fill="#fafafa"/>
+          <rect width={calculatedWidth} height={calculatedHeight} fill="#fafafa"/>
           
           {/* Grid Pattern */}
           <defs>
@@ -329,7 +366,7 @@ export const EquipmentVisualization: React.FC<EquipmentVisualizationProps> = ({
               <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="1" opacity="0.3"/>
             </pattern>
           </defs>
-          <rect width={width} height={height} fill="url(#grid)"/>
+          <rect width={calculatedWidth} height={calculatedHeight} fill="url(#grid)"/>
 
           {/* Connection Lines */}
           {connections.map(({ equipmentId, pointId }) => {
@@ -466,11 +503,20 @@ export const EquipmentVisualization: React.FC<EquipmentVisualizationProps> = ({
         </div>
         <div className="bg-white p-3 rounded-lg border">
           <div className="text-gray-500">Points</div>
-          <div className="text-xl font-bold text-gray-800">{pointNodes.length}</div>
+          <div className="text-xl font-bold text-gray-800">
+            {pointNodes.length}
+            {!showUnknownPoints && (
+              <span className="text-sm text-gray-500 ml-1">
+                (known)
+              </span>
+            )}
+          </div>
         </div>
         <div className="bg-white p-3 rounded-lg border">
           <div className="text-gray-500">Connections</div>
-          <div className="text-xl font-bold text-gray-800">{connections.length}</div>
+          <div className="text-xl font-bold text-gray-800">
+            {connections.length}
+          </div>
         </div>
         <div className="bg-white p-3 rounded-lg border">
           <div className="text-gray-500">Avg Confidence</div>
